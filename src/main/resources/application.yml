@@ -1,0 +1,26 @@
+server:
+  port:
+
+logging:
+  level:
+    com.neprozorro: INFO
+
+spring:
+  output:
+    ansi:
+      enabled: ALWAYS
+  datasource:
+    url: jdbc:postgresql://localhost:5432/postgres?currentSchema=neprozorro
+    username: postgres
+    password: 123
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        order_by:
+          default_null_ordering: last
