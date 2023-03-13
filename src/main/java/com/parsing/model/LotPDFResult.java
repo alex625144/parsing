@@ -22,7 +22,7 @@ import java.util.UUID;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "LotPDFResult")
+@Table(name = "lot_pdf_result")
 public class LotPDFResult {
 
     @Id
@@ -36,7 +36,7 @@ public class LotPDFResult {
     @Column(name = "amount")
     private int amount;
 
-    @Column(name = "totalAmount")
+    @Column(name = "total_amount")
     private int totalAmount;
 
     @Column(name = "model")
