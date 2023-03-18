@@ -22,8 +22,8 @@ import java.util.UUID;
 @Getter
 @Builder
 @ToString
-@Table(name = "lot")
-public class Lot {
+@Table(name = "lot_result")
+public class LotResult {
 
     @Id
     @Column(name = "id")
