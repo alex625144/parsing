@@ -20,6 +20,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static com.parsing.parsers.parserLot.Constants.END_DATE;
+import static com.parsing.parsers.parserLot.Constants.START_DATE;
+
 @RequiredArgsConstructor
 @Slf4j
 @Service
@@ -28,6 +31,7 @@ public class ParserLotService {
 
     private final LotResultRepository lotRepository;
 
+    @Transactional
     public void parsering(List<String> urls) throws IOException {
         for (String url : urls) {
             Document document = Jsoup.connect(url).get();
@@ -45,17 +49,11 @@ public class ParserLotService {
             }
             String dk = source.substring(start,end);
             String uri = url;
-            //parse pdfLink
             Element elements = document.getElementsByClass("infobox-link").first();
             if (elements != null) {
                 Element el = elements.getElementsByTag("a").first();
                 String pdfLink = el.attr("href");
                 LotResult lot = new LotResult();
-
-
-                System.out.println("dk " + dk);
-                System.out.println("pdflink " + pdfLink);
-                System.out.println("uri " + uri);
 
                 Element elementos = document.getElementsByClass("green tender--description--cost--number").first();
                 String element = elementos.getElementsByTag("strong").toString();
@@ -63,14 +61,11 @@ public class ParserLotService {
                 String elss = els.replaceAll("<span class=\"small\">UAH</span></strong>", "");
                 String elsss = elss.replaceAll(" ", "");
                 String elssss = elsss.replaceAll(",", ".");
-                System.out.println(elssss);
                 BigDecimal price = new BigDecimal(elssss);
 
                 String date = uri.replaceAll("https://prozorro.gov.ua/tender/UA-", "");
                 String dates = date.substring(0, 10);
                 LocalDate data = LocalDate.parse(dates);
-                System.out.println(data.toString());
-
                 lot.setDk(dk);
                 lot.setParsingDate(data);
                 lot.setPdfLink(pdfLink);
@@ -78,14 +73,13 @@ public class ParserLotService {
                 lot.setStatus(Status.PARSED);
                 lot.setUrl(uri);
                 lotRepository.save(lot);
-                lotRepository.flush();
-                System.out.println("saved");
+                log.debug("saved");
             }
         }
 
     }
 
-    public List<String> prepareURI(LocalDate START_DATE, LocalDate END_DATE) {
+    public List<String> prepareURI() {
         Constants constants = new Constants();
         List<String> listDates = constants.createDates(START_DATE, END_DATE);
         List<String> listLots = constants.createrCounter();

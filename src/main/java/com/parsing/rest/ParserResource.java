@@ -10,18 +10,20 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 
+import static com.parsing.parsers.parserLot.Constants.END_DATE;
+import static com.parsing.parsers.parserLot.Constants.START_DATE;
+
 @RestController
 @RequiredArgsConstructor
 public class ParserResource {
 
     private final ParserLotService parserLotService;
-    LocalDate START_DATE = LocalDate.of(2023, 02, 21);
-    LocalDate END_DATE = LocalDate.of(2023, 02, 21);
+
 
     @GetMapping("/parserProzorro")
     @ResponseStatus(HttpStatus.FOUND)
     public void parsing () throws IOException {
-        List<String> urls = parserLotService.prepareURI(START_DATE, END_DATE);
+        List<String> urls = parserLotService.prepareURI();
         parserLotService.parsering(urls);
     }
 }
