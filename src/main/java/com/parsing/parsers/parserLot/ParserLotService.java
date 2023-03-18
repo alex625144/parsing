@@ -32,7 +32,7 @@ public class ParserLotService {
     private final LotResultRepository lotRepository;
 
     @Transactional
-    public void parsering(List<String> urls) throws IOException {
+    public void parse(List<String> urls) throws IOException {
         for (String url : urls) {
             Document document = Jsoup.connect(url).get();
             String source = document.getElementsByClass("tender-date padding-left-more").toString();
