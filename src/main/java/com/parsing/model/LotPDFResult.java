@@ -22,7 +22,7 @@ import java.util.UUID;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "LotPDFResult")
+@Table(name = "lot_pdf_result")
 public class LotPDFResult {
 
     @Id
@@ -44,5 +44,5 @@ public class LotPDFResult {
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "Lot.id", referencedColumnName = "id")
-    private Lot lot;
+    private LotResult lot;
 }

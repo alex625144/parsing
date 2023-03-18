@@ -22,29 +22,29 @@ import java.util.UUID;
 @Getter
 @Builder
 @ToString
-@Table(name = "Lot")
-public class Lot {
+@Table(name = "lot_result")
+public class LotResult {
 
     @Id
     @Column(name = "id")
     @GeneratedValue(generator = "UUID")
     private UUID id;
 
-    @Column(name = "DK")
+    @Column(name = "dk")
     private String dk;
 
-    @Column(name = "URL")
+    @Column(name = "url")
     private String url;
 
-    @Column(name = "PDFLink")
+    @Column(name = "pdf_link")
     private String pdfLink;
 
-    @Column(name = "Status")
+    @Column(name = "status")
     private Status status;
 
     @Column(name = "price")
     private BigDecimal price;
 
-    @Column(name = "parsingDate")
+    @Column(name = "parsing_date")
     private LocalDate parsingDate;
 }
