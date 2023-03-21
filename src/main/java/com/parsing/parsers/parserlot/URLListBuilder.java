@@ -1,7 +1,6 @@
 package com.parsing.parsers.parserlot;
 
 import lombok.extern.slf4j.Slf4j;
-
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.ArrayList;

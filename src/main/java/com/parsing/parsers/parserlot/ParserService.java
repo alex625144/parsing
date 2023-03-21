@@ -10,7 +10,6 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -33,7 +32,7 @@ public class ParserService {
     @Transactional
     public void parse() throws IOException {
         for (String url : urls) {
-            log.debug("Starting debugging for url " + url);
+            log.debug("Starting parsing for url " + url);
             Document document = Jsoup.connect(url).get();
             Element element = document.getElementsByClass("infobox-link").first();
             if (Objects.nonNull(element)) {
