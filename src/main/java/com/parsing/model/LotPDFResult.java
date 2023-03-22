@@ -36,13 +36,13 @@ public class LotPDFResult {
     @Column(name = "amount")
     private int amount;
 
-    @Column(name = "totalAmount")
+    @Column(name = "total_amount")
     private int totalAmount;
 
     @Column(name = "model")
     private String model;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "Lot.id", referencedColumnName = "id")
+    @JoinColumn(name = "LotResult.id", referencedColumnName = "id")
     private LotResult lot;
 }
