@@ -1,16 +1,19 @@
 package com.parsing.rozetka;
 
-import com.parsing.model.LotResult;
+import com.parsing.model.LaptopItem;
 import com.parsing.model.RozetkaParsingReport;
+import com.parsing.model.Status;
 import com.parsing.repository.LotRepository;
 import com.parsing.repository.RozetkaParsingResultRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Component
@@ -19,15 +22,20 @@ public class RozetkaParser {
     private final String URL = "https://rozetka.com.ua/search/";
     private final String SEARCH_PARAM = "?text=";
 
+    private final Long TEN_MINUTES = 600000L;
+
     private final LotRepository lotRepository;
     private final RozetkaParsingResultRepository rozetkaParsingResultRepository;
+
+    @Scheduled(initialDelay = TEN_MINUTES, fixedDelay = TEN_MINUTES)
+    public void scheduledParsing() {
+        var lots = lotRepository.findAllByStatus(Status.PDF_SUCCESSFULL);
+    }
 
     @SneakyThrows
     public String searchPriceByModel(String model) {
         Document document = Jsoup.connect(httpBuilder(model)).get();
         String source = document.getElementById("rz-client-state").toString();
-
-        //TODO: check for an answer without a model
 
         String price = "";
         String[] splitedSours = source.split(";price&q;:");
@@ -37,8 +45,10 @@ public class RozetkaParser {
         return price;
     }
 
-    private List<String> getModelsFromResultLot(LotResult lot) {
-        return  null;
+    private List<String> getModelsFromLotResult(List<LaptopItem> items) {
+        return items.stream()
+                .map(LaptopItem::getModel)
+                .collect(Collectors.toList());
     }
 
     public RozetkaParsingReport savePriceToResultReport(RozetkaParsingReport parsingReport) {
