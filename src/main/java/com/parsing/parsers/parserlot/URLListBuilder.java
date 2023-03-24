@@ -50,7 +50,6 @@ public class URLListBuilder {
                 result.add(i, "0" + listString.get(i));
             }
         }
-        System.out.println(result.toString());
         return result;
     }
 
