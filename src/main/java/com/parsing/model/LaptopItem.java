@@ -24,17 +24,17 @@ public class LaptopItem {
 
     @Id
     @GeneratedValue(generator = "UUID")
-    @Column(name = "id", nullable = false)
-    UUID itemId;
+    @Column(name = "id")
+    private UUID id;
 
     @Column(name = "model")
-    String model;
+    private String model;
 
     @Column(name = "amount")
-    int amount;
+    private int amount;
 
     @Column(name = "price")
-    BigDecimal price;
+    private BigDecimal price;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private LotPDFResult lotPDFResult;
