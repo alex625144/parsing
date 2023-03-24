@@ -49,7 +49,7 @@ public class LotPDFResult {
     @JoinColumn(name = "LotResult.id", referencedColumnName = "id")
     private LotResult lot;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<LaptopItem> laptopItems = new ArrayList<>();
+    @OneToMany(mappedBy = "lotPDFResult")
+    private List<LaptopItem> laptopItems;
 
 }

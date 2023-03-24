@@ -36,18 +36,18 @@ public class URLListBuilder {
     private static List<String> createDayLots() {
         List<Integer> lots = IntStream.range(START_LOT,END_LOT).boxed().toList();
         List<String> listString = lots.stream().map(Object::toString).toList();
-        List<String> result = new ArrayList<>();
+        List<String> result = new ArrayList<>(listString.size());
         for (int i = 0; i < listString.size(); i++) {
             if (listString.get(i).length() == 1) {
-                result.add(i, "00000" + listString.get(i));
+                result.add("00000" + listString.get(i));
             } else if (listString.get(i).length() == 2) {
-                result.add(i, "0000" + listString.get(i));
+                result.add("0000" + listString.get(i));
             } else if (listString.get(i).length() == 3) {
-                result.add(i, "000" + listString.get(i));
+                result.add("000" + listString.get(i));
             } else if (listString.get(i).length() == 4) {
-                result.add(i, "00" + listString.get(i));
+                result.add("00" + listString.get(i));
             } else if (listString.get(i).length() == 5) {
-                result.add(i, "0" + listString.get(i));
+                result.add("0" + listString.get(i));
             }
         }
         return result;
