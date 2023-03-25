@@ -15,7 +15,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -47,9 +46,8 @@ public class LotPDFResult {
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "LotResult.id", referencedColumnName = "id")
-    private LotResult lot;
+    private LotResult lotResult;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "lotPDFResult")
     private List<LaptopItem> laptopItems;
-
 }
