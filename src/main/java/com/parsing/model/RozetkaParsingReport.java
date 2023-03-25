@@ -8,14 +8,16 @@ import jakarta.persistence.Table;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.FetchType;
-import lombok.Data;
+import lombok.Setter;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.math.BigDecimal;
 import java.util.UUID;
 
 @Entity
-@Data
+@Getter
+@Setter
 @RequiredArgsConstructor
 @Table(name = "rozetka_parsing_report")
 public class RozetkaParsingReport {
@@ -38,6 +40,6 @@ public class RozetkaParsingReport {
     private BigDecimal marketPrice;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "lot_result_Id")
-    private LotResult lot;
+    @JoinColumn(name = "LotResult.id", referencedColumnName = "id")
+    private LotResult lotResult;
 }
