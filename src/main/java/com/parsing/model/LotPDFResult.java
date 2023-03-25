@@ -49,7 +49,7 @@ public class LotPDFResult {
     @JoinColumn(name = "LotResult.id", referencedColumnName = "id")
     private LotResult lot;
 
-    @OneToMany(mappedBy = "lotPDFResult")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "lotPDFResult")
     private List<LaptopItem> laptopItems;
 
 }
