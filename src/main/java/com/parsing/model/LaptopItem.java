@@ -41,6 +41,6 @@ public class LaptopItem {
     private BigDecimal price;
 
     @ManyToOne()
-    @JoinColumn(name = "id")
+    @JoinColumn(name = "LotPDFResult.id")
     private LotPDFResult lotPDFResult;
 }
