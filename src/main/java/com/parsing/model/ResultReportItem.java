@@ -20,10 +20,10 @@ import java.util.UUID;
 @Entity
 @Setter
 @Getter
-@ToString(exclude = "resultReport")
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "result_report")
+@Table(name = "result_report_item")
 public class ResultReportItem {
 
     @Id
