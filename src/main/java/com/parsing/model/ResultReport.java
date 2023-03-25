@@ -11,7 +11,6 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.Getter;
-import lombok.ToString;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -20,7 +19,6 @@ import java.util.UUID;
 @Entity
 @Setter
 @Getter
-@ToString
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "result_report")
