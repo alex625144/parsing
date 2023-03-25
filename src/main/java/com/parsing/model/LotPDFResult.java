@@ -6,6 +6,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -14,6 +15,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -45,4 +48,8 @@ public class LotPDFResult {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "LotResult.id", referencedColumnName = "id")
     private LotResult lot;
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "lotPDFResult")
+    private List<LaptopItem> laptopItems;
+
 }
