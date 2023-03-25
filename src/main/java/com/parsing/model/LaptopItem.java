@@ -12,6 +12,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
+
 import java.math.BigDecimal;
 import java.util.UUID;
 
@@ -20,6 +22,7 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString(exclude = "lotPDFResult")
 @Table(name = "laptop_item")
 public class LaptopItem {
 
