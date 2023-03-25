@@ -1,15 +1,24 @@
 package com.parsing.model;
 
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Table;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.CascadeType;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.Getter;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
 @Setter
 @Getter
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "result_report")
@@ -29,18 +38,9 @@ public class ResultReport {
     @Column(name = "lot_price")
     private BigDecimal lotPrice;
 
-    @Column(name = "market_price")
-    private BigDecimal marketPrice;
-
-    @Column(name = "price_violation")
-    private Integer priceViolation;
-
-    @Column(name = "total_price_violation")
-    private Integer totalPriceViolation;
-
-    @Column(name = "amount")
-    private Integer amount;
+    @OneToMany(mappedBy = "resultReport", cascade = CascadeType.ALL)
+    List<ResultReportItem> items;
 
     @Column(name = "total_amount")
-    private Integer totalAmount;
+    private BigDecimal totalAmount;
 }

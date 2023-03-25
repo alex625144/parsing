@@ -8,38 +8,40 @@ import jakarta.persistence.Table;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.FetchType;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 import java.math.BigDecimal;
 import java.util.UUID;
 
 @Entity
-@Getter
 @Setter
-@RequiredArgsConstructor
-@Table(name = "rozetka_parsing_report")
-public class RozetkaParsingReport {
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@Table(name = "result_report_item")
+public class ResultReportItem {
 
     @Id
     @GeneratedValue(generator = "UUID")
-    @Column(name = "id")
+    @Column(name = "Id")
     private UUID Id;
 
     @Column(name = "model")
     private String model;
 
-    @Column(name = "search_url")
-    private String searchURL;
-
-    @Column(name = "laptop_url")
-    private String laptopURL;
+    @Column(name = "amount")
+    private BigDecimal amount;
 
     @Column(name = "market_price")
     private BigDecimal marketPrice;
 
+    @Column(name = "price_violation")
+    private BigDecimal priceViolation;
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "LotResult.id", referencedColumnName = "id")
-    private LotResult lotResult;
+    @JoinColumn(name = "ResultReport.id", referencedColumnName = "id")
+    private ResultReport resultReport;
 }
