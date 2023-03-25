@@ -44,6 +44,6 @@ public class ResultReportItem {
     private BigDecimal priceViolation;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "result_report_id")
+    @JoinColumn(name = "ResultReport.id", referencedColumnName = "id")
     private ResultReport resultReport;
 }
