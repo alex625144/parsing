@@ -33,9 +33,6 @@ public class RozetkaParsingReport {
     @Column(name = "search_url")
     private String searchURL;
 
-    @Column(name = "laptop_url")
-    private String laptopURL;
-
     @Column(name = "market_price")
     private BigDecimal marketPrice;
 

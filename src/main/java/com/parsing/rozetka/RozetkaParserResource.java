@@ -11,10 +11,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/rozetka-parser")
 public class RozetkaParserResource {
 
-    private final RozetkaParserSevice rozetkaSevice;
+    private final RozetkaParserService rozetkaSevice;
 
-    @GetMapping("/{laptop}")
-    public String findPriceByURL(@PathVariable String laptop) {
-        return rozetkaSevice.findPriceByURL(laptop);
+    @GetMapping("/{model}")
+    public String findPriceByModel(@PathVariable String model) {
+        return rozetkaSevice.findPriceByModel(model);
     }
 }

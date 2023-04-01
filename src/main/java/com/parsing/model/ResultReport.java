@@ -42,5 +42,5 @@ public class ResultReport {
     List<ResultReportItem> items;
 
     @Column(name = "total_amount")
-    private BigDecimal totalAmount;
+    private BigDecimal totalPriceViolation;
 }

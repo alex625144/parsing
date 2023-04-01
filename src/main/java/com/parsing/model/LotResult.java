@@ -6,6 +6,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -46,6 +47,9 @@ public class LotResult {
 
     @Column(name = "price")
     private BigDecimal price;
+
+    @OneToOne
+    private LotPDFResult lotPDFResult;
 
     @Column(name = "parsing_date")
     private LocalDate parsingDate;
