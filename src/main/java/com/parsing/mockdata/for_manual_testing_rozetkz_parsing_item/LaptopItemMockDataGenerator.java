@@ -33,6 +33,8 @@ public class LaptopItemMockDataGenerator {
         if (pdfResult.getLaptopItems() != null ) return  pdfResult.getLaptopItems();
 
         List<LaptopItem> laptopItems = new ArrayList<>();
+        int minPriceViolation = 0;
+        int maxPriceViolation = 25_000;
         int amount = getAverageAmount(pdfResult);
         int minItems = 1;
         int maxItems = amount + 1;
@@ -54,7 +56,7 @@ public class LaptopItemMockDataGenerator {
             laptopItems.add(laptopItem);
         }
 
-        pdfResult.getLotResult().setPrice(amountPrice);
+        pdfResult.getLotResult().setPrice(amountPrice.add(BigDecimal.valueOf(ThreadLocalRandom.current().nextInt(minPriceViolation, maxPriceViolation))));
         laptopItemRepository.saveAll(laptopItems);
         return laptopItems;
     }
