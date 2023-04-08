@@ -1,6 +1,6 @@
 package com.parsing.mockdata.resource;
 
-import com.parsing.mockdata.for_manual_testing_rozetkz_parsing_item.LotResultMockDataGenerator;
+import com.parsing.mockdata.rozetka_parsing_item.LotResultMockDataGenerator;
 import com.parsing.model.LotResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;

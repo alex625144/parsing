@@ -1,6 +1,6 @@
 package com.parsing.mockdata.resource;
 
-import com.parsing.mockdata.for_manual_testing_rozetkz_parsing_item.LaptopItemMockDataGenerator;
+import com.parsing.mockdata.rozetka_parsing_item.LaptopItemMockDataGenerator;
 import com.parsing.model.LaptopItem;
 import com.parsing.model.LotPDFResult;
 import lombok.RequiredArgsConstructor;
