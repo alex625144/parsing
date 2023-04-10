@@ -3,6 +3,7 @@ package com.parsing.pdf.parsing;
 import com.parsing.exception.PDFParsingException;
 import com.parsing.repository.LotPDFResultRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import net.sourceforge.tess4j.ITesseract;
 import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.TesseractException;
@@ -24,8 +25,11 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.parsing.pdf.parsing.DetectTable.detectTable;
+
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ParsingPDFService {
 
     private final LotPDFResultRepository lotPDFResultRepository;
@@ -163,15 +167,21 @@ public class ParsingPDFService {
 //        _tesseract.setDatapath("../..//teseract/tessdata/");
 //        _tesseract.setDatapath(userFilesFolderPath.toUri().toString());
         _tesseract.setLanguage("eng+ukr");
+        System.out.println(document.getNumberOfPages() + "  pages in document");
 
-        for (int page = 0; page < document.getNumberOfPages(); page++) {
-            BufferedImage bim = pdfRenderer.renderImageWithDPI(page, 300, ImageType.RGB);
+        for (int page = document.getNumberOfPages() - 1; page < document.getNumberOfPages(); page++) {
+            BufferedImage bim = pdfRenderer.renderImageWithDPI(page, 300, ImageType.GRAY);
 
             // Create a temp image file
             File temp = File.createTempFile("tempfile_" + page, ".png");
             ImageIO.write(bim, "png", temp);
 
-            String result = _tesseract.doOCR(temp);
+            File png = new File("008.png");
+            ImageIO.write(bim, "png", png);
+
+            String tableName = detectTable(png.getName());
+
+            String result = _tesseract.doOCR(new File(tableName));
             out.append(result);
 
             // Delete temp file
