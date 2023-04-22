@@ -25,7 +25,7 @@ public class ProzorroClient {
 
     public String downloadByUrl(URI uri) {
         String lot = uri.toString().split("/")[4];
-        String savePath = "C:/Users/Maksym.Fedosov/Documents/temp_docs/" + lot + ".pdf";
+        String savePath = "C:/" + lot + ".pdf";
         log.debug("file with URI: " + uri + " was saved.");
 
         RequestCallback requestCallback = request -> request

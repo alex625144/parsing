@@ -1,5 +1,6 @@
 package com.parsing.pdf.parsing;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nu.pattern.OpenCV;
 import org.opencv.core.Mat;
@@ -8,8 +9,11 @@ import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
+import org.springframework.stereotype.Component;
 
 @Slf4j
+@Component
+@RequiredArgsConstructor
 public class DetectTable {
 
     private static double x1 = 500;
@@ -17,6 +21,7 @@ public class DetectTable {
     private static double x2 = 0;
     private static double y2 = 0;
     private static double y3 = 1500;
+    private final TableProcessor tableProcessor;
 
     public static String detectTable(String fileSource) {
         OpenCV.loadLocally();

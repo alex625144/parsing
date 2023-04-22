@@ -33,6 +33,7 @@ import static com.parsing.pdf.parsing.DetectTable.detectTable;
 public class ParsingPDFService {
 
     private final LotPDFResultRepository lotPDFResultRepository;
+    private final RectangleDetector rectangleDetector;
 
     public String parseProzorroFile(MultipartFile file) {
 
@@ -180,6 +181,7 @@ public class ParsingPDFService {
             ImageIO.write(bim, "png", png);
 
             String tableName = detectTable(png.getName());
+            String rectName = rectangleDetector.detectRectangles(tableName);
 
             String result = _tesseract.doOCR(new File(tableName));
             out.append(result);
