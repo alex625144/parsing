@@ -6,7 +6,6 @@ import com.parsing.model.LotPDFResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
