@@ -10,6 +10,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.firefox.FirefoxDriver;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -21,9 +26,9 @@ import java.util.stream.Collectors;
 @Component
 public class RozetkaParser {
 
-    private static final String URL = "https://rozetka.com.ua/search/";
+    private static final String ROZETKA_URL = "https://rozetka.com.ua/";
+    private static final String SEARCH = "search/";
     private static final String SEARCH_PARAM = "?text=";
-
 
     private final LotResultRepository lotResultRepository;
     private final RozetkaParsingResultRepository rozetkaParsingResultRepository;
@@ -35,7 +40,7 @@ public class RozetkaParser {
         boolean isRozetkaParsingSuccessful = false;
         for (String model : models) {
             BigDecimal prise = searchPriceByModel(model);
-            if (prise.doubleValue() == 0.0) continue;
+            if (prise == null || prise.doubleValue() == 0.0 ) continue;
 
             isRozetkaParsingSuccessful = true;
             RozetkaParsingReport rozetkaParsingReport = new RozetkaParsingReport();
@@ -55,15 +60,42 @@ public class RozetkaParser {
 
     @SneakyThrows
     public BigDecimal searchPriceByModel(String model) {
-        Document document = Jsoup.connect(httpBuilder(model)).get();
-        String source = document.getElementById("rz-client-state").toString();
+        System.setProperty("webdriver.http.factory", "jdk-http-client");
+        ChromeOptions options= new ChromeOptions();
+        options.setHeadless(true);
+        WebDriver driver = new ChromeDriver();
+        driver.get("https://rozetka.com.ua/search/?text=Lenovo+IdeaPad+Gaming+3+15ACH6&producer=lenovo&page=1");
+
+        Document document = Jsoup.parse(driver.getPageSource());
 
         String price = "";
+        String source = document.toString();
         String[] splitedSours = source.split(";price&q;:");
-        if (splitedSours.length < 2) return null;
+        if (splitedSours.length < 2) return BigDecimal.ZERO;
         price = splitedSours[1].split(",")[0];
 
+        if (!price.matches("^[-+]?\\d+(\\.\\d+)?$")) {
+            price = searchPriceByRozetkaModelId(document, model);
+        }
+
         return BigDecimal.valueOf(Double.valueOf(price));
+    }
+
+    @SneakyThrows
+    private String searchPriceByRozetkaModelId(Document document, String model) {
+        String price = "";
+        Element script = document.selectFirst("script#rz-client-state");
+        String source = script.html();
+        String[] splitedSours = source.split("q;,&q;id&q;:");
+        String modelId = splitedSours[1].split(",")[0];
+        if (!modelId.matches("\\d{9}")) return  "0";
+
+        Document modelDocument = Jsoup.connect(httpBuilderWithModelId(model, modelId)).get();
+        String newSource = modelDocument.toString();
+        String[] splitedSource = newSource.split(",\"price\":\"");
+        price = splitedSource[1].split(",")[0];
+
+        return price;
     }
 
     private List<String> getModelsFromLotResult(LotResult lotResult) {
@@ -77,6 +109,14 @@ public class RozetkaParser {
     }
 
     private String httpBuilder(String text) {
-        return URL + SEARCH_PARAM + text;
+        text = text.replaceAll(" ", "+");
+        return ROZETKA_URL + SEARCH + SEARCH_PARAM + text + "&section_id=80004";
+    }
+
+    private String httpBuilderWithModelId(String model, String modelId1) {
+        model = model.toLowerCase();
+        model = modelId1.replace(" ", "_");
+
+        return ROZETKA_URL + "/" + model + "/p" + modelId1;
     }
 }

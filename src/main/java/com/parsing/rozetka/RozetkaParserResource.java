@@ -17,4 +17,9 @@ public class RozetkaParserResource {
     public String findPriceByModel(@PathVariable String model) {
         return rozetkaSevice.findPriceByModel(model);
     }
+
+    @GetMapping
+    public void startParsing() {
+        rozetkaSevice.scheduledParsing();
+    }
 }
