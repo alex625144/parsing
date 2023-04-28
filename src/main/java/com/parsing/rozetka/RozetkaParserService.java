@@ -33,7 +33,7 @@ public class RozetkaParserService {
         List<LotResult> lotResults = lotResultRepository.findAllByStatus(Status.PDF_SUCCESSFULL);
 
         for(LotResult lotResult : lotResults) {
-            List<RozetkaParsingReport> rozetkaParsingReports = rozetkaParser.parsingByLotResult(lotResult);
+            List<RozetkaParsingReport> rozetkaParsingReports = rozetkaParser.parseByLotResult(lotResult);
             if(lotResult.getStatus() == Status.ROZETKA_FAILED) continue;
 
             BigDecimal totalPriceViolation = new BigDecimal(0);

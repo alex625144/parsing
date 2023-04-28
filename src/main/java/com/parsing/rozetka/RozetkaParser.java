@@ -23,29 +23,29 @@ import java.util.stream.Collectors;
 @Component
 public class RozetkaParser {
 
-    private static final String ROZETKA_URL = "https://rozetka.com.ua/";
-    private static final String SEARCH = "search/";
-    private static final String SEARCH_PARAM = "?text=";
+    private static final String ROZETKA_URL = "https://rozetka.com.ua";
+    private static final String SEARCH = "/search";
+    private static final String SEARCH_PARAM = "/?text=";
     private static final String LAPTOP_SECTION_ID = "&section_id=80004";
 
     private final LotResultRepository lotResultRepository;
     private final RozetkaParsingResultRepository rozetkaParsingResultRepository;
     private final WebDriver driver;
 
-    public List<RozetkaParsingReport> parsingByLotResult(LotResult lotResult) {
+    public List<RozetkaParsingReport> parseByLotResult(LotResult lotResult) {
         List<String> models = getModelsFromLotResult(lotResult);
         List<RozetkaParsingReport> result = new ArrayList<>();
 
         boolean isRozetkaParsingSuccessful = false;
         for (String model : models) {
-            BigDecimal prise = searchPriceByModel(model);
-            if (prise == null || prise.doubleValue() == 0.0 ) continue;
+            BigDecimal price = searchPriceByModel(model);
+            if (price == null || price.doubleValue() == 0.0 ) continue;
 
             isRozetkaParsingSuccessful = true;
             RozetkaParsingReport rozetkaParsingReport = new RozetkaParsingReport();
             rozetkaParsingReport.setModel(model);
             rozetkaParsingReport.setSearchURL(httpBuilder(model));
-            rozetkaParsingReport.setMarketPrice(prise);
+            rozetkaParsingReport.setMarketPrice(price);
             rozetkaParsingReport.setLotResult(lotResult);
 
             result.add(savePriceToResultReport(rozetkaParsingReport));
