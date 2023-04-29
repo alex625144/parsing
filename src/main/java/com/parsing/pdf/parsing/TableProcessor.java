@@ -10,10 +10,10 @@ import java.util.List;
 @Component
 public class TableProcessor {
 
-    private static Rect createRect(double x1, double y1, double x2, double y2, double y3) {
-        double width = Math.sqrt(Math.pow((x2 - x1), 2) + Math.pow((y2 - y1), 2));
-        double height = Math.sqrt(Math.pow((y3 - y2), 2));
-        return new Rect((int) x1, (int) y3, (int) width, (int) height);
+    private static Rect createRect(double xLeftBottom, double yLeftBottom, double xRightBottom, double yRightBottom, double yRightTop) {
+        double width = Math.sqrt(Math.pow((xRightBottom - xLeftBottom), 2) + Math.pow((yRightBottom - yLeftBottom), 2));
+        double height = Math.sqrt(Math.pow((yRightTop - yRightBottom), 2));
+        return new Rect((int) xLeftBottom, (int) yRightTop, (int) width, (int) height);
     }
 
     public List<Rect> cropRowsRectangles(List<Double> distinctPointsY, HorizontalLineCoordinate horizontalLineCoordinate) {
@@ -24,6 +24,25 @@ public class TableProcessor {
                 result.add(createRect(horizontalLineCoordinate.getLeftPoint(), distinctPointsY.get(i),
                         horizontalLineCoordinate.getRightPoint(), distinctPointsY.get(i),
                         distinctPointsY.get(i + 1)));
+            }
+        }
+        return result;
+    }
+
+    public List<Rect> cropAllRowsRectangles(List<HorizontalLineCoordinate> listHorizontal, List<VerticalLineCoordinate> listVertical) {
+        List<Rect> result = new ArrayList<>();
+        Collections.reverse(listHorizontal);
+        if (listHorizontal.size() > 1 || listVertical.size() > 1) {
+            for (int i = 1; i < listHorizontal.size(); i++) {
+                for (int j = 1, k = 0; j < listVertical.size();) {
+                    if (listHorizontal.get(i).getYCoordinate()+5 >= listVertical.get(j).getBottomPoint()) {
+                        result.add(createRect(listVertical.get(k).getXCoordinate(), listHorizontal.get(i).getYCoordinate(),
+                                listVertical.get(j).getXCoordinate(), listHorizontal.get(i).getYCoordinate(),
+                                listHorizontal.get(i - 1).getYCoordinate()));
+                        k++;
+                    }
+                    j++;
+                }
             }
         }
         return result;
