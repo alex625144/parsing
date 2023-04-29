@@ -16,13 +16,13 @@ public class TableProcessor {
         return new Rect((int) x1, (int) y3, (int) width, (int) height);
     }
 
-    public List<Rect> cropRowsRectangles(List<Double> distinctPointsY, TableWidth tableWidth) {
+    public List<Rect> cropRowsRectangles(List<Double> distinctPointsY, HorizontalLineCoordinate horizontalLineCoordinate) {
         List<Rect> result = new ArrayList<>();
         Collections.reverse(distinctPointsY);
         for (int i = 0; i < distinctPointsY.size(); i++) {
             if (i + 1 < distinctPointsY.size()) {
-                result.add(createRect(tableWidth.getLeftPoint(), distinctPointsY.get(i),
-                        tableWidth.getRightPoint(), distinctPointsY.get(i),
+                result.add(createRect(horizontalLineCoordinate.getLeftPoint(), distinctPointsY.get(i),
+                        horizontalLineCoordinate.getRightPoint(), distinctPointsY.get(i),
                         distinctPointsY.get(i + 1)));
             }
         }

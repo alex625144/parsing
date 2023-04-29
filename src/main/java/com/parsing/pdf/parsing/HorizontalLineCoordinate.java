@@ -5,9 +5,10 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class TableWidth {
+public class HorizontalLineCoordinate {
 
     private double leftPoint;
     private double rightPoint;
+    private double yCoordinate;
 }
 
