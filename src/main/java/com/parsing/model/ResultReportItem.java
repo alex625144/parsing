@@ -33,7 +33,10 @@ public class ResultReportItem {
     private String model;
 
     @Column(name = "amount")
-    private BigDecimal amount;
+    private int amount;
+
+    @Column(name = "item_price")
+    private BigDecimal itemPrice;
 
     @Column(name = "market_price")
     private BigDecimal marketPrice;
