@@ -24,6 +24,7 @@ public class RectangleDetector {
     static final double GORIZONTAL_LINE_LENGTH = 700;
     private final TableProcessor tableProcessor;
     Mat cdstP = null;
+    Mat verticalLines = null;
 
     public String detectRectangles(String fileSource) {
         List<double[]> lines = findLinesWithOpenCV(fileSource, GORIZONTAL_LINE_LENGTH);
@@ -31,7 +32,8 @@ public class RectangleDetector {
         List<Double> distinctPointsY = mergeGorizontalLines(sortedPointsY);
         TableWidth pointsWidthTable = findPointsWidthTable(lines);
         for (Double point : distinctPointsY) {
-            Imgproc.line(cdstP, new Point(pointsWidthTable.getLeftPoint(), point), new Point(pointsWidthTable.getRightPoint(), point), new Scalar(0, 0, 255), 3, Imgproc.LINE_AA, 0);
+            Imgproc.line(cdstP, new Point(pointsWidthTable.getLeftPoint(), point), new Point(pointsWidthTable.getRightPoint(), point),
+                    new Scalar(0, 0, 255), 3, Imgproc.LINE_AA, 0);
         }
         Imgcodecs.imwrite("afterDistinct.png", cdstP);
         List<Rect> rects = tableProcessor.cropRowsRectangles(distinctPointsY, pointsWidthTable);
@@ -46,29 +48,34 @@ public class RectangleDetector {
             Imgcodecs.imwrite("rect" + i + ".png", cropRect);
         }
         ////////////// search vertical rectangles //////////////
-        int size = rects.size();
-        for (int i = 0; i< rects.size(); i++) {
-            Mat matrix = new Mat();
-            System.out.println(rects.get(i).height);
-            List<double[]> linesV = findLinesWithOpenCV("rect"+i +".png", rects.get(i).height-10);
-            System.out.println(">>>>>>>>>>>>>>>>>>>>>>>");
-            linesV.forEach(x-> System.out.println(Arrays.toString(x)));
-            List<Double> sortedPointsX = sortListX(linesV);
-            List<Double> distinctPointsX = mergeGorizontalLines(sortedPointsX);
-//            TableWidth pointsWidthTableX = findPointsWidthTable(lines);
-
-            for (Double point : distinctPointsX) {
-                Imgproc.line(matrix, new Point(point, 0), new Point(point+1, rects.get(i).height), new Scalar(0, 0, 255), 3, Imgproc.LINE_AA, 0);
-            }
-            Imgcodecs.imwrite("rectV" + i + ".png", matrix);
-
+        List<double[]> linesV = findLinesVerticalWithOpenCV("destination.png", 100);
+        linesV.forEach(x-> System.out.println(Arrays.toString(x)));
+        List<Double> sortedPointsX = sortListX(linesV);
+        List<Double> distinctPointsX = mergeGorizontalLines(sortedPointsX);
+        System.out.println("Points X " + distinctPointsX);
+        for (double[] point : linesV) {
+            Imgproc.line(verticalLines, new Point(point[0], point[1]), new Point(point[2], point[3]), new Scalar(0, 0, 255), 3, Imgproc.LINE_AA, 0);
         }
+        Imgcodecs.imwrite("rectVertical.png", verticalLines);
+
+
+
 
 
 
         String fileResult = "destinationRect.png";
         return fileResult;
     }
+
+    List<Point> createPointY(List<Double> distinctPointsX, List<double[]> linesV) {
+        List<Point> listPoint = new ArrayList<>();
+        for (int i = 0; i < linesV.size(); i++) {
+
+        }
+
+        return listPoint;
+    }
+
 
     private List<Double> mergeGorizontalLines(List<Double> pointsY) {
         log.info("Lines has rows at start= " + pointsY.size());
@@ -117,6 +124,29 @@ public class RectangleDetector {
             }
         }
         return new TableWidth(x1, x2);
+    }
+
+    private List<double[]> findLinesVerticalWithOpenCV(String fileSource, double minLineLength) {
+        Mat dst = new Mat(), cdst = new Mat(), cropTable = new Mat();
+        OpenCV.loadLocally();
+        Mat source = Imgcodecs.imread(fileSource, Imgcodecs.IMREAD_GRAYSCALE);
+        if (source.empty()) {
+            log.warn("Error opening image!");
+            log.warn("Program Arguments: [image_name -- default " + fileSource + "] \n");
+            System.exit(-1);
+        }
+        Imgproc.Canny(source, dst, 50, 200, 3, false);
+        Imgcodecs.imwrite("afterCannyRect.png", dst);
+        Imgproc.cvtColor(dst, cdst, Imgproc.COLOR_GRAY2BGR);
+        verticalLines = cdst.clone();
+        Mat linesP = new Mat();
+        Imgproc.HoughLinesP(dst, linesP, 3, Math.PI , 200, minLineLength, 10);
+        List<double[]> lines = new ArrayList<>();
+        for (int x = 0; x < linesP.rows(); x++) {
+            double[] l = linesP.get(x, 0);
+            lines.add(l);
+        }
+        return lines;
     }
 
     private List<double[]> findLinesWithOpenCV(String fileSource, double minLineLength) {
