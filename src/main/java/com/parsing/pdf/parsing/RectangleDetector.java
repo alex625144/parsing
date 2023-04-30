@@ -28,28 +28,23 @@ public class RectangleDetector {
     Mat cdstP = null;
     Mat verticalLines = null;
 
-    public String detectRectangles(String fileSource) {
+    public int detectRectangles(String fileSource) {
         List<double[]> lines = findLinesWithOpenCV(fileSource, GORIZONTAL_LINE_LENGTH);
         List<Double> sortedPointsY = sortList(lines);
         List<Double> distinctPointsY = mergeGorizontalLines(sortedPointsY);
         HorizontalLineCoordinate pointsWidthTable = findPointsWidthTable(lines);
         List<HorizontalLineCoordinate> sortedHorizontalLinesCoordinates = formHorizontalLinesCoordinates(distinctPointsY, pointsWidthTable);
-//        saveImageWithHorizontalLines(distinctPointsY, pointsWidthTable);
-//        saveCroppedHorizontalRectanglesImages(distinctPointsY, pointsWidthTable);
         ////////////// search vertical rectangles //////////////
         List<double[]> linesY = findLinesVerticalWithOpenCV("destination.png", 100);
         List<Double> linesYsorted = sortList(linesY);
-        linesY.forEach(x -> System.out.println(Arrays.toString(x)));
         List<Double> sortedPointsX = sortListX(linesY);
         List<Double> distinctPointsX = mergeGorizontalLines(sortedPointsX);
         saveIMageWithVerticalLines(linesY, distinctPointsX);
         List<VerticalLineCoordinate> sortedVerticalLinesCoordinates = formVerticalLinesCoordinates(distinctPointsX, linesY);
         saveAllLines(sortedVerticalLinesCoordinates,sortedHorizontalLinesCoordinates);
         List<Rect> rects = tableProcessor.cropAllRowsRectangles(sortedHorizontalLinesCoordinates, sortedVerticalLinesCoordinates);
-        Collections.reverse(rects);
         createRectsImages(rects);
-        String fileResult = "destinationRect.png";
-        return fileResult;
+        return rects.size();
     }
 
     private List<VerticalLineCoordinate> formVerticalLinesCoordinates(List<Double> distinctPointsX, List<double[]> linesV) {
@@ -90,10 +85,7 @@ public class RectangleDetector {
         double point1 = distinctPointX;
         double point2 = coordinates[0];
         double diff = Math.abs(point2) - point1;
-        if (diff < THRESHOLD) {
-            return true;
-        }
-        return false;
+        return diff < THRESHOLD;
     }
 
     private List<HorizontalLineCoordinate> formHorizontalLinesCoordinates(List<Double> lines, HorizontalLineCoordinate horizontalLineCoordinate) {
@@ -110,7 +102,7 @@ public class RectangleDetector {
     }
 
     private void createRectsImages(List<Rect> rects) {
-        Mat source = Imgcodecs.imread("destination.png", Imgcodecs.IMREAD_GRAYSCALE);
+        final Mat source = Imgcodecs.imread("destination.png", Imgcodecs.IMREAD_GRAYSCALE);
         Mat cropRect = new Mat();
         for (int i = 0; i < rects.size(); i++) {
             try {

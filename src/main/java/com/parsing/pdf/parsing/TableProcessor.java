@@ -13,7 +13,7 @@ public class TableProcessor {
     private static Rect createRect(double xLeftBottom, double yLeftBottom, double xRightBottom, double yRightBottom, double yRightTop) {
         double width = Math.sqrt(Math.pow((xRightBottom - xLeftBottom), 2) + Math.pow((yRightBottom - yLeftBottom), 2));
         double height = Math.sqrt(Math.pow((yRightTop - yRightBottom), 2));
-        return new Rect((int) xLeftBottom, (int) yRightTop, (int) width, (int) height);
+        return new Rect((int) xLeftBottom, (int) yLeftBottom, (int) width, (int) height);
     }
 
     public List<Rect> cropRowsRectangles(List<Double> distinctPointsY, HorizontalLineCoordinate horizontalLineCoordinate) {
@@ -31,17 +31,31 @@ public class TableProcessor {
 
     public List<Rect> cropAllRowsRectangles(List<HorizontalLineCoordinate> listHorizontal, List<VerticalLineCoordinate> listVertical) {
         List<Rect> result = new ArrayList<>();
-        Collections.reverse(listHorizontal);
-        if (listHorizontal.size() > 1 || listVertical.size() > 1) {
-            for (int i = 1; i < listHorizontal.size(); i++) {
-                for (int j = 1, k = 0; j < listVertical.size();) {
-                    if (listHorizontal.get(i).getYCoordinate()+5 >= listVertical.get(j).getBottomPoint()) {
-                        result.add(createRect(listVertical.get(k).getXCoordinate(), listHorizontal.get(i).getYCoordinate(),
-                                listVertical.get(j).getXCoordinate(), listHorizontal.get(i).getYCoordinate(),
-                                listHorizontal.get(i - 1).getYCoordinate()));
-                        k++;
+//        Collections.reverse(listHorizontal);
+//        if (listHorizontal.size() > 1 || listVertical.size() > 1) {
+//            for (int i = 1; i < listHorizontal.size(); i++) {
+//                for (int j = 1, k = 0; j < listVertical.size();) {
+//                    if (listHorizontal.get(i).getYCoordinate()+5 >= listVertical.get(j).getBottomPoint()) {
+//                        result.add(createRect(listVertical.get(k).getXCoordinate(), listHorizontal.get(i).getYCoordinate(),
+//                                listVertical.get(j).getXCoordinate(), listHorizontal.get(i).getYCoordinate(),
+//                                listHorizontal.get(i - 1).getYCoordinate()));
+//                        k++;
+//                    }
+//                    j++;
+//                }
+//            }
+//        }
+        for (int i = 0; i< listHorizontal.size() ;i++) {
+            for (int j = 0; j< listVertical.size();j++) {
+                if (i + 1 < listHorizontal.size()) {
+                    if (j + 1 < listVertical.size()) {
+                        result.add(createRect(listVertical.get(j).getXCoordinate(), listHorizontal.get(i).getYCoordinate(),
+                                listVertical.get(j + 1).getXCoordinate(), listHorizontal.get(i).getYCoordinate(),
+                                listHorizontal.get(i + 1).getYCoordinate()));
+//                        System.out.println(listVertical.get(j).getXCoordinate() + "  " + listHorizontal.get(i).getYCoordinate() + "  " +
+//                                listVertical.get(j + 1).getXCoordinate() + "  " + listHorizontal.get(i).getYCoordinate() + "  " +
+//                                listHorizontal.get(i + 1).getYCoordinate());
                     }
-                    j++;
                 }
             }
         }

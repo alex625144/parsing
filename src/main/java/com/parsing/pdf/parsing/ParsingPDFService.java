@@ -181,10 +181,13 @@ public class ParsingPDFService {
             ImageIO.write(bim, "png", png);
 
             String tableName = detectTable(png.getName());
-            String rectName = rectangleDetector.detectRectangles(tableName);
+            int rectCounter = rectangleDetector.detectRectangles("destination.png");
 
-            String result = _tesseract.doOCR(new File(tableName));
-            out.append(result);
+            for (int i=0; i<rectCounter;i++){
+                String result = _tesseract.doOCR(new File("rect"+i+".png"));
+                System.out.println("result " + result );
+                out.append(result);
+            }
 
             // Delete temp file
             temp.delete();
