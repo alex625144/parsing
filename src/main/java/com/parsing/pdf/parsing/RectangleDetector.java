@@ -12,8 +12,6 @@ import org.opencv.imgproc.Imgproc;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 @Slf4j
@@ -21,7 +19,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class RectangleDetector {
 
-    final static int THRESHOLD = 10;
+    static final int THRESHOLD = 10;
     static final Double OFFSET = 5.0;
     static final double GORIZONTAL_LINE_LENGTH = 700;
     private final TableProcessor tableProcessor;
@@ -34,12 +32,10 @@ public class RectangleDetector {
         List<Double> distinctPointsY = mergeGorizontalLines(sortedPointsY);
         HorizontalLineCoordinate pointsWidthTable = findPointsWidthTable(lines);
         List<HorizontalLineCoordinate> sortedHorizontalLinesCoordinates = formHorizontalLinesCoordinates(distinctPointsY, pointsWidthTable);
-        ////////////// search vertical rectangles //////////////
         List<double[]> linesY = findLinesVerticalWithOpenCV("destination.png", 100);
-        List<Double> linesYsorted = sortList(linesY);
         List<Double> sortedPointsX = sortListX(linesY);
         List<Double> distinctPointsX = mergeGorizontalLines(sortedPointsX);
-        saveIMageWithVerticalLines(linesY, distinctPointsX);
+        saveIMageWithVerticalLines(linesY);
         List<VerticalLineCoordinate> sortedVerticalLinesCoordinates = formVerticalLinesCoordinates(distinctPointsX, linesY);
         saveAllLines(sortedVerticalLinesCoordinates,sortedHorizontalLinesCoordinates);
         List<Rect> rects = tableProcessor.cropAllRowsRectangles(sortedHorizontalLinesCoordinates, sortedVerticalLinesCoordinates);
@@ -59,8 +55,6 @@ public class RectangleDetector {
                 min = line[3];
             }
         }
-
-
         for (int i = 0; i < distinctPointsX.size(); i++) {
             List<double[]> tempResult = new ArrayList<>();
             for (double[] coordinates : linesV) {
@@ -77,15 +71,11 @@ public class RectangleDetector {
                 }
             }
         }
-
         return result;
     }
 
     private boolean isEqualsWithThreshold(Double distinctPointX, double[] coordinates) {
-        double point1 = distinctPointX;
-        double point2 = coordinates[0];
-        double diff = Math.abs(point2) - point1;
-        return diff < THRESHOLD;
+        return (Math.abs(coordinates[0]) - distinctPointX) < THRESHOLD;
     }
 
     private List<HorizontalLineCoordinate> formHorizontalLinesCoordinates(List<Double> lines, HorizontalLineCoordinate horizontalLineCoordinate) {
@@ -94,11 +84,6 @@ public class RectangleDetector {
             result.add(new HorizontalLineCoordinate(horizontalLineCoordinate.getLeftPoint(), horizontalLineCoordinate.getRightPoint(), lines.get(i)));
         }
         return result;
-    }
-
-    private void saveCroppedHorizontalRectanglesImages(List<Double> distinctPointsY, HorizontalLineCoordinate pointsWidthTable) {
-        List<Rect> rects = tableProcessor.cropRowsRectangles(distinctPointsY, pointsWidthTable);
-        createRectsImages(rects);
     }
 
     private void createRectsImages(List<Rect> rects) {
@@ -114,16 +99,7 @@ public class RectangleDetector {
         }
     }
 
-    private void saveImageWithHorizontalLines(List<Double> distinctPointsY, HorizontalLineCoordinate pointsWidthTable) {
-        for (Double point : distinctPointsY) {
-            Imgproc.line(cdstP, new Point(pointsWidthTable.getLeftPoint(), point), new Point(pointsWidthTable.getRightPoint(), point),
-                    new Scalar(0, 0, 255), 3, Imgproc.LINE_AA, 0);
-        }
-        Imgcodecs.imwrite("afterDistinct.png", cdstP);
-    }
-
-    private void saveIMageWithVerticalLines(List<double[]> linesV, List<Double> distinctPointsX) {
-        System.out.println("Points X " + distinctPointsX);
+    private void saveIMageWithVerticalLines(List<double[]> linesV) {
         for (double[] point : linesV) {
             Imgproc.line(verticalLines, new Point(point[0], point[1]), new Point(point[2], point[3]), new Scalar(0, 0, 255), 3, Imgproc.LINE_AA, 0);
         }
@@ -140,16 +116,6 @@ public class RectangleDetector {
 
         Imgcodecs.imwrite("All_Lines.png", verticalLines);
     }
-
-    List<Point> createPointY(List<Double> distinctPointsX, List<double[]> linesV) {
-        List<Point> listPoint = new ArrayList<>();
-        for (int i = 0; i < linesV.size(); i++) {
-
-        }
-
-        return listPoint;
-    }
-
 
     private List<Double> mergeGorizontalLines(List<Double> pointsY) {
         log.info("Lines has rows at start= " + pointsY.size());
@@ -225,7 +191,8 @@ public class RectangleDetector {
     }
 
     private List<double[]> findLinesVerticalWithOpenCV(String fileSource, double minLineLength) {
-        Mat dst = new Mat(), cdst = new Mat(), cropTable = new Mat();
+        Mat dst = new Mat();
+        Mat cdst = new Mat();
         OpenCV.loadLocally();
         Mat source = Imgcodecs.imread(fileSource, Imgcodecs.IMREAD_GRAYSCALE);
         if (source.empty()) {
@@ -248,7 +215,8 @@ public class RectangleDetector {
     }
 
     private List<double[]> findLinesWithOpenCV(String fileSource, double minLineLength) {
-        Mat dst = new Mat(), cdst = new Mat(), cropTable = new Mat();
+        Mat dst = new Mat();
+        Mat cdst = new Mat();
         OpenCV.loadLocally();
         Mat source = Imgcodecs.imread(fileSource, Imgcodecs.IMREAD_GRAYSCALE);
         if (source.empty()) {
