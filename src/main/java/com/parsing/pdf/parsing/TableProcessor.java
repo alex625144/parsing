@@ -31,13 +31,21 @@ public class TableProcessor {
 
     public List<Rect> cropAllRowsRectangles(List<HorizontalLineCoordinate> listHorizontal, List<VerticalLineCoordinate> listVertical) {
         List<Rect> result = new ArrayList<>();
-        for (int i = 0; i < listHorizontal.size(); i++) {
-            for (int j = 0; j < listVertical.size(); j++) {
-                if (i + 1 < listHorizontal.size() && (j + 1 < listVertical.size())) {
-                        result.add(createRect(listVertical.get(j).getXCoordinate(), listHorizontal.get(i).getYCoordinate(),
-                                listVertical.get(j + 1).getXCoordinate(), listHorizontal.get(i).getYCoordinate(),
-                                listHorizontal.get(i + 1).getYCoordinate()));
+        for (int top = 0, bottom = 1; bottom < listHorizontal.size(); top++, bottom++) {
+            for (int mainLine = 0, borderLine = 1; borderLine < listVertical.size(); ) {
+                if ( listVertical.get(borderLine).getBottomPoint() < listHorizontal.get(bottom).getYCoordinate()) {
+                    borderLine++;
+                    continue;
                 }
+
+                double x1 = listVertical.get(mainLine).getXCoordinate();
+                double y1 = listHorizontal.get(top).getYCoordinate();
+                double x2 = listVertical.get(borderLine).getXCoordinate();
+                double y2 = y1;
+                double height = listHorizontal.get(bottom).getYCoordinate();
+
+                result.add(createRect(x1, y1, x2, y2, height));
+                mainLine = borderLine++;
             }
         }
         return result;
