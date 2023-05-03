@@ -44,6 +44,7 @@ public class RectangleDetector {
     }
 
     private List<VerticalLineCoordinate> formVerticalLinesCoordinates(List<Double> distinctPointsX, List<double[]> linesV) {
+
         List<VerticalLineCoordinate> result = new ArrayList<>();
         double max = 0;
         double min = 50;
@@ -59,15 +60,15 @@ public class RectangleDetector {
             List<double[]> tempResult = new ArrayList<>();
             for (double[] coordinates : linesV) {
                 if (isEqualsWithThreshold(distinctPointsX.get(i), coordinates)) {
-                    tempResult.add(linesV.get(i));
+                    tempResult.add(coordinates);
                 }
             }
-            if (tempResult != null) {
+            if (!tempResult.isEmpty()) {
                 double[] sortedPointsY = sortListArray(tempResult);
                 if (i == 0 || i == distinctPointsX.size() - 1) {
-                    result.add(new VerticalLineCoordinate(max, min, distinctPointsX.get(i)));
+                    result.add(new VerticalLineCoordinate(min, max, distinctPointsX.get(i)));
                 } else {
-                    result.add(new VerticalLineCoordinate(max, sortedPointsY[3], distinctPointsX.get(i)));
+                    result.add(new VerticalLineCoordinate(min, sortedPointsY[1], distinctPointsX.get(i)));
                 }
             }
         }
@@ -75,7 +76,8 @@ public class RectangleDetector {
     }
 
     private boolean isEqualsWithThreshold(Double distinctPointX, double[] coordinates) {
-        return (Math.abs(coordinates[0]) - distinctPointX) < THRESHOLD;
+//        return (Math.abs(coordinates[0]) - distinctPointX) < THRESHOLD;
+        return (Math.abs(coordinates[0])) + THRESHOLD/2 > distinctPointX && (Math.abs(coordinates[0]))- THRESHOLD/2 < distinctPointX;
     }
 
     private List<HorizontalLineCoordinate> formHorizontalLinesCoordinates(List<Double> lines, HorizontalLineCoordinate horizontalLineCoordinate) {
@@ -151,11 +153,17 @@ public class RectangleDetector {
         for (int i = 0; i < lines.size(); i++) {
             if (minY > lines.get(i)[1]){
                 minY = lines.get(i)[1];
-            } else if(minY >lines.get(i)[3]){
+            }
+
+            if(minY >lines.get(i)[3]){
                 minY = lines.get(i)[3];
-            } else if(maxY < lines.get(i)[1]) {
+            }
+
+            if(maxY < lines.get(i)[1]) {
                 maxY = lines.get(i)[1];
-            } else if (maxY < lines.get(i)[3]) {
+            }
+
+            if (maxY < lines.get(i)[3]) {
                 maxY = lines.get(i)[3];
             }
             averageX = (averageX +lines.get(i)[0])/2;
