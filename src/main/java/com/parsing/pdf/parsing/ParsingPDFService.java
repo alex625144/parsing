@@ -1,6 +1,8 @@
 package com.parsing.pdf.parsing;
 
 import com.parsing.exception.PDFParsingException;
+import com.parsing.pdf.parsing.modelParsing.Column;
+import com.parsing.pdf.parsing.modelParsing.Row;
 import com.parsing.repository.LotPDFResultRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +36,7 @@ public class ParsingPDFService {
 
     private final LotPDFResultRepository lotPDFResultRepository;
     private final RectangleDetector rectangleDetector;
+    private final Recognizer recognizer;
 
     public String parseProzorroFile(MultipartFile file) {
 
@@ -181,13 +184,19 @@ public class ParsingPDFService {
             ImageIO.write(bim, "png", png);
 
             String tableName = detectTable(png.getName());
-            int rectCounter = rectangleDetector.detectRectangles("destination.png");
+            List<Row> rows = rectangleDetector.detectRectangles("destination.png");
 
-            for (int i=0; i<rectCounter;i++){
-                String result = _tesseract.doOCR(new File("rect"+i+".png"));
-                System.out.println("result " + result );
-                out.append(result);
+            for (Row row : rows) {
+                for (Column column : row.getColumns()) {
+                    String result = _tesseract.doOCR(new File(rows.indexOf(row) + "_" + row.getColumns().indexOf(column) + ".png"));
+                    column.setParsingResult(result);
+                    System.out.println("result " + result );
+                    out.append(result);
+                }
             }
+
+            recognizer.recognizeLotPDFResult(rows);
+
 
             // Delete temp file
             temp.delete();

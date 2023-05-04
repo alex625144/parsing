@@ -1,5 +1,7 @@
 package com.parsing.pdf.parsing;
 
+import com.parsing.pdf.parsing.modelParsing.Column;
+import com.parsing.pdf.parsing.modelParsing.Row;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nu.pattern.OpenCV;
@@ -26,7 +28,7 @@ public class RectangleDetector {
     Mat cdstP = null;
     Mat verticalLines = null;
 
-    public int detectRectangles(String fileSource) {
+    public List<Row> detectRectangles(String fileSource) {
         List<double[]> lines = findLinesWithOpenCV(fileSource, GORIZONTAL_LINE_LENGTH);
         List<Double> sortedPointsY = sortList(lines);
         List<Double> distinctPointsY = mergeGorizontalLines(sortedPointsY);
@@ -37,10 +39,10 @@ public class RectangleDetector {
         List<Double> distinctPointsX = mergeGorizontalLines(sortedPointsX);
         saveIMageWithVerticalLines(linesY);
         List<VerticalLineCoordinate> sortedVerticalLinesCoordinates = formVerticalLinesCoordinates(distinctPointsX, linesY);
-        saveAllLines(sortedVerticalLinesCoordinates,sortedHorizontalLinesCoordinates);
-        List<Rect> rects = tableProcessor.cropAllRowsRectangles(sortedHorizontalLinesCoordinates, sortedVerticalLinesCoordinates);
-        createRectsImages(rects);
-        return rects.size();
+        saveAllLines(sortedVerticalLinesCoordinates, sortedHorizontalLinesCoordinates);
+        List<Row> rows = tableProcessor.cropAllRowsRectangles(sortedHorizontalLinesCoordinates, sortedVerticalLinesCoordinates);
+        createRectsImages(rows);
+        return rows;
     }
 
     private List<VerticalLineCoordinate> formVerticalLinesCoordinates(List<Double> distinctPointsX, List<double[]> linesV) {
@@ -76,8 +78,7 @@ public class RectangleDetector {
     }
 
     private boolean isEqualsWithThreshold(Double distinctPointX, double[] coordinates) {
-//        return (Math.abs(coordinates[0]) - distinctPointX) < THRESHOLD;
-        return (Math.abs(coordinates[0])) + THRESHOLD/2 > distinctPointX && (Math.abs(coordinates[0]))- THRESHOLD/2 < distinctPointX;
+        return (Math.abs(coordinates[0])) + THRESHOLD / 2 > distinctPointX && (Math.abs(coordinates[0])) - THRESHOLD / 2 < distinctPointX;
     }
 
     private List<HorizontalLineCoordinate> formHorizontalLinesCoordinates(List<Double> lines, HorizontalLineCoordinate horizontalLineCoordinate) {
@@ -88,16 +89,18 @@ public class RectangleDetector {
         return result;
     }
 
-    private void createRectsImages(List<Rect> rects) {
+    private void createRectsImages(List<Row> rows) {
         final Mat source = Imgcodecs.imread("destination.png", Imgcodecs.IMREAD_GRAYSCALE);
         Mat cropRect = new Mat();
-        for (int i = 0; i < rects.size(); i++) {
-            try {
-                cropRect = source.submat(rects.get(i));
-            } catch (Exception ex) {
-                log.warn("can't crop image");
+        for (Row row : rows) {
+            for (Column column : row.getColumns()) {
+                try {
+                    cropRect = source.submat(column.getRect());
+                } catch (Exception ex) {
+                    log.warn("can't crop image");
+                }
+                Imgcodecs.imwrite(rows.indexOf(row) + "_" + row.getColumns().indexOf(column) + ".png", cropRect);
             }
-            Imgcodecs.imwrite("rect" + i + ".png", cropRect);
         }
     }
 
@@ -109,11 +112,11 @@ public class RectangleDetector {
     }
 
     private void saveAllLines(List<VerticalLineCoordinate> verticalLine, List<HorizontalLineCoordinate> horizontalLines) {
-       verticalLine.forEach(
-               x ->   Imgproc.line(verticalLines, new Point(x.getXCoordinate(), x.getTopPoint()), new Point(x.getXCoordinate(), x.getBottomPoint()),
-                       new Scalar(0, 0, 255), 3, Imgproc.LINE_AA, 0));
+        verticalLine.forEach(
+                x -> Imgproc.line(verticalLines, new Point(x.getXCoordinate(), x.getTopPoint()), new Point(x.getXCoordinate(), x.getBottomPoint()),
+                        new Scalar(0, 0, 255), 3, Imgproc.LINE_AA, 0));
         horizontalLines.forEach(
-                x ->   Imgproc.line(verticalLines, new Point(x.getLeftPoint(), x.getYCoordinate()), new Point(x.getRightPoint(), x.getYCoordinate()),
+                x -> Imgproc.line(verticalLines, new Point(x.getLeftPoint(), x.getYCoordinate()), new Point(x.getRightPoint(), x.getYCoordinate()),
                         new Scalar(0, 0, 255), 3, Imgproc.LINE_AA, 0));
 
         Imgcodecs.imwrite("All_Lines.png", verticalLines);
@@ -151,22 +154,22 @@ public class RectangleDetector {
         double averageX = 0;
 
         for (int i = 0; i < lines.size(); i++) {
-            if (minY > lines.get(i)[1]){
+            if (minY > lines.get(i)[1]) {
                 minY = lines.get(i)[1];
             }
 
-            if(minY >lines.get(i)[3]){
+            if (minY > lines.get(i)[3]) {
                 minY = lines.get(i)[3];
             }
 
-            if(maxY < lines.get(i)[1]) {
+            if (maxY < lines.get(i)[1]) {
                 maxY = lines.get(i)[1];
             }
 
             if (maxY < lines.get(i)[3]) {
                 maxY = lines.get(i)[3];
             }
-            averageX = (averageX +lines.get(i)[0])/2;
+            averageX = (averageX + lines.get(i)[0]) / 2;
         }
         line[0] = averageX;
         line[1] = maxY;

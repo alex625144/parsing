@@ -1,13 +1,18 @@
 package com.parsing.pdf.parsing;
 
+import com.parsing.pdf.parsing.modelParsing.Column;
+import com.parsing.pdf.parsing.modelParsing.Row;
+import lombok.RequiredArgsConstructor;
 import org.opencv.core.Rect;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
+@RequiredArgsConstructor
 public class TableProcessor {
 
     private static Rect createRect(double xLeftBottom, double yLeftBottom, double xRightBottom, double yRightBottom, double yRightTop) {
@@ -29,9 +34,12 @@ public class TableProcessor {
         return result;
     }
 
-    public List<Rect> cropAllRowsRectangles(List<HorizontalLineCoordinate> listHorizontal, List<VerticalLineCoordinate> listVertical) {
-        List<Rect> result = new ArrayList<>();
+    public List<Row> cropAllRowsRectangles(List<HorizontalLineCoordinate> listHorizontal, List<VerticalLineCoordinate> listVertical) {
+        List<Row> table = new ArrayList<>();
         for (int top = 0, bottom = 1; bottom < listHorizontal.size(); top++, bottom++) {
+            List<Column> row = new ArrayList<>();
+            List<Rect> temp = new ArrayList<>();
+
             for (int mainLine = 0, borderLine = 1; borderLine < listVertical.size(); ) {
                 if ( listVertical.get(borderLine).getBottomPoint() < listHorizontal.get(bottom).getYCoordinate()) {
                     borderLine++;
@@ -44,10 +52,12 @@ public class TableProcessor {
                 double y2 = y1;
                 double height = listHorizontal.get(bottom).getYCoordinate();
 
-                result.add(createRect(x1, y1, x2, y2, height));
+                temp.add(createRect(x1, y1, x2, y2, height));
                 mainLine = borderLine++;
+                row = temp.stream().map(x-> new Column(x, null)).collect(Collectors.toList());
             }
+            table.add(new Row(row));
         }
-        return result;
+        return table;
     }
 }

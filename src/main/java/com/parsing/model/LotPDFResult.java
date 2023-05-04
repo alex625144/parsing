@@ -23,7 +23,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "lot_pdf_result")
-public class LotPDFResult {
+public class    LotPDFResult {
 
     @Id
     @GeneratedValue(generator = "UUID")
