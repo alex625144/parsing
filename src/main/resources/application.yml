@@ -1,5 +1,5 @@
 server:
-  port: 8083
+  port:
 
 logging:
   level:
@@ -20,7 +20,7 @@ spring:
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: validate
     show-sql: false
     properties:
       hibernate:
