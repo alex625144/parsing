@@ -1,24 +1,31 @@
 package com.parsing.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import lombok.Setter;
-import java.math.BigDecimal;
+import lombok.Getter;
+
+
+import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
 @Setter
 @Getter
+@ToString
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -30,19 +37,14 @@ public class    LotPDFResult {
     @Column(name ="id")
     private UUID id;
 
-    @Column(name = "price")
-    private BigDecimal price;
-
-    @Column(name = "amount")
-    private int amount;
-
-    @Column(name = "total_amount")
-    private int totalAmount;
-
-    @Column(name = "model")
-    private String model;
-
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "LotResult.id", referencedColumnName = "id")
-    private LotResult lot;
+    @JoinColumn(name = "lot_result_id", referencedColumnName = "id")
+    @JsonBackReference
+    private LotResult lotResult;
+
+    @OneToMany(mappedBy = "lotPDFResult")
+    private List<LaptopItem> laptopItems;
+
+    @Column(name = "parsing_date")
+    private LocalDate parsingDate;
 }
