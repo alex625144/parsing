@@ -31,14 +31,16 @@ public class Recognizer {
     public final void recognizeLotPDFResult(List<Row> rows) {
         for (Row row : rows) {
             String model = null;
-            int amount = 0;
+            Integer amount = 0;
             BigDecimal price = null;
             BigDecimal totalprice = null;
 
             if (isModelRow(row)) {
                 int modelColumnNumber = 0;
                 for (Column column : row.getColumns()) {
-                    model = findModel(column.getParsingResult());
+                    if (isModel(column.getParsingResult())){
+                        model = findModel(column.getParsingResult());
+                    }
                     if (model != null) {
                         modelColumnNumber = row.getColumns().indexOf(column);
                     }
@@ -68,6 +70,9 @@ public class Recognizer {
                 if (max.isPresent()) {
                     totalprice = max.get();
                 }
+                if(amount==0){
+                    amount = totalprice.divide(price).toBigInteger().intValueExact();
+                }
                 if (totalprice!=null && totalprice.equals(BigDecimal.valueOf(amount).multiply(price))) {
                     saverLotPDFResult.saveLaptopItem(model, price, amount);
                 }
@@ -96,10 +101,19 @@ public class Recognizer {
         return null;
     }
 
+    private boolean isModel(String input) {
+        for (String model : LAPTOP_MODELS) {
+            if (input.toLowerCase(Locale.ROOT).contains(model)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private String findPrices(String input) {
         String result = null;
         if (input.contains(",")) {
-            result = input.replace(" ", "");
+            result = input.replace(" ", "").replace("\n", "").replace(",", ".");
         }
         return result;
     }

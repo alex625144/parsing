@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.sourceforge.tess4j.ITesseract;
 import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.TesseractException;
+import nu.pattern.OpenCV;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.ImageType;
 import org.apache.pdfbox.rendering.PDFRenderer;
@@ -37,6 +38,7 @@ public class ParsingPDFService {
     private final Recognizer recognizer;
 
     public String parseProzorroFile(MultipartFile file) {
+        OpenCV.loadLocally();
 
         String strippedTextFromFile = findStrippedTextFromFile(file);
 
