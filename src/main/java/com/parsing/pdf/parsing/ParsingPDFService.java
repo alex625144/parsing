@@ -27,8 +27,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.parsing.pdf.parsing.DetectTable.detectTable;
-
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -88,21 +86,22 @@ public class ParsingPDFService {
     }
 
     private String findModel(String input) {
-        String modelPattern = "Lenovo[\\s\\S]*?[а-щА-ЩЬьЮюЯя][а-щА-ЩЬьЮюЯя]";
+//        String modelPattern = "Lenovo[\\s\\S]*?[а-щА-ЩЬьЮюЯя][а-щА-ЩЬьЮюЯя]";
+        String modelPattern = "Lenovo[\\s\\S]*";
         Pattern pattern = Pattern.compile(modelPattern);
         Matcher matcher = pattern.matcher(input);
 
         String matchedSubstring = null;
         if (matcher.find()) {
             matchedSubstring = matcher.group();
-            System.out.println("Matched model found: " + matchedSubstring);
+            log.info("Matched model found: " + matchedSubstring);
         } else {
-            System.out.println("No match for a model found");
+            log.info("No match for a model found");
         }
         return matchedSubstring;
     }
 
-    private List<String> findPrices(String input) {
+    public List<String> findPrices(String input) {
         String pricesPattern = "\\d{1,4}(?:\\s\\d{3})*(?:,\\d{2})?\n";
         Pattern pattern = Pattern.compile(pricesPattern);
         Matcher matcher = pattern.matcher(input);
@@ -111,14 +110,14 @@ public class ParsingPDFService {
         if (matcher.find()) {
             String match = matcher.group();
             matchedPrices.add(match);
-            System.out.println("Matched price found: " + match);
+            log.info("Matched price found: " + match);
         } else {
-            System.out.println("No match for prices found");
+            log.info("No match for prices found");
         }
         return matchedPrices;
     }
 
-    private List<String> findAmount(String input) {
+    public List<String> findAmount(String input) {
         String amountPattern = "\\d{1,2}";
         Pattern pattern = Pattern.compile(amountPattern);
         Matcher matcher = pattern.matcher(input);
@@ -127,9 +126,9 @@ public class ParsingPDFService {
         if (matcher.find()) {
             String match = matcher.group();
             matchedAmounts.add(match);
-            System.out.println("Matched amount found: " + match);
+            log.info("Matched amount found: " + match);
         } else {
-            System.out.println("No match for amount found");
+            log.info("No match for amount found");
         }
         return matchedAmounts;
     }
@@ -171,7 +170,7 @@ public class ParsingPDFService {
 //        _tesseract.setDatapath("../..//teseract/tessdata/");
 //        _tesseract.setDatapath(userFilesFolderPath.toUri().toString());
         _tesseract.setLanguage("eng+ukr");
-        System.out.println(document.getNumberOfPages() + "  pages in document");
+        log.info(document.getNumberOfPages() + "  pages in document");
 
         for (int page = document.getNumberOfPages() - 1; page < document.getNumberOfPages(); page++) {
             BufferedImage bim = pdfRenderer.renderImageWithDPI(page, 300, ImageType.GRAY);
@@ -183,14 +182,14 @@ public class ParsingPDFService {
             File png = new File("008.png");
             ImageIO.write(bim, "png", png);
 
-            String tableName = detectTable(png.getName());
+//            String tableName = detectTable(png.getName());
             List<Row> rows = rectangleDetector.detectRectangles("destination.png");
 
             for (Row row : rows) {
                 for (Column column : row.getColumns()) {
                     String result = _tesseract.doOCR(new File(rows.indexOf(row) + "_" + row.getColumns().indexOf(column) + ".png"));
                     column.setParsingResult(result);
-                    System.out.println("result " + result );
+                    log.info("result " + result);
                     out.append(result);
                 }
             }
