@@ -9,10 +9,13 @@ import org.opencv.core.Mat;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
+import org.opencv.core.Size;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 import org.springframework.stereotype.Component;
 
+import java.awt.*;
+import java.awt.color.ICC_ProfileGray;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,7 +31,7 @@ public class RectangleDetector {
     Mat cdstP = null;
     Mat verticalLines = null;
 
-    public List<Row> detectRectangles(String fileSource) {
+    public List<Rectangle> detectRectangles(String fileSource) {
         List<double[]> lines = findLinesWithOpenCV(fileSource, GORIZONTAL_LINE_LENGTH);
         List<Double> sortedPointsY = sortList(lines);
         List<Double> distinctPointsY = mergeGorizontalLines(sortedPointsY);
@@ -40,9 +43,13 @@ public class RectangleDetector {
         saveIMageWithVerticalLines(linesY);
         List<VerticalLineCoordinate> sortedVerticalLinesCoordinates = formVerticalLinesCoordinates(distinctPointsX, linesY);
         saveAllLines(sortedVerticalLinesCoordinates, sortedHorizontalLinesCoordinates);
-        List<Row> rows = tableProcessor.cropAllRowsRectangles(sortedHorizontalLinesCoordinates, sortedVerticalLinesCoordinates);
-        createRectsImages(rows);
-        return rows;
+//        List<Row> rows = tableProcessor.cropAllRowsRectangles(sortedHorizontalLinesCoordinates, sortedVerticalLinesCoordinates);
+//        createRectsImages(rows);
+
+
+
+        List<Rectangle> rowes = tableProcessor.cropRectangles(sortedHorizontalLinesCoordinates, sortedVerticalLinesCoordinates);
+        return rowes;
     }
 
     private List<VerticalLineCoordinate> formVerticalLinesCoordinates(List<Double> distinctPointsX, List<double[]> linesV) {
@@ -91,6 +98,8 @@ public class RectangleDetector {
 
     private void createRectsImages(List<Row> rows) {
         final Mat source = Imgcodecs.imread("destination.png", Imgcodecs.IMREAD_GRAYSCALE);
+        Mat mat = new Mat(480, 640, 5);
+        Imgcodecs.imwrite("first.jpg", mat);
         Mat cropRect = new Mat();
         for (Row row : rows) {
             for (Column column : row.getColumns()) {
@@ -99,7 +108,7 @@ public class RectangleDetector {
                 } catch (Exception ex) {
                     log.warn("can't crop image");
                 }
-                Imgcodecs.imwrite(rows.indexOf(row) + "_" + row.getColumns().indexOf(column) + ".png", cropRect);
+                Imgcodecs.imwrite(rows.indexOf(row) + "_" + row.getColumns().indexOf(column) + ".tiff", cropRect);
             }
         }
     }
