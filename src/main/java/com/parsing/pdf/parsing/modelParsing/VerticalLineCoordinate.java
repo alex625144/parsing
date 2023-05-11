@@ -1,4 +1,4 @@
-package com.parsing.pdf.parsing;
+package com.parsing.pdf.parsing.modelParsing;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

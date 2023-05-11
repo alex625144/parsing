@@ -1,21 +1,18 @@
 package com.parsing.pdf.parsing;
 
-import com.parsing.pdf.parsing.modelParsing.Column;
-import com.parsing.pdf.parsing.modelParsing.Row;
+import com.parsing.pdf.parsing.modelParsing.HorizontalLineCoordinate;
+import com.parsing.pdf.parsing.modelParsing.VerticalLineCoordinate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nu.pattern.OpenCV;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
-import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
-import org.opencv.core.Size;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 import org.springframework.stereotype.Component;
 
 import java.awt.*;
-import java.awt.color.ICC_ProfileGray;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,18 +23,21 @@ public class RectangleDetector {
 
     static final double THRESHOLD = 10;
     static final Double OFFSET = 5.0;
-    static final double GORIZONTAL_LINE_LENGTH = 700;
+    static final double HORIZONTAL_LINE_LENGTH = 700;
+    static final double VERTICAL_LINE_LENGTH = 100;
+
     private final TableProcessor tableProcessor;
+
     Mat cdstP = null;
     Mat verticalLines = null;
 
     public List<Rectangle> detectRectangles(String fileSource) {
-        List<double[]> lines = findLinesWithOpenCV(fileSource, GORIZONTAL_LINE_LENGTH);
+        List<double[]> lines = findLinesHorizontalWithOpenCV(fileSource);
         List<Double> sortedPointsY = sortList(lines);
         List<Double> distinctPointsY = mergeGorizontalLines(sortedPointsY);
         HorizontalLineCoordinate pointsWidthTable = findPointsWidthTable(lines);
         List<HorizontalLineCoordinate> sortedHorizontalLinesCoordinates = formHorizontalLinesCoordinates(distinctPointsY, pointsWidthTable);
-        List<double[]> linesY = findLinesVerticalWithOpenCV("destination.png", 100);
+        List<double[]> linesY = findLinesVerticalWithOpenCV("destination.png");
         List<Double> sortedPointsX = sortListX(linesY);
         List<Double> distinctPointsX = mergeGorizontalLines(sortedPointsX);
         saveIMageWithVerticalLines(linesY);
@@ -83,8 +83,8 @@ public class RectangleDetector {
 
     private List<HorizontalLineCoordinate> formHorizontalLinesCoordinates(List<Double> lines, HorizontalLineCoordinate horizontalLineCoordinate) {
         List<HorizontalLineCoordinate> result = new ArrayList<>();
-        for (int i = 0; i < lines.size(); i++) {
-            result.add(new HorizontalLineCoordinate(horizontalLineCoordinate.getLeftPoint(), horizontalLineCoordinate.getRightPoint(), lines.get(i)));
+        for (Double line : lines) {
+            result.add(new HorizontalLineCoordinate(horizontalLineCoordinate.getLeftPoint(), horizontalLineCoordinate.getRightPoint(), line));
         }
         return result;
     }
@@ -103,7 +103,6 @@ public class RectangleDetector {
         horizontalLines.forEach(
                 x -> Imgproc.line(verticalLines, new Point(x.getLeftPoint(), x.getYCoordinate()), new Point(x.getRightPoint(), x.getYCoordinate()),
                         new Scalar(0, 0, 255), 3, Imgproc.LINE_AA, 0));
-
         Imgcodecs.imwrite("All_Lines.png", verticalLines);
     }
 
@@ -126,8 +125,8 @@ public class RectangleDetector {
 
     private List<Double> sortList(List<double[]> lines) {
         List<Double> pointsY = new ArrayList<>();
-        for (int i = 0; i < lines.size(); i++) {
-            pointsY.add(lines.get(i)[1]);
+        for (double[] line : lines) {
+            pointsY.add(line[1]);
         }
         return pointsY.stream().sorted().toList();
     }
@@ -137,24 +136,20 @@ public class RectangleDetector {
         double minY = 50;
         double maxY = 0;
         double averageX = 0;
-
-        for (int i = 0; i < lines.size(); i++) {
-            if (minY > lines.get(i)[1]) {
-                minY = lines.get(i)[1];
+        for (double[] doubles : lines) {
+            if (minY > doubles[1]) {
+                minY = doubles[1];
             }
-
-            if (minY > lines.get(i)[3]) {
-                minY = lines.get(i)[3];
+            if (minY > doubles[3]) {
+                minY = doubles[3];
             }
-
-            if (maxY < lines.get(i)[1]) {
-                maxY = lines.get(i)[1];
+            if (maxY < doubles[1]) {
+                maxY = doubles[1];
             }
-
-            if (maxY < lines.get(i)[3]) {
-                maxY = lines.get(i)[3];
+            if (maxY < doubles[3]) {
+                maxY = doubles[3];
             }
-            averageX = (averageX + lines.get(i)[0]) / 2;
+            averageX = (averageX + doubles[0]) / 2;
         }
         line[0] = averageX;
         line[1] = maxY;
@@ -165,8 +160,8 @@ public class RectangleDetector {
 
     private List<Double> sortListX(List<double[]> lines) {
         List<Double> pointsY = new ArrayList<>();
-        for (int i = 0; i < lines.size(); i++) {
-            pointsY.add(lines.get(i)[0]);
+        for (double[] line : lines) {
+            pointsY.add(line[0]);
         }
         return pointsY.stream().sorted().toList();
     }
@@ -174,8 +169,7 @@ public class RectangleDetector {
     private HorizontalLineCoordinate findPointsWidthTable(List<double[]> lines) {
         double x1 = 100;
         double x2 = 0;
-        for (int x = 0; x < lines.size(); x++) {
-            double[] array = lines.get(x);
+        for (double[] array : lines) {
             if (array[0] < x1) {
                 x1 = array[0];
             }
@@ -186,7 +180,7 @@ public class RectangleDetector {
         return new HorizontalLineCoordinate(x1, x2, 0);
     }
 
-    private List<double[]> findLinesVerticalWithOpenCV(String fileSource, double minLineLength) {
+    private List<double[]> findLinesVerticalWithOpenCV(String fileSource) {
         Mat dst = new Mat();
         Mat cdst = new Mat();
         OpenCV.loadLocally();
@@ -201,7 +195,7 @@ public class RectangleDetector {
         Imgproc.cvtColor(dst, cdst, Imgproc.COLOR_GRAY2BGR);
         verticalLines = cdst.clone();
         Mat linesP = new Mat();
-        Imgproc.HoughLinesP(dst, linesP, 3, Math.PI, 200, minLineLength, 10);
+        Imgproc.HoughLinesP(dst, linesP, 3, Math.PI, 200, RectangleDetector.VERTICAL_LINE_LENGTH, 10);
         List<double[]> lines = new ArrayList<>();
         for (int x = 0; x < linesP.rows(); x++) {
             double[] l = linesP.get(x, 0);
@@ -210,7 +204,7 @@ public class RectangleDetector {
         return lines;
     }
 
-    private List<double[]> findLinesWithOpenCV(String fileSource, double minLineLength) {
+    private List<double[]> findLinesHorizontalWithOpenCV(String fileSource) {
         Mat dst = new Mat();
         Mat cdst = new Mat();
         OpenCV.loadLocally();
@@ -225,7 +219,7 @@ public class RectangleDetector {
         Imgproc.cvtColor(dst, cdst, Imgproc.COLOR_GRAY2BGR);
         cdstP = cdst.clone();
         Mat linesP = new Mat();
-        Imgproc.HoughLinesP(dst, linesP, 3, Math.PI / 2, 5, minLineLength, 5);
+        Imgproc.HoughLinesP(dst, linesP, 3, Math.PI / 2, 5, RectangleDetector.HORIZONTAL_LINE_LENGTH, 5);
         List<double[]> lines = new ArrayList<>();
         for (int x = 0; x < linesP.rows(); x++) {
             double[] l = linesP.get(x, 0);

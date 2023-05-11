@@ -1,7 +1,9 @@
 package com.parsing.pdf.parsing;
 
 import com.parsing.pdf.parsing.modelParsing.Column;
+import com.parsing.pdf.parsing.modelParsing.HorizontalLineCoordinate;
 import com.parsing.pdf.parsing.modelParsing.Row;
+import com.parsing.pdf.parsing.modelParsing.VerticalLineCoordinate;
 import lombok.RequiredArgsConstructor;
 import org.opencv.core.Rect;
 import org.springframework.stereotype.Component;
