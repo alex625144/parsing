@@ -27,21 +27,18 @@ public class DetectTable {
         OpenCV.loadLocally();
         Mat dst = new Mat(), cdst = new Mat(), cdstP, cropTable = new Mat();
         Mat source = Imgcodecs.imread(fileSource, Imgcodecs.IMREAD_GRAYSCALE);
-
         if (source.empty()) {
             log.warn("Error opening image!");
             log.warn("Program Arguments: [image_name -- default "
                     + fileSource + "] \n");
             System.exit(-1);
         }
-
         Imgproc.Canny(source, dst, 50, 200, 3, false);
         Imgcodecs.imwrite("afterCanny.png", dst);
         Imgproc.cvtColor(dst, cdst, Imgproc.COLOR_GRAY2BGR);
         cdstP = cdst.clone();
         Mat linesP = new Mat();
         Imgproc.HoughLinesP(dst, linesP, 1, Math.PI / 180, 25, 700, 10);
-
         for (int x = 0; x < linesP.rows(); x++) {
             double[] l = linesP.get(x, 0);
             Imgproc.line(cdstP, new Point(l[0], l[1]), new Point(l[2], l[3]), new Scalar(0, 0, 255), 3, Imgproc.LINE_AA, 0);
@@ -61,7 +58,6 @@ public class DetectTable {
             }
         }
         Imgcodecs.imwrite("afterHough.png", cdstP);
-
         Rect rectangle = createRect(x1, y1, x2, y2, y3);
         try {
             cropTable = source.submat(rectangle);
@@ -70,7 +66,6 @@ public class DetectTable {
         }
         String fileResult = "destination.png";
         Imgcodecs.imwrite(fileResult, cropTable);
-
         return fileResult;
     }
 
