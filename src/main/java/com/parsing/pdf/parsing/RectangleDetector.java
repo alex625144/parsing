@@ -24,7 +24,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class RectangleDetector {
 
-    static final int THRESHOLD = 10;
+    static final double THRESHOLD = 10;
     static final Double OFFSET = 5.0;
     static final double GORIZONTAL_LINE_LENGTH = 700;
     private final TableProcessor tableProcessor;
@@ -43,17 +43,10 @@ public class RectangleDetector {
         saveIMageWithVerticalLines(linesY);
         List<VerticalLineCoordinate> sortedVerticalLinesCoordinates = formVerticalLinesCoordinates(distinctPointsX, linesY);
         saveAllLines(sortedVerticalLinesCoordinates, sortedHorizontalLinesCoordinates);
-//        List<Row> rows = tableProcessor.cropAllRowsRectangles(sortedHorizontalLinesCoordinates, sortedVerticalLinesCoordinates);
-//        createRectsImages(rows);
-
-
-
-        List<Rectangle> rowes = tableProcessor.cropRectangles(sortedHorizontalLinesCoordinates, sortedVerticalLinesCoordinates);
-        return rowes;
+        return tableProcessor.cropRectangles(sortedHorizontalLinesCoordinates, sortedVerticalLinesCoordinates);
     }
 
     private List<VerticalLineCoordinate> formVerticalLinesCoordinates(List<Double> distinctPointsX, List<double[]> linesV) {
-
         List<VerticalLineCoordinate> result = new ArrayList<>();
         double max = 0;
         double min = 50;
@@ -94,23 +87,6 @@ public class RectangleDetector {
             result.add(new HorizontalLineCoordinate(horizontalLineCoordinate.getLeftPoint(), horizontalLineCoordinate.getRightPoint(), lines.get(i)));
         }
         return result;
-    }
-
-    private void createRectsImages(List<Row> rows) {
-        final Mat source = Imgcodecs.imread("destination.png", Imgcodecs.IMREAD_GRAYSCALE);
-        Mat mat = new Mat(480, 640, 5);
-        Imgcodecs.imwrite("first.jpg", mat);
-        Mat cropRect = new Mat();
-        for (Row row : rows) {
-            for (Column column : row.getColumns()) {
-                try {
-                    cropRect = source.submat(column.getRect());
-                } catch (Exception ex) {
-                    log.warn("can't crop image");
-                }
-                Imgcodecs.imwrite(rows.indexOf(row) + "_" + row.getColumns().indexOf(column) + ".tiff", cropRect);
-            }
-        }
     }
 
     private void saveIMageWithVerticalLines(List<double[]> linesV) {
