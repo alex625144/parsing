@@ -16,7 +16,6 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -26,7 +25,6 @@ public class Recognizer {
 
     private final LotPDFResultRepository lotPDFResultRepository;
     private final SaverLotPDFResult saverLotPDFResult;
-
 
     public final void recognizeLotPDFResult(List<Row> rows) {
         for (Row row : rows) {

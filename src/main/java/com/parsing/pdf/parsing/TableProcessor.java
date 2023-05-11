@@ -34,7 +34,6 @@ public class TableProcessor {
         for (int top = 0, bottom = 1; bottom < listHorizontal.size(); top++, bottom++) {
             List<Column> row = new ArrayList<>();
             List<Rect> temp = new ArrayList<>();
-
             for (int mainLine = 0, borderLine = 1; borderLine < listVertical.size(); ) {
                 if ( listVertical.get(borderLine).getBottomPoint() < listHorizontal.get(bottom).getYCoordinate()) {
                     borderLine++;

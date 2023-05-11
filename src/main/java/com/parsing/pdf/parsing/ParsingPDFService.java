@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -42,18 +41,12 @@ public class ParsingPDFService {
 
     public String parseProzorroFile(MultipartFile file) {
         OpenCV.loadLocally();
-
-
         String strippedTextFromFile = findStrippedTextFromFile(file);
-
         JSONObject obj = new JSONObject();
         obj.put("fileName", file.getOriginalFilename());
         obj.put("text", strippedTextFromFile);
-
         findData(obj.toString());
-
 //        lotPDFResultRepository.save();
-
         return obj.toString();
     }
 
@@ -105,8 +98,6 @@ public class ParsingPDFService {
                 }
             }
         }
-
-
         return null;
     }
 
@@ -244,6 +235,4 @@ public class ParsingPDFService {
 //            throw new RuntimeException("Error saving file: " + fileName, e);
 //        }
 //    }
-
-
 }
