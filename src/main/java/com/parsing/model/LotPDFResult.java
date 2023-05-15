@@ -12,11 +12,10 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
-import lombok.Setter;
 import lombok.Getter;
-
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -30,11 +29,11 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "lot_pdf_result")
-public class    LotPDFResult {
+public class LotPDFResult {
 
     @Id
     @GeneratedValue(generator = "UUID")
-    @Column(name ="id")
+    @Column(name = "id")
     private UUID id;
 
     @OneToOne(cascade = CascadeType.ALL)

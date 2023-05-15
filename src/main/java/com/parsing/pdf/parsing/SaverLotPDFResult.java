@@ -15,15 +15,13 @@ public class SaverLotPDFResult {
 
     private final LaptopItemRepository laptopItemRepository;
 
-    public boolean saveLaptopItem(String model, BigDecimal price, Integer amount) {
+    public void saveLaptopItem(String model, BigDecimal price, Integer amount) {
         if (model != null && price != null && amount != null) {
             LaptopItem laptopItem = new LaptopItem();
             laptopItem.setModel(model);
             laptopItem.setPrice(price);
             laptopItem.setAmount(amount);
             laptopItemRepository.save(laptopItem);
-            return true;
         }
-        return false;
     }
 }

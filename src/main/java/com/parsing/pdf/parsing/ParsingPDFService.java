@@ -1,7 +1,8 @@
 package com.parsing.pdf.parsing;
 
 import com.parsing.exception.PDFParsingException;
-import com.parsing.repository.LotPDFResultRepository;
+import com.parsing.pdf.parsing.model.Column;
+import com.parsing.pdf.parsing.model.Row;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.sourceforge.tess4j.ITesseract;
@@ -23,169 +24,58 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class ParsingPDFService {
 
-    private final LotPDFResultRepository lotPDFResultRepository;
-    private final RectangleDetector rectangleDetector;
-    private final Recognizer recognizer;
     private static final double OFFSET = 5;
+    private static final int WHITE_PIXEL_CODE = 255;
+    private final RectangleDetector rectangleDetector;
+    private final DataRecognizer dataRecognizer;
 
     public String parseProzorroFile(MultipartFile file) {
         OpenCV.loadLocally();
-        String strippedTextFromFile = findStrippedTextFromFile(file);
+        List<Row> table1 = findStrippedTextFromFile(file);
+        dataRecognizer.recognizeLotPDFResult(table1);
+
         JSONObject obj = new JSONObject();
         obj.put("fileName", file.getOriginalFilename());
-        obj.put("text", strippedTextFromFile);
-        findData(obj.toString());
-//        lotPDFResultRepository.save();
+        StringBuilder builder = new StringBuilder();
+        for (Row row : table1) {
+            for (Column column : row.getColumns()) {
+                builder.append(column.getParsingResult());
+            }
+        }
+
+        obj.put("text", builder);
         return obj.toString();
     }
 
-    public Mat fillSquareWhitePixel(Mat image, Rectangle rectangle) {
-        Mat result = image.clone();
-        double[] whitePixel = {255, 255, 255};
-        double x1 = rectangle.getX() + OFFSET;
-        double y1 = rectangle.getY() + OFFSET;
-        double x2 = x1 + rectangle.getWidth() - OFFSET;
-        double y2 = y1 + rectangle.getHeight() - OFFSET;
-        for (int row = 0; row < image.rows(); row++) {
-            for (int column = 0; column < image.cols(); column++) {
-                if (x1 < column && column < x2 && y1 < row && row < y2) {
-                    //skip this element
-                } else {
-                    result.put(row, column, whitePixel);
-                }
-            }
-        }
-        return result;
-    }
-
-    private List<BigDecimal> findData(String input) {
-        String model;
-        int amount;
-        BigDecimal price;
-        BigDecimal totalPrice;
-
-        String parsedModel = findModel(input);
-        List<String> prices = findPrices(input);
-        List<String> amounts = findAmount(input);
-
-//        String[] split = input.split("\\n");
-//        List<String> prices = Arrays.stream(split).filter(i -> i.matches(pricesPattern)).toList();
-//        List<String> amounts = Arrays.stream(split).filter(a -> a.matches(amountPattern)).toList();
-
-        //parse model, remove redundant parts
-
-        List<BigDecimal> pricesConverted = prices.stream().map(p -> BigDecimal.valueOf(Double.parseDouble(p))).toList();
-        List<Integer> amountsConverted = amounts.stream().map(Integer::parseInt).toList();
-        for (BigDecimal prc : pricesConverted) {
-            for (BigDecimal secondPrice : pricesConverted) {
-                for (Integer amnt : amountsConverted) {
-                    if (prc.longValueExact() * amnt == secondPrice.longValueExact()) {
-                        price = prc;
-                        totalPrice = secondPrice;
-                        amount = amnt;
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
-    private String findModel(String input) {
-//        String modelPattern = "Lenovo[\\s\\S]*?[а-щА-ЩЬьЮюЯя][а-щА-ЩЬьЮюЯя]";
-        String modelPattern = "Lenovo[\\s\\S]*";
-        Pattern pattern = Pattern.compile(modelPattern);
-        Matcher matcher = pattern.matcher(input);
-
-        String matchedSubstring = null;
-        if (matcher.find()) {
-            matchedSubstring = matcher.group();
-            log.info("Matched model found: " + matchedSubstring);
-        } else {
-            log.info("No match for a model found");
-        }
-        return matchedSubstring;
-    }
-
-    public List<String> findPrices(String input) {
-        String pricesPattern = "\\d{1,4}(?:\\s\\d{3})*(?:,\\d{2})?\n";
-        Pattern pattern = Pattern.compile(pricesPattern);
-        Matcher matcher = pattern.matcher(input);
-
-        List<String> matchedPrices = new ArrayList<>();
-        if (matcher.find()) {
-            String match = matcher.group();
-            matchedPrices.add(match);
-            log.info("Matched price found: " + match);
-        } else {
-            log.info("No match for prices found");
-        }
-        return matchedPrices;
-    }
-
-    public List<String> findAmount(String input) {
-        String amountPattern = "\\d{1,2}";
-        Pattern pattern = Pattern.compile(amountPattern);
-        Matcher matcher = pattern.matcher(input);
-
-        List<String> matchedAmounts = new ArrayList<>();
-        if (matcher.find()) {
-            String match = matcher.group();
-            matchedAmounts.add(match);
-            log.info("Matched amount found: " + match);
-        } else {
-            log.info("No match for amount found");
-        }
-        return matchedAmounts;
-    }
-
-    private String findStrippedTextFromFile(MultipartFile file) {
+    private List<Row> findStrippedTextFromFile(MultipartFile file) {
         try {
             PDDocument document = PDDocument.load(file.getBytes());
             PDFTextStripper stripper = new PDFTextStripper();
             String strippedText = stripper.getText(document);
-
             if (strippedText.trim().isEmpty()) {
                 return extractTextFromScannedDocument(document);
             }
         } catch (Exception e) {
-            throw new PDFParsingException(String.format("Parsing for file: {} failed.", file.getOriginalFilename()));
+            throw new PDFParsingException(String.format("Parsing for file: {0} failed.", file.getOriginalFilename()));
         }
         return null;
     }
 
-    public String extractTextFromScannedDocument(PDDocument document)
-            throws IOException, TesseractException {
-
-        // Extract images from file
+    private List<Row> extractTextFromScannedDocument(PDDocument document) throws IOException, TesseractException {
         PDFRenderer pdfRenderer = new PDFRenderer(document);
-        StringBuilder out = new StringBuilder();
-
-//        // Define the folder path
-//        Path userFilesFolderPath = Paths.get("tessdata");
-//
-//        // Create the folder if it doesn't exist
-//        if (!Files.exists(userFilesFolderPath)) {
-//            Files.createDirectory(userFilesFolderPath);
-//        }
+        List<Row> table = new ArrayList<>();
 
         ITesseract _tesseract = new Tesseract();
-        _tesseract.setVariable("textord_tabfind_find_tables", "1");
-//        _tesseract.setPageSegMode(7);
 //        _tesseract.setDatapath("C:/Users/Maksym.Fedosov/Documents/tessdata/");
         _tesseract.setDatapath("E:/programming/projects/parsing/tessdata/");
-//        _tesseract.setDatapath("../..//teseract/tessdata/");
-//        _tesseract.setDatapath(userFilesFolderPath.toUri().toString());
         _tesseract.setLanguage("ukr+eng");
         log.info(document.getNumberOfPages() + "  pages in document");
 
@@ -200,39 +90,42 @@ public class ParsingPDFService {
             ImageIO.write(bim, "png", png);
 
             String fileTableName = "destination.png";
-            List<Rectangle> rectangles = rectangleDetector.detectRectangles(fileTableName);
-            final Mat table = Imgcodecs.imread(fileTableName);
-            for (Rectangle rectangle : rectangles) {
-                Mat mat = fillSquareWhitePixel(table, rectangle);
-                Imgcodecs.imwrite(rectangles.indexOf(rectangle) + ".png", mat);
+            table = rectangleDetector.detectRectangles(fileTableName);
+
+            final Mat tableMat = Imgcodecs.imread(fileTableName);
+            for (Row row : table) {
+                for(Column column: row.getColumns()) {
+                    Mat mat = fillSquareWhitePixel(tableMat, column.getRectangle());
+                    Imgcodecs.imwrite(table.indexOf(row) + " " + row.getColumns().indexOf(column) + ".png", mat);
+                }
             }
-            for (Rectangle rectangle : rectangles) {
-                String filename = rectangles.indexOf(rectangle) + ".png";
-                log.info(filename);
-                String result = _tesseract.doOCR(new File(filename));
-                log.info(result);
-                out.append(result);
+            for (Row row : table) {
+                for (Column column : row.getColumns()) {
+                    String filename = table.indexOf(row) + " " +row.getColumns().indexOf(column) + ".png";
+                    String result = _tesseract.doOCR(new File(filename));
+                    column.setParsingResult(result);
+                    log.info(filename + " = " + result);
+                }
             }
-            // Delete temp file
-            temp.delete();
         }
-        return out.toString();
+        return table;
     }
 
-//    public Path findFilePath(String fileName) {
-//        try {
-//            // Define the folder path
-//            Path userFilesFolderPath = Paths.get("tessdata");
-//
-//            // Create the folder if it doesn't exist
-//            if (!Files.exists(userFilesFolderPath)) {
-//                Files.createDirectory(userFilesFolderPath);
-//            }
-//
-//            // Define the file path
-//            return userFilesFolderPath.resolve(fileName);
-//        } catch (IOException e) {
-//            throw new RuntimeException("Error saving file: " + fileName, e);
-//        }
-//    }
+    private Mat fillSquareWhitePixel(Mat image, Rectangle rectangle) {
+        Mat result = image.clone();
+        double[] whitePixel = {WHITE_PIXEL_CODE, WHITE_PIXEL_CODE, WHITE_PIXEL_CODE};
+        double xLeftUp = rectangle.getX() + OFFSET;
+        double yLeftUp = rectangle.getY() + OFFSET;
+        double xRightDown = xLeftUp + rectangle.getWidth() - OFFSET;
+        double yRightDown = yLeftUp + rectangle.getHeight() - OFFSET;
+        for (int row = 0; row < image.rows(); row++) {
+            for (int column = 0; column < image.cols(); column++) {
+                if (xLeftUp < column && column < xRightDown && yLeftUp < row && row < yRightDown) {
+                } else {
+                    result.put(row, column, whitePixel);
+                }
+            }
+        }
+        return result;
+    }
 }

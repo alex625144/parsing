@@ -1,13 +1,14 @@
-package com.parsing.pdf.parsing.modelParsing;
+package com.parsing.pdf.parsing.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import org.opencv.core.Rect;
+
+import java.awt.*;
 
 @Data
 @AllArgsConstructor
 public class Column {
 
-    private Rect rect;
+    private Rectangle rectangle;
     private String parsingResult;
 }

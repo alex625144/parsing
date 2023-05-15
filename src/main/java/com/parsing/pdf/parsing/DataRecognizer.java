@@ -1,10 +1,10 @@
 package com.parsing.pdf.parsing;
 
-import com.parsing.pdf.parsing.modelParsing.Column;
-import com.parsing.pdf.parsing.modelParsing.Row;
-import com.parsing.repository.LotPDFResultRepository;
+import com.parsing.pdf.parsing.model.Column;
+import com.parsing.pdf.parsing.model.Row;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -19,12 +19,12 @@ import java.util.regex.Pattern;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class Recognizer {
+public class DataRecognizer {
 
-    private static final List<String> LAPTOP_MODELS = List.of("lenovo", "asus", "acer");
-
-    private final LotPDFResultRepository lotPDFResultRepository;
     private final SaverLotPDFResult saverLotPDFResult;
+
+    @Value("$laptop.models")
+    private List<String> LAPTOP_MODELS;
 
     public final void recognizeLotPDFResult(List<Row> rows) {
         for (Row row : rows) {
@@ -32,11 +32,10 @@ public class Recognizer {
             Integer amount = 0;
             BigDecimal price = null;
             BigDecimal totalprice = null;
-
             if (isModelRow(row)) {
                 int modelColumnNumber = 0;
                 for (Column column : row.getColumns()) {
-                    if (isModel(column.getParsingResult())){
+                    if (isModel(column.getParsingResult())) {
                         model = findModel(column.getParsingResult());
                     }
                     if (model != null) {
@@ -68,10 +67,10 @@ public class Recognizer {
                 if (max.isPresent()) {
                     totalprice = max.get();
                 }
-                if(amount==0){
+                if (amount == 0) {
                     amount = totalprice.divide(price).toBigInteger().intValueExact();
                 }
-                if (totalprice!=null && totalprice.equals(BigDecimal.valueOf(amount).multiply(price))) {
+                if (totalprice != null && totalprice.equals(BigDecimal.valueOf(amount).multiply(price))) {
                     saverLotPDFResult.saveLaptopItem(model, price, amount);
                 }
             }

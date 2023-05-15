@@ -1,6 +1,5 @@
 package com.parsing.client;
 
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpMethod;
@@ -33,7 +32,6 @@ public class ProzorroClient {
                 .setAccept(Arrays.asList(MediaType.APPLICATION_OCTET_STREAM, MediaType.ALL));
 
         ResponseExtractor<Void> responseExtractor = response -> {
-            // Here you can write the inputstream to a file or any other place
             Path path = Paths.get(savePath);
             Files.copy(response.getBody(), path);
             return null;
