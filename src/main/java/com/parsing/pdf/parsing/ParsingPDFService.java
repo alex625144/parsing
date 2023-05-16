@@ -39,17 +39,23 @@ public class ParsingPDFService {
     private static final int WHITE_PIXEL_CODE = 255;
     private final RectangleDetector rectangleDetector;
     private final DataRecognizer dataRecognizer;
-    private final String DIR_TO_READ_TESSDATA ="/tessdata/";
+    private final TableDetector tableDetector;
+    private final String DIR_TO_READ_TESSDATA = "/tessdata/";
+    private List<Row> table = new ArrayList<>();
 
-    public String parseProzorroFile(MultipartFile file) {
+    public String parseProzorroFile(MultipartFile file) throws IOException, TesseractException {
         OpenCV.loadLocally();
-        List<Row> table1 = findStrippedTextFromFile(file);
-        dataRecognizer.recognizeLotPDFResult(table1);
 
+        PDDocument document = PDDocument.load(file.getBytes());
+        String lastPagePDF = getLastPagePDF(document);
+        String fileTableName = tableDetector.detectTable(lastPagePDF);
+        table = rectangleDetector.detectRectangles(fileTableName);
+        table = extractTextFromScannedDocument(fileTableName);
+        dataRecognizer.recognizeLotPDFResult(table);
         JSONObject obj = new JSONObject();
         obj.put("fileName", file.getOriginalFilename());
         StringBuilder builder = new StringBuilder();
-        for (Row row : table1) {
+        for (Row row : table) {
             for (Column column : row.getColumns()) {
                 builder.append(column.getParsingResult());
             }
@@ -64,7 +70,7 @@ public class ParsingPDFService {
             PDFTextStripper stripper = new PDFTextStripper();
             String strippedText = stripper.getText(document);
             if (strippedText.trim().isEmpty()) {
-                return extractTextFromScannedDocument(document);
+                return Collections.emptyList();
             }
         } catch (Exception e) {
             throw new PDFParsingException(String.format("Parsing for file: %s failed.", file.getOriginalFilename()));
@@ -72,41 +78,23 @@ public class ParsingPDFService {
         return Collections.emptyList();
     }
 
-    private List<Row> extractTextFromScannedDocument(PDDocument document) throws IOException, TesseractException {
-        PDFRenderer pdfRenderer = new PDFRenderer(document);
-        List<Row> table = new ArrayList<>();
-
+    private List<Row> extractTextFromScannedDocument(String fileTableName) throws TesseractException {
         ITesseract itesseract = new Tesseract();
-        itesseract.setDatapath(getPath());
+        itesseract.setDatapath(getPathTessData());
         itesseract.setLanguage("ukr+eng");
-        log.info(document.getNumberOfPages() + "  pages in document");
-
-        for (int page = document.getNumberOfPages() - 1; page < document.getNumberOfPages(); page++) {
-            BufferedImage bim = pdfRenderer.renderImageWithDPI(page, 300, ImageType.GRAY);
-
-            File temp = File.createTempFile("tempfile_" + page, ".png");
-            ImageIO.write(bim, "png", temp);
-
-            File png = new File("008.png");
-            ImageIO.write(bim, "png", png);
-
-            String fileTableName = "destination.png";
-            table = rectangleDetector.detectRectangles(fileTableName);
-
-            final Mat tableMat = Imgcodecs.imread(fileTableName);
-            for (Row row : table) {
-                for(Column column: row.getColumns()) {
-                    Mat mat = fillSquareWhitePixel(tableMat, column.getRectangle());
-                    Imgcodecs.imwrite(table.indexOf(row) + " " + row.getColumns().indexOf(column) + ".png", mat);
-                }
+        final Mat tableMat = Imgcodecs.imread(fileTableName);
+        for (Row row : table) {
+            for (Column column : row.getColumns()) {
+                Mat mat = fillSquareWhitePixel(tableMat, column.getRectangle());
+                Imgcodecs.imwrite(table.indexOf(row) + " " + row.getColumns().indexOf(column) + ".png", mat);
             }
-            for (Row row : table) {
-                for (Column column : row.getColumns()) {
-                    String filename = table.indexOf(row) + " " +row.getColumns().indexOf(column) + ".png";
-                    String result = itesseract.doOCR(new File(filename));
-                    column.setParsingResult(result);
-                    log.info(filename + " = " + result);
-                }
+        }
+        for (Row row : table) {
+            for (Column column : row.getColumns()) {
+                String filename = table.indexOf(row) + " " + row.getColumns().indexOf(column) + ".png";
+                String result = itesseract.doOCR(new File(filename));
+                column.setParsingResult(result);
+                log.info(filename + " = " + result);
             }
         }
         return table;
@@ -130,12 +118,25 @@ public class ParsingPDFService {
         return result;
     }
 
-    private String getPath() {
+    private String getPathTessData() {
         Path currentPathPosition = Paths.get("").toAbsolutePath();
         File pdfDir = new File(currentPathPosition + DIR_TO_READ_TESSDATA);
-        if (!pdfDir.exists()){
+        if (!pdfDir.exists()) {
             pdfDir.mkdir();
         }
-        return currentPathPosition.toAbsolutePath()+ DIR_TO_READ_TESSDATA;
+        return currentPathPosition.toAbsolutePath() + DIR_TO_READ_TESSDATA;
+    }
+
+    private String getLastPagePDF(PDDocument document) throws IOException {
+        PDFRenderer pdfRenderer = new PDFRenderer(document);
+        String lastPagePDF = "lastPagePDF.png";
+        for (int page = document.getNumberOfPages() - 1; page < document.getNumberOfPages(); page++) {
+            BufferedImage bim = pdfRenderer.renderImageWithDPI(page, 300, ImageType.GRAY);
+            File temp = File.createTempFile("tempfile_" + page, ".png");
+            ImageIO.write(bim, "png", temp);
+            File png = new File(lastPagePDF);
+            ImageIO.write(bim, "png", png);
+        }
+        return lastPagePDF;
     }
 }

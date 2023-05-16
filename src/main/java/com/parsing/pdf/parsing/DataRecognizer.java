@@ -4,8 +4,6 @@ import com.parsing.pdf.parsing.model.Column;
 import com.parsing.pdf.parsing.model.Row;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.cfg.Environment;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -30,10 +28,9 @@ public class DataRecognizer {
     private BigDecimal totalPrice = null;
 
     @Value("${laptop.models}")
-    private final List<String> LAPTOP_MODELS;
+    private final List<String> laptopModels;
 
     public final void recognizeLotPDFResult(List<Row> rows) {
-        System.out.println("LAPTOP" + LAPTOP_MODELS.stream().toList());
         for (Row row : rows) {
             if (isModelRow(row)) {
                 int modelColumnNumber = 0;
@@ -81,7 +78,7 @@ public class DataRecognizer {
     private boolean isModelRow(Row row) {
         List<String> listLowerCaseColumn = row.getColumns().stream().map(x -> x.getParsingResult().toLowerCase(Locale.ROOT)).toList();
         for (String column : listLowerCaseColumn) {
-            for (String laptopModel : LAPTOP_MODELS) {
+            for (String laptopModel : laptopModels) {
                 if (column.contains(laptopModel)) {
                     return true;
                 }
@@ -91,8 +88,8 @@ public class DataRecognizer {
     }
 
     private String findModel(String input) {
-        for (String model : LAPTOP_MODELS) {
-            if (input.toLowerCase(Locale.ROOT).contains(model)) {
+        for (String laptop : laptopModels) {
+            if (input.toLowerCase(Locale.ROOT).contains(laptop)) {
                 return input;
             }
         }
@@ -100,8 +97,8 @@ public class DataRecognizer {
     }
 
     private boolean isModel(String input) {
-        for (String model : LAPTOP_MODELS) {
-            if (input.toLowerCase(Locale.ROOT).contains(model)) {
+        for (String laptop : laptopModels) {
+            if (input.toLowerCase(Locale.ROOT).contains(laptop)) {
                 return true;
             }
         }
