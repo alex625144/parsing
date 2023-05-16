@@ -42,6 +42,7 @@ public class ParsingPDFService {
         OpenCV.loadLocally();
         List<Row> table1 = findStrippedTextFromFile(file);
         dataRecognizer.recognizeLotPDFResult(table1);
+
         JSONObject obj = new JSONObject();
         obj.put("fileName", file.getOriginalFilename());
         StringBuilder builder = new StringBuilder();
