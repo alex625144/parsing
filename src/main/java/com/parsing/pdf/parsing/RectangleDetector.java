@@ -134,30 +134,23 @@ public class RectangleDetector {
     }
 
     private double[] sortListArray(List<double[]> lines) {
-        double[] line = new double[4];
         double minY = 50;
         double maxY = 0;
         double averageX = 0;
         for (double[] doubles : lines) {
             if (minY > doubles[1]) {
                 minY = doubles[1];
+            } else if (maxY < doubles[1]) {
+                maxY = doubles[1];
             }
             if (minY > doubles[3]) {
                 minY = doubles[3];
-            }
-            if (maxY < doubles[1]) {
-                maxY = doubles[1];
-            }
-            if (maxY < doubles[3]) {
+            } else if (maxY < doubles[3]) {
                 maxY = doubles[3];
             }
             averageX = (averageX + doubles[0]) / 2;
         }
-        line[0] = averageX;
-        line[1] = maxY;
-        line[2] = averageX;
-        line[3] = minY;
-        return line;
+        return new double[] {averageX, maxY, averageX, minY};
     }
 
     private List<Double> sortLinesByX(List<double[]> lines) {
