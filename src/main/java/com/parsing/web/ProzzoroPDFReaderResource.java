@@ -15,7 +15,9 @@ public class ProzzoroPDFReaderResource {
     private final ParsingPDFService parsingPDFService;
     private final PDFDownloader pdfDownloader;
 
+
     @PostMapping(value = "/api/pdf/extractText", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @ResponseStatus(HttpStatus.CREATED)
     public String extractTextFromPDFFile(@RequestPart(value = "upload") MultipartFile file) {
         return parsingPDFService.parseProzorroFile(file);
     }

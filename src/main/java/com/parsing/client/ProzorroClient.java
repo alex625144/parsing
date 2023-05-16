@@ -9,6 +9,7 @@ import org.springframework.web.client.RequestCallback;
 import org.springframework.web.client.ResponseExtractor;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.File;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -21,12 +22,11 @@ import java.util.Arrays;
 public class ProzorroClient {
 
     private final RestTemplate restTemplate;
+    private static final String DIR_TO_SAVE_PDF = "/resources/";
 
     public String downloadByUrl(URI uri) {
+        String savePath = getPath();
         String lot = uri.toString().split("/")[4];
-        String savePath = "C:/" + lot + ".pdf";
-        log.debug("file with URI: " + uri + " was saved.");
-
         RequestCallback requestCallback = request -> request
                 .getHeaders()
                 .setAccept(Arrays.asList(MediaType.APPLICATION_OCTET_STREAM, MediaType.ALL));
@@ -39,5 +39,14 @@ public class ProzorroClient {
         restTemplate.execute(uri, HttpMethod.GET, requestCallback, responseExtractor);
         log.debug("file with URI: " + uri + " was saved.");
         return savePath;
+    }
+
+    private String getPath() {
+        Path currentPathPosition = Paths.get("").toAbsolutePath();
+        File pdfDir = new File(currentPathPosition + DIR_TO_SAVE_PDF);
+        if (!pdfDir.exists()){
+            pdfDir.mkdir();
+        }
+        return currentPathPosition.toAbsolutePath()+ DIR_TO_SAVE_PDF;
     }
 }

@@ -4,6 +4,9 @@ import com.parsing.pdf.parsing.model.Column;
 import com.parsing.pdf.parsing.model.Row;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.cfg.Environment;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -20,16 +23,17 @@ import java.util.regex.Pattern;
 @Slf4j
 public class DataRecognizer {
 
-    private final SaverLotPDFResult saverLotPDFResult;
+    private final LotPDFResultService lotPDFResultService;
     private String model = null;
     private Integer amount = 0;
     private BigDecimal price = null;
     private BigDecimal totalPrice = null;
 
-    //    @Value("$laptop.models")
-    private final List<String> LAPTOP_MODELS = List.of("lenovo");
+    @Value("${laptop.models}")
+    private final List<String> LAPTOP_MODELS;
 
     public final void recognizeLotPDFResult(List<Row> rows) {
+        System.out.println("LAPTOP" + LAPTOP_MODELS.stream().toList());
         for (Row row : rows) {
             if (isModelRow(row)) {
                 int modelColumnNumber = 0;
@@ -68,7 +72,7 @@ public class DataRecognizer {
                     amount = totalPrice.divide(price).toBigInteger().intValueExact();
                 }
                 if (totalPrice != null && totalPrice.equals(BigDecimal.valueOf(amount).multiply(price))) {
-                    saverLotPDFResult.saveLaptopItem(model, price, amount);
+                    lotPDFResultService.saveLaptopItem(model, price, amount);
                 }
             }
         }

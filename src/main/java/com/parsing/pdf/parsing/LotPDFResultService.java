@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class SaverLotPDFResult {
+public class LotPDFResultService {
 
     private final LaptopItemRepository laptopItemRepository;
 

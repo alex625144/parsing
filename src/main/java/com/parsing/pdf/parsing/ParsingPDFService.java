@@ -24,6 +24,8 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -37,6 +39,7 @@ public class ParsingPDFService {
     private static final int WHITE_PIXEL_CODE = 255;
     private final RectangleDetector rectangleDetector;
     private final DataRecognizer dataRecognizer;
+    private final String DIR_TO_READ_TESSDATA ="/tessdata/";
 
     public String parseProzorroFile(MultipartFile file) {
         OpenCV.loadLocally();
@@ -74,8 +77,7 @@ public class ParsingPDFService {
         List<Row> table = new ArrayList<>();
 
         ITesseract itesseract = new Tesseract();
-//        _tesseract.setDatapath("C:/Users/Maksym.Fedosov/Documents/tessdata/");
-        itesseract.setDatapath("E:/programming/projects/parsing/tessdata/");
+        itesseract.setDatapath(getPath());
         itesseract.setLanguage("ukr+eng");
         log.info(document.getNumberOfPages() + "  pages in document");
 
@@ -126,5 +128,14 @@ public class ParsingPDFService {
             }
         }
         return result;
+    }
+
+    private String getPath() {
+        Path currentPathPosition = Paths.get("").toAbsolutePath();
+        File pdfDir = new File(currentPathPosition + DIR_TO_READ_TESSDATA);
+        if (!pdfDir.exists()){
+            pdfDir.mkdir();
+        }
+        return currentPathPosition.toAbsolutePath()+ DIR_TO_READ_TESSDATA;
     }
 }

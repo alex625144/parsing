@@ -21,7 +21,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class RectangleDetector {
 
-    static final double THRESHOLD = 10;
     static final Double OFFSET = 5.0;
     static final double HORIZONTAL_LINE_LENGTH = 700;
     static final double VERTICAL_LINE_LENGTH = 100;
@@ -80,7 +79,7 @@ public class RectangleDetector {
     }
 
     private boolean isEqualsWithThreshold(Double distinctPointX, double[] coordinates) {
-        return (Math.abs(coordinates[0])) + THRESHOLD / 2 > distinctPointX && (Math.abs(coordinates[0])) - THRESHOLD / 2 < distinctPointX;
+        return (Math.abs(coordinates[0])) + OFFSET / 2 > distinctPointX && (Math.abs(coordinates[0])) - OFFSET / 2 < distinctPointX;
     }
 
     private List<HorizontalLineCoordinate> formHorizontalLinesCoordinates(List<Double> lines, HorizontalLineCoordinate horizontalLineCoordinate) {
