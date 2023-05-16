@@ -1,7 +1,7 @@
 laptop:
   models: lenovo
 server:
-  port:
+  port: 8080
 
 logging:
   level:
