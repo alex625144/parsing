@@ -25,6 +25,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -41,7 +42,6 @@ public class ParsingPDFService {
         OpenCV.loadLocally();
         List<Row> table1 = findStrippedTextFromFile(file);
         dataRecognizer.recognizeLotPDFResult(table1);
-
         JSONObject obj = new JSONObject();
         obj.put("fileName", file.getOriginalFilename());
         StringBuilder builder = new StringBuilder();
@@ -50,7 +50,6 @@ public class ParsingPDFService {
                 builder.append(column.getParsingResult());
             }
         }
-
         obj.put("text", builder);
         return obj.toString();
     }
@@ -64,25 +63,24 @@ public class ParsingPDFService {
                 return extractTextFromScannedDocument(document);
             }
         } catch (Exception e) {
-            throw new PDFParsingException(String.format("Parsing for file: {0} failed.", file.getOriginalFilename()));
+            throw new PDFParsingException(String.format("Parsing for file: %s failed.", file.getOriginalFilename()));
         }
-        return null;
+        return Collections.emptyList();
     }
 
     private List<Row> extractTextFromScannedDocument(PDDocument document) throws IOException, TesseractException {
         PDFRenderer pdfRenderer = new PDFRenderer(document);
         List<Row> table = new ArrayList<>();
 
-        ITesseract _tesseract = new Tesseract();
+        ITesseract itesseract = new Tesseract();
 //        _tesseract.setDatapath("C:/Users/Maksym.Fedosov/Documents/tessdata/");
-        _tesseract.setDatapath("E:/programming/projects/parsing/tessdata/");
-        _tesseract.setLanguage("ukr+eng");
+        itesseract.setDatapath("E:/programming/projects/parsing/tessdata/");
+        itesseract.setLanguage("ukr+eng");
         log.info(document.getNumberOfPages() + "  pages in document");
 
         for (int page = document.getNumberOfPages() - 1; page < document.getNumberOfPages(); page++) {
             BufferedImage bim = pdfRenderer.renderImageWithDPI(page, 300, ImageType.GRAY);
 
-            // Create a temp image file
             File temp = File.createTempFile("tempfile_" + page, ".png");
             ImageIO.write(bim, "png", temp);
 
@@ -102,7 +100,7 @@ public class ParsingPDFService {
             for (Row row : table) {
                 for (Column column : row.getColumns()) {
                     String filename = table.indexOf(row) + " " +row.getColumns().indexOf(column) + ".png";
-                    String result = _tesseract.doOCR(new File(filename));
+                    String result = itesseract.doOCR(new File(filename));
                     column.setParsingResult(result);
                     log.info(filename + " = " + result);
                 }

@@ -4,7 +4,6 @@ import com.parsing.pdf.parsing.model.Column;
 import com.parsing.pdf.parsing.model.Row;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -22,23 +21,21 @@ import java.util.regex.Pattern;
 public class DataRecognizer {
 
     private final SaverLotPDFResult saverLotPDFResult;
+    private String model = null;
+    private Integer amount = 0;
+    private BigDecimal price = null;
+    private BigDecimal totalPrice = null;
 
-    @Value("$laptop.models")
-    private List<String> LAPTOP_MODELS;
+    //    @Value("$laptop.models")
+    private final List<String> LAPTOP_MODELS = List.of("lenovo");
 
     public final void recognizeLotPDFResult(List<Row> rows) {
         for (Row row : rows) {
-            String model = null;
-            Integer amount = 0;
-            BigDecimal price = null;
-            BigDecimal totalprice = null;
             if (isModelRow(row)) {
                 int modelColumnNumber = 0;
                 for (Column column : row.getColumns()) {
                     if (isModel(column.getParsingResult())) {
                         model = findModel(column.getParsingResult());
-                    }
-                    if (model != null) {
                         modelColumnNumber = row.getColumns().indexOf(column);
                     }
                 }
@@ -53,24 +50,24 @@ public class DataRecognizer {
                         prices.add(findPrices(row.getColumns().get(x).getParsingResult()));
                     }
                 }
-                if (amounts.size() > 1) {
-                    log.info("more than one amount number found in one row"); //todo implement as a part of feedback system
+                if (amounts.size() == 1) {
                     amount = Integer.parseInt(amounts.get(0));
+                } else if(amounts.size() > 1) {
+                    log.info("more than one amount number found in one row");
+                    amount = 0;
                 }
 
                 List<BigDecimal> bigDecimals = prices.stream().map(BigDecimal::new).toList();
                 Optional<BigDecimal> min = bigDecimals.stream().min(Comparator.naturalOrder());
-                if (min.isPresent()) {
-                    price = min.get();
-                }
                 Optional<BigDecimal> max = bigDecimals.stream().max(Comparator.naturalOrder());
-                if (max.isPresent()) {
-                    totalprice = max.get();
+                if (min.isPresent() && max.isPresent()) {
+                    price = min.get();
+                    totalPrice = max.get();
                 }
-                if (amount == 0) {
-                    amount = totalprice.divide(price).toBigInteger().intValueExact();
+                if (amount == 0 && price != null) {
+                    amount = totalPrice.divide(price).toBigInteger().intValueExact();
                 }
-                if (totalprice != null && totalprice.equals(BigDecimal.valueOf(amount).multiply(price))) {
+                if (totalPrice != null && totalPrice.equals(BigDecimal.valueOf(amount).multiply(price))) {
                     saverLotPDFResult.saveLaptopItem(model, price, amount);
                 }
             }
@@ -110,7 +107,7 @@ public class DataRecognizer {
     private String findPrices(String input) {
         String result = null;
         if (input.contains(",")) {
-            result = input.replace(" ", "").replace("\n", "").replace(",", ".");
+            result = input.replace(" ", "").replace("\n", "").replace(",", ".").replace("І", "1");
         }
         return result;
     }

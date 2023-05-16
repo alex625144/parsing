@@ -23,6 +23,6 @@ public class ProzzoroPDFReaderResource {
     @ResponseStatus(HttpStatus.OK)
     @GetMapping(value = "/api/pdf/download", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public void downloadPDFFile(@RequestParam(value = "uri") String uri) {
-        pdfDownloader.downloadDocument(uri);
+        pdfDownloader.downloadPDF(uri);
     }
 }

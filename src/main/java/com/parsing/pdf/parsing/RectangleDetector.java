@@ -161,11 +161,11 @@ public class RectangleDetector {
     }
 
     private List<Double> sortLinesByX(List<double[]> lines) {
-        List<Double> pointsY = new ArrayList<>();
+        List<Double> result = new ArrayList<>();
         for (double[] line : lines) {
-            pointsY.add(line[0]);
+            result.add(line[0]);
         }
-        return pointsY.stream().sorted().toList();
+        return result.stream().sorted().toList();
     }
 
     private HorizontalLineCoordinate findPointsWidthTable(List<double[]> lines) {
