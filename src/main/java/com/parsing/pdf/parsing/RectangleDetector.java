@@ -24,11 +24,9 @@ public class RectangleDetector {
     static final Double OFFSET = 5.0;
     static final double HORIZONTAL_LINE_LENGTH = 700;
     static final double VERTICAL_LINE_LENGTH = 100;
+    private final TableProcessor tableProcessor;
     double maxCoordinate = 0;
     double minCoordinate = 50;
-
-    private final TableProcessor tableProcessor;
-
     Mat verticalLinesMat = null;
 
     public List<Row> detectRectangles(String fileSource) {

@@ -22,6 +22,12 @@ public class TableDetector {
     private static double y2 = 0;
     private static double y3 = 1500;
 
+    private static Rect createRect(double x1, double y1, double x2, double y2, double y3) {
+        double width = Math.sqrt(Math.pow((x2 - x1), 2) + Math.pow((y2 - y1), 2));
+        double height = Math.sqrt(Math.pow((y3 - y2), 2));
+        return new Rect((int) x1, (int) y3, (int) width, (int) height);
+    }
+
     public String detectTable(String fileSource) {
         OpenCV.loadLocally();
         Mat dst = new Mat(), cdst = new Mat(), cdstP, cropTable = new Mat();
@@ -64,11 +70,5 @@ public class TableDetector {
         String fileResult = "destination.png";
         Imgcodecs.imwrite(fileResult, cropTable);
         return fileResult;
-    }
-
-    private static Rect createRect(double x1, double y1, double x2, double y2, double y3) {
-        double width = Math.sqrt(Math.pow((x2 - x1), 2) + Math.pow((y2 - y1), 2));
-        double height = Math.sqrt(Math.pow((y3 - y2), 2));
-        return new Rect((int) x1, (int) y3, (int) width, (int) height);
     }
 }

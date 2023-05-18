@@ -1,8 +1,8 @@
 package com.parsing.rozetka;
 
+import com.parsing.model.LaptopItem;
 import com.parsing.model.LotResult;
 import com.parsing.model.RozetkaParsingReport;
-import com.parsing.model.LaptopItem;
 import com.parsing.model.Status;
 import com.parsing.repository.LotResultRepository;
 import com.parsing.repository.RozetkaParsingResultRepository;
@@ -39,7 +39,7 @@ public class RozetkaParser {
         boolean isRozetkaParsingSuccessful = false;
         for (String model : models) {
             BigDecimal price = searchPriceByModel(model);
-            if (price == null || price.doubleValue() == 0.0 ) continue;
+            if (price == null || price.doubleValue() == 0.0) continue;
 
             isRozetkaParsingSuccessful = true;
             RozetkaParsingReport rozetkaParsingReport = new RozetkaParsingReport();

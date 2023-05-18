@@ -21,8 +21,8 @@ import java.util.Arrays;
 @RequiredArgsConstructor
 public class ProzorroClient {
 
-    private final RestTemplate restTemplate;
     private static final String DIR_TO_SAVE_PDF = "/pdf/";
+    private final RestTemplate restTemplate;
 
     public void downloadByUrl(URI uri) {
         String savePath = getPath();

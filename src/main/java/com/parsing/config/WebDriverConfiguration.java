@@ -12,7 +12,7 @@ public class WebDriverConfiguration {
     @Bean
     public WebDriver createWebDriver() {
         System.setProperty("webdriver.http.factory", "jdk-http-client");
-        ChromeOptions options= new ChromeOptions();
+        ChromeOptions options = new ChromeOptions();
         options.setHeadless(true);
         return new ChromeDriver();
     }

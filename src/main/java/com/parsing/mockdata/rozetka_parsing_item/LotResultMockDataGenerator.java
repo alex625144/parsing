@@ -27,7 +27,7 @@ public class LotResultMockDataGenerator {
     public List<LotResult> generate() {
         List<LotResult> lotResults = new ArrayList<>();
 
-        for(int i = 0; i < LOT_RESULT_QUANTITY; i++) {
+        for (int i = 0; i < LOT_RESULT_QUANTITY; i++) {
             LotResult lotResult = new LotResult();
 
             lotResult.setDk(DK);
@@ -58,8 +58,7 @@ public class LotResultMockDataGenerator {
             case 5 -> Status.PDF_FAILED;
             case 6 -> Status.ROZETKA_SUCCESSFULL;
             case 7 -> Status.ROZETKA_FAILED;
-            default ->
-                    throw new IllegalStateException("Unexpected value: " + ThreadLocalRandom.current().nextInt(minValue, maxValue));
+            default -> throw new IllegalStateException("Unexpected value: " + ThreadLocalRandom.current().nextInt(minValue, maxValue));
         };
     }
 }

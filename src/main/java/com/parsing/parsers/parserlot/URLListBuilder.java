@@ -1,6 +1,7 @@
 package com.parsing.parsers.parserlot;
 
 import lombok.extern.slf4j.Slf4j;
+
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.ArrayList;
@@ -34,7 +35,7 @@ public class URLListBuilder {
     }
 
     private static List<String> createDayLots() {
-        List<Integer> lots = IntStream.range(START_LOT,END_LOT).boxed().toList();
+        List<Integer> lots = IntStream.range(START_LOT, END_LOT).boxed().toList();
         List<String> listString = lots.stream().map(Object::toString).toList();
         List<String> result = new ArrayList<>(listString.size());
         for (int i = 0; i < listString.size(); i++) {
