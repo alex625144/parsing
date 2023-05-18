@@ -22,11 +22,10 @@ import java.util.Arrays;
 public class ProzorroClient {
 
     private final RestTemplate restTemplate;
-    private static final String DIR_TO_SAVE_PDF = "/resources/";
+    private static final String DIR_TO_SAVE_PDF = "/pdf/";
 
-    public String downloadByUrl(URI uri) {
+    public void downloadByUrl(URI uri) {
         String savePath = getPath();
-        String lot = uri.toString().split("/")[4];
         RequestCallback requestCallback = request -> request
                 .getHeaders()
                 .setAccept(Arrays.asList(MediaType.APPLICATION_OCTET_STREAM, MediaType.ALL));
@@ -38,15 +37,14 @@ public class ProzorroClient {
         };
         restTemplate.execute(uri, HttpMethod.GET, requestCallback, responseExtractor);
         log.debug("file with URI: " + uri + " was saved.");
-        return savePath;
     }
 
     private String getPath() {
         Path currentPathPosition = Paths.get("").toAbsolutePath();
         File pdfDir = new File(currentPathPosition + DIR_TO_SAVE_PDF);
-        if (!pdfDir.exists()){
+        if (!pdfDir.exists()) {
             pdfDir.mkdir();
         }
-        return currentPathPosition.toAbsolutePath()+ DIR_TO_SAVE_PDF;
+        return currentPathPosition.toAbsolutePath() + DIR_TO_SAVE_PDF;
     }
 }

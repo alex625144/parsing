@@ -22,27 +22,19 @@ import java.util.regex.Pattern;
 public class DataRecognizer {
 
     private final LotPDFResultService lotPDFResultService;
+    @Value("${laptop.models}")
+    private final String[] laptopModels;
     private String model = null;
     private Integer amount = 0;
     private BigDecimal price = null;
     private BigDecimal totalPrice = null;
 
-    @Value("${laptop.models}")
-    private final List<String> laptopModels;
-
     public final void recognizeLotPDFResult(List<Row> rows) {
         for (Row row : rows) {
             if (isModelRow(row)) {
-                int modelColumnNumber = 0;
-                for (Column column : row.getColumns()) {
-                    if (isModel(column.getParsingResult())) {
-                        model = findModel(column.getParsingResult());
-                        modelColumnNumber = row.getColumns().indexOf(column);
-                    }
-                }
+                int modelColumnNumber = getModelColumnNumber(row);
                 List<String> amounts = new ArrayList<>();
                 List<String> prices = new ArrayList<>();
-
                 for (int x = modelColumnNumber; x < row.getColumns().size(); x++) {
                     if (findAmount(row.getColumns().get(x).getParsingResult()) != null) {
                         amounts.add(findAmount(row.getColumns().get(x).getParsingResult()));
@@ -51,28 +43,50 @@ public class DataRecognizer {
                         prices.add(findPrices(row.getColumns().get(x).getParsingResult()));
                     }
                 }
-                if (amounts.size() == 1) {
-                    amount = Integer.parseInt(amounts.get(0));
-                } else if(amounts.size() > 1) {
-                    log.info("more than one amount number found in one row");
-                    amount = 0;
-                }
-
-                List<BigDecimal> bigDecimals = prices.stream().map(BigDecimal::new).toList();
-                Optional<BigDecimal> min = bigDecimals.stream().min(Comparator.naturalOrder());
-                Optional<BigDecimal> max = bigDecimals.stream().max(Comparator.naturalOrder());
-                if (min.isPresent() && max.isPresent()) {
-                    price = min.get();
-                    totalPrice = max.get();
-                }
-                if (amount == 0 && price != null) {
-                    amount = totalPrice.divide(price).toBigInteger().intValueExact();
-                }
-                if (totalPrice != null && totalPrice.equals(BigDecimal.valueOf(amount).multiply(price))) {
-                    lotPDFResultService.saveLaptopItem(model, price, amount);
-                }
+                getAmount(amounts);
+                getPriceAndTotalPrice(prices);
+                saveItems();
             }
         }
+    }
+
+    private void saveItems() {
+        if (totalPrice != null && totalPrice.equals(BigDecimal.valueOf(amount).multiply(price))) {
+            lotPDFResultService.saveLaptopItem(model, price, amount);
+        }
+    }
+
+    private void getAmount(List<String> amounts) {
+        if (amounts.size() == 1) {
+            amount = Integer.parseInt(amounts.get(0));
+        } else if (amounts.size() > 1) {
+            log.info("more than one amount number found in one row");
+            amount = 0;
+        }
+        if (amount == 0 && price != null) {
+            amount = totalPrice.divide(price).toBigInteger().intValueExact();
+        }
+    }
+
+    private void getPriceAndTotalPrice(List<String> prices) {
+        List<BigDecimal> bigDecimals = prices.stream().map(BigDecimal::new).toList();
+        Optional<BigDecimal> min = bigDecimals.stream().min(Comparator.naturalOrder());
+        Optional<BigDecimal> max = bigDecimals.stream().max(Comparator.naturalOrder());
+        if (min.isPresent() && max.isPresent()) {
+            price = min.get();
+            totalPrice = max.get();
+        }
+    }
+
+    private int getModelColumnNumber(Row row) {
+        int modelColumnNumber = 0;
+        for (Column column : row.getColumns()) {
+            if (isModel(column.getParsingResult())) {
+                model = findModel(column.getParsingResult());
+                modelColumnNumber = row.getColumns().indexOf(column);
+            }
+        }
+        return modelColumnNumber;
     }
 
     private boolean isModelRow(Row row) {

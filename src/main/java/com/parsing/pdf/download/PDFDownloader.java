@@ -13,6 +13,6 @@ public class PDFDownloader {
     private final ProzorroClient prozorroClient;
 
     public void downloadPDF(String documentUrl) {
-        String pathToTheSavedFile = prozorroClient.downloadByUrl(URI.create(documentUrl));
+        prozorroClient.downloadByUrl(URI.create(documentUrl));
     }
 }

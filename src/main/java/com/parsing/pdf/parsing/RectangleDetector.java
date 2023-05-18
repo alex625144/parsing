@@ -24,6 +24,8 @@ public class RectangleDetector {
     static final Double OFFSET = 5.0;
     static final double HORIZONTAL_LINE_LENGTH = 700;
     static final double VERTICAL_LINE_LENGTH = 100;
+    double maxCoordinate = 0;
+    double minCoordinate = 50;
 
     private final TableProcessor tableProcessor;
 
@@ -33,8 +35,8 @@ public class RectangleDetector {
         List<double[]> horizontalLines = findHorizontalLinesWithOpenCV(fileSource);
         List<Double> sortedHorizontalLines = sortLinesByY(horizontalLines);
         List<Double> mergedHorizontalLines = mergeLines(sortedHorizontalLines);
-        HorizontalLineCoordinate pointsWidthTable = findPointsWidthTable(horizontalLines);
-        List<HorizontalLineCoordinate> sortedHorizontalLinesCoordinates = formHorizontalLinesCoordinates(mergedHorizontalLines, pointsWidthTable);
+        HorizontalLineCoordinate horizontalLineCoordinate = findExtremeHorizontalTablePoints(horizontalLines);
+        List<HorizontalLineCoordinate> sortedHorizontalLinesCoordinates = formHorizontalLinesCoordinates(mergedHorizontalLines, horizontalLineCoordinate);
 
         List<double[]> verticalLines = findVerticalLinesWithOpenCV(fileSource);
         List<Double> sortedVerticalLines = sortLinesByX(verticalLines);
@@ -49,16 +51,7 @@ public class RectangleDetector {
 
     private List<VerticalLineCoordinate> formVerticalLinesCoordinates(List<Double> distinctPointsX, List<double[]> linesV) {
         List<VerticalLineCoordinate> result = new ArrayList<>();
-        double maxCoordinate = 0;
-        double minCoordinate = 50;
-        for (double[] line : linesV) {
-            if (maxCoordinate < line[1]) {
-                maxCoordinate = line[1];
-            }
-            if (minCoordinate > line[3]) {
-                minCoordinate = line[3];
-            }
-        }
+        getMinMaxCoordinates(linesV);
         for (int i = 0; i < distinctPointsX.size(); i++) {
             List<double[]> tempResult = new ArrayList<>();
             for (double[] coordinates : linesV) {
@@ -76,6 +69,17 @@ public class RectangleDetector {
             }
         }
         return result;
+    }
+
+    private void getMinMaxCoordinates(List<double[]> linesV) {
+        for (double[] line : linesV) {
+            if (maxCoordinate < line[1]) {
+                maxCoordinate = line[1];
+            }
+            if (minCoordinate > line[3]) {
+                minCoordinate = line[3];
+            }
+        }
     }
 
     private boolean isEqualsWithThreshold(Double distinctPointX, double[] coordinates) {
@@ -149,7 +153,7 @@ public class RectangleDetector {
             }
             averageX = (averageX + doubles[0]) / 2;
         }
-        return new double[] {averageX, maxY, averageX, minY};
+        return new double[]{averageX, maxY, averageX, minY};
     }
 
     private List<Double> sortLinesByX(List<double[]> lines) {
@@ -160,7 +164,7 @@ public class RectangleDetector {
         return result.stream().sorted().toList();
     }
 
-    private HorizontalLineCoordinate findPointsWidthTable(List<double[]> lines) {
+    private HorizontalLineCoordinate findExtremeHorizontalTablePoints(List<double[]> lines) {
         double x1 = 100;
         double x2 = 0;
         for (double[] array : lines) {
