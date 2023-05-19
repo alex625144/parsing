@@ -1,7 +1,8 @@
-package com.parsing.parsers.parserlot;
+package com.parsing.service;
 
 import com.parsing.model.LotResult;
 import com.parsing.model.Status;
+import com.parsing.parsers.prozorro.URLListBuilder;
 import com.parsing.repository.LotResultRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,11 +25,11 @@ import java.util.regex.Pattern;
 @Slf4j
 @Service
 @Transactional(readOnly = true)
-public class ParserService {
+public class ProzorroParserService {
 
     private static final String NOT_PRESENT = "NOT PRESENT";
     private static final List<String> urls = URLListBuilder.buildListURLS();
-    private final LotResultRepository lotRepository;
+    private final LotResultRepository lotResultRepository;
 
     @Transactional
     public void parse() throws IOException {
@@ -45,7 +46,7 @@ public class ParserService {
                 lot.setPrice(parsePrice(document));
                 Status status = parsePDFLink(document).equals(NOT_PRESENT) ? Status.CREATED : Status.PARSED;
                 lot.setStatus(status);
-                lotRepository.save(lot);
+                lotResultRepository.save(lot);
                 log.debug("parsed URL = " + url);
             }
         }

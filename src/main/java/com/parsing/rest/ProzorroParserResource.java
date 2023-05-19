@@ -1,6 +1,6 @@
 package com.parsing.rest;
 
-import com.parsing.parsers.parserlot.ParserService;
+import com.parsing.service.ProzorroParserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,11 +9,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
 
-@RestController("/api/v1")
+@RestController()
 @RequiredArgsConstructor
-public class ParserResource {
+public class ProzorroParserResource {
 
-    private final ParserService parserService;
+    private final ProzorroParserService parserService;
 
     @GetMapping("/parser-prozorro")
     @ResponseStatus(HttpStatus.FOUND)

@@ -1,4 +1,4 @@
-package com.parsing.parsers.parserlot;
+package com.parsing.parsers.prozorro;
 
 import lombok.extern.slf4j.Slf4j;
 

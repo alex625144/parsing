@@ -1,7 +1,7 @@
-package com.parsing.pdf.parsing;
+package com.parsing.parsers.pdf.parsing;
 
-import com.parsing.pdf.parsing.model.Column;
-import com.parsing.pdf.parsing.model.Row;
+import com.parsing.parsers.pdf.parsing.model.Column;
+import com.parsing.parsers.pdf.parsing.model.Row;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

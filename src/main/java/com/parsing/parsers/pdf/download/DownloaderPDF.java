@@ -1,4 +1,4 @@
-package com.parsing.client;
+package com.parsing.parsers.pdf.download;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,12 +19,12 @@ import java.util.Arrays;
 @Component
 @Slf4j
 @RequiredArgsConstructor
-public class ProzorroClient {
+public class DownloaderPDF {
 
     private static final String DIR_TO_SAVE_PDF = "/pdf/";
     private final RestTemplate restTemplate;
 
-    public void downloadByUrl(URI uri) {
+    public boolean downloadByUrl(URI uri) {
         String savePath = getPath();
         RequestCallback requestCallback = request -> request
                 .getHeaders()
@@ -37,6 +37,7 @@ public class ProzorroClient {
         };
         restTemplate.execute(uri, HttpMethod.GET, requestCallback, responseExtractor);
         log.debug("file with URI: " + uri + " was saved.");
+        return true;
     }
 
     private String getPath() {

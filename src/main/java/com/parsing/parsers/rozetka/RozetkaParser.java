@@ -1,4 +1,4 @@
-package com.parsing.rozetka;
+package com.parsing.parsers.rozetka;
 
 import com.parsing.model.LaptopItem;
 import com.parsing.model.LotResult;

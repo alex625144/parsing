@@ -1,8 +1,8 @@
-package com.parsing.pdf.parsing;
+package com.parsing.parsers.pdf.parsing;
 
-import com.parsing.pdf.parsing.model.HorizontalLineCoordinate;
-import com.parsing.pdf.parsing.model.Row;
-import com.parsing.pdf.parsing.model.VerticalLineCoordinate;
+import com.parsing.parsers.pdf.parsing.model.HorizontalLineCoordinate;
+import com.parsing.parsers.pdf.parsing.model.Row;
+import com.parsing.parsers.pdf.parsing.model.VerticalLineCoordinate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nu.pattern.OpenCV;

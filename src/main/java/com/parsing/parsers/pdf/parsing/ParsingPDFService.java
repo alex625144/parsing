@@ -1,7 +1,7 @@
-package com.parsing.pdf.parsing;
+package com.parsing.parsers.pdf.parsing;
 
-import com.parsing.pdf.parsing.model.Column;
-import com.parsing.pdf.parsing.model.Row;
+import com.parsing.parsers.pdf.parsing.model.Column;
+import com.parsing.parsers.pdf.parsing.model.Row;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.sourceforge.tess4j.ITesseract;
@@ -44,7 +44,26 @@ public class ParsingPDFService {
 
     public String parseProzorroFile(MultipartFile file) throws IOException, TesseractException {
         OpenCV.loadLocally();
+        PDDocument document = PDDocument.load(file.getBytes());
+        String lastPagePDF = getLastPagePDF(document);
+        String fileTableName = tableDetector.detectTable(lastPagePDF);
+        table = rectangleDetector.detectRectangles(fileTableName);
+        table = extractTextFromScannedDocument(fileTableName);
+        dataRecognizer.recognizeLotPDFResult(table);
+        JSONObject obj = new JSONObject();
+        obj.put("fileName", file.getOriginalFilename());
+        StringBuilder builder = new StringBuilder();
+        for (Row row : table) {
+            for (Column column : row.getColumns()) {
+                builder.append(column.getParsingResult());
+            }
+        }
+        obj.put("text", builder);
+        return obj.toString();
+    }
 
+    public String parseProzorroFileForSheduler(MultipartFile file) throws IOException, TesseractException {
+        OpenCV.loadLocally();
         PDDocument document = PDDocument.load(file.getBytes());
         String lastPagePDF = getLastPagePDF(document);
         String fileTableName = tableDetector.detectTable(lastPagePDF);

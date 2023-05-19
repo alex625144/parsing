@@ -1,4 +1,4 @@
-package com.parsing.pdf.parsing.model;
+package com.parsing.parsers.pdf.parsing.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,7 +7,7 @@ import java.util.List;
 
 @Data
 @AllArgsConstructor
-public class Row {
+public class Table {
 
-    private List<Column> columns;
+    private List<Row> row;
 }

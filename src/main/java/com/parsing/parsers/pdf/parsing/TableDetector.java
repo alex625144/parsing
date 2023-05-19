@@ -1,4 +1,4 @@
-package com.parsing.pdf.parsing;
+package com.parsing.parsers.pdf.parsing;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

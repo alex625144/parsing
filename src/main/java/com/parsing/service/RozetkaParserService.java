@@ -1,4 +1,4 @@
-package com.parsing.rozetka;
+package com.parsing.service;
 
 
 import com.parsing.model.LaptopItem;
@@ -7,6 +7,7 @@ import com.parsing.model.ResultReport;
 import com.parsing.model.ResultReportItem;
 import com.parsing.model.RozetkaParsingReport;
 import com.parsing.model.Status;
+import com.parsing.parsers.rozetka.RozetkaParser;
 import com.parsing.repository.LotResultRepository;
 import com.parsing.repository.ResultReportRepository;
 import lombok.RequiredArgsConstructor;

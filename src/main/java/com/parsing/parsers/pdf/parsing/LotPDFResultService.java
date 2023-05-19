@@ -1,4 +1,4 @@
-package com.parsing.pdf.parsing;
+package com.parsing.parsers.pdf.parsing;
 
 import com.parsing.model.LaptopItem;
 import com.parsing.repository.LaptopItemRepository;

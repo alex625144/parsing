@@ -1,7 +1,7 @@
-package com.parsing.web;
+package com.parsing.rest;
 
-import com.parsing.pdf.download.PDFDownloader;
-import com.parsing.pdf.parsing.ParsingPDFService;
+import com.parsing.service.PDFDownloaderService;
+import com.parsing.parsers.pdf.parsing.ParsingPDFService;
 import lombok.RequiredArgsConstructor;
 import net.sourceforge.tess4j.TesseractException;
 import org.springframework.http.HttpStatus;
@@ -21,7 +21,7 @@ import java.io.IOException;
 public class ProzzoroPDFReaderResource {
 
     private final ParsingPDFService parsingPDFService;
-    private final PDFDownloader pdfDownloader;
+    private final PDFDownloaderService pdfDownloader;
 
 
     @PostMapping(value = "/api/pdf/extractText", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
