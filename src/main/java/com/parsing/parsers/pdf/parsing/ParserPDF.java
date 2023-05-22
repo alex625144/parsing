@@ -30,7 +30,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class ParsingPDFService {
+public class ParserPDF {
 
     private static final double OFFSET = 5;
     private static final double[] RGB_WHITE_COLOUR = {255, 255, 255};
@@ -42,7 +42,7 @@ public class ParsingPDFService {
 
     private List<Row> table = new ArrayList<>();
 
-    public String parseProzorroFile(MultipartFile file) throws IOException, TesseractException {
+    public String parseProzorroFile(MultipartFile file) throws IOException {
         OpenCV.loadLocally();
         PDDocument document = PDDocument.load(file.getBytes());
         String lastPagePDF = getLastPagePDF(document);
@@ -62,27 +62,20 @@ public class ParsingPDFService {
         return obj.toString();
     }
 
-    public String parseProzorroFileForSheduler(MultipartFile file) throws IOException, TesseractException {
+    public boolean parseProzorroFileForSheduler(File file) throws IOException {
         OpenCV.loadLocally();
-        PDDocument document = PDDocument.load(file.getBytes());
+        PDDocument document = PDDocument.load(file);
         String lastPagePDF = getLastPagePDF(document);
         String fileTableName = tableDetector.detectTable(lastPagePDF);
-        table = rectangleDetector.detectRectangles(fileTableName);
-        table = extractTextFromScannedDocument(fileTableName);
-        dataRecognizer.recognizeLotPDFResult(table);
-        JSONObject obj = new JSONObject();
-        obj.put("fileName", file.getOriginalFilename());
-        StringBuilder builder = new StringBuilder();
-        for (Row row : table) {
-            for (Column column : row.getColumns()) {
-                builder.append(column.getParsingResult());
-            }
+        if (fileTableName != null) {
+            table = rectangleDetector.detectRectangles(fileTableName);
+            table = extractTextFromScannedDocument(fileTableName);
+            return dataRecognizer.recognizeLotPDFResult(table);
         }
-        obj.put("text", builder);
-        return obj.toString();
+        return false;
     }
 
-    private List<Row> extractTextFromScannedDocument(String fileTableName) throws TesseractException {
+    private List<Row> extractTextFromScannedDocument(String fileTableName) {
         ITesseract itesseract = new Tesseract();
         itesseract.setDatapath(getPathTessData());
         itesseract.setLanguage("ukr+eng");
@@ -96,7 +89,12 @@ public class ParsingPDFService {
         for (Row row : table) {
             for (Column column : row.getColumns()) {
                 String filename = table.indexOf(row) + " " + row.getColumns().indexOf(column) + ".png";
-                String result = itesseract.doOCR(new File(filename));
+                String result = null;
+                try {
+                    result = itesseract.doOCR(new File(filename));
+                } catch (TesseractException e) {
+                    e.printStackTrace();
+                }
                 column.setParsingResult(result);
                 log.info(filename + " = " + result);
             }

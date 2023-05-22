@@ -19,7 +19,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -38,7 +37,10 @@ public class ProzorroParserService {
     public void parse() throws IOException {
         for (String url : urls) {
             log.info("Starting parsing for url " + url);
-            Document document = Jsoup.connect(url).get();
+            Document document = null;
+
+            document = getDocument(url, document);
+
             Element element = document.getElementsByClass("infobox-link").first();
             if (Objects.nonNull(element)) {
                 LotResult lot = new LotResult();
@@ -53,11 +55,22 @@ public class ProzorroParserService {
                     lot.setParsingDate(parseDate(url));
                     lot.setLotPDFResult(new LotPDFResult());
                     lotResultRepository.saveAndFlush(lot);
-                    UUID id = lot.getId();
                     log.info("parsed URL = " + url);
                 }
             }
         }
+    }
+
+    private Document getDocument(String url, Document document) {
+        try {
+            document = Jsoup.connect(url)
+                    .timeout(100000)
+                    .ignoreHttpErrors(true)
+                    .get();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return document;
     }
 
     private String parseDK(Document document) {

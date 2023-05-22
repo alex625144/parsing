@@ -64,11 +64,12 @@ public class TableDetector {
         Rect rectangle = createRect(x1, y1, x2, y2, y3);
         try {
             cropTable = source.submat(rectangle);
+            String fileResult = "destination.png";
+            Imgcodecs.imwrite(fileResult, cropTable);
+            return fileResult;
         } catch (Exception ex) {
             log.warn("can't crop image");
         }
-        String fileResult = "destination.png";
-        Imgcodecs.imwrite(fileResult, cropTable);
-        return fileResult;
+        return null;
     }
 }

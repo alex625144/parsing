@@ -11,8 +11,8 @@ import java.util.stream.IntStream;
 @Slf4j
 public class URLListBuilder {
 
-    private static final LocalDate START_DATE = LocalDate.of(2023, 04, 28);
-    private static final LocalDate END_DATE = LocalDate.of(2023, 04, 28);
+    private static final LocalDate START_DATE = LocalDate.of(2023, 04, 26);
+    private static final LocalDate END_DATE = LocalDate.of(2023, 04, 26);
     private static final int START_LOT = 1;
     private static final int END_LOT = 15000;
     private static final String MAIN_URI = "https://prozorro.gov.ua/tender/UA";

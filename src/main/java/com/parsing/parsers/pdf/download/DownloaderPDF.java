@@ -15,6 +15,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.UUID;
 
 @Component
 @Slf4j
@@ -24,8 +25,8 @@ public class DownloaderPDF {
     private static final String DIR_TO_SAVE_PDF = "/pdf/";
     private final RestTemplate restTemplate;
 
-    public boolean downloadByUrl(URI uri) {
-        String savePath = getPath();
+    public Path downloadByUrl(URI uri, UUID uuid) {
+        String savePath = getPath() + uuid.toString() + ".pdf";
         RequestCallback requestCallback = request -> request
                 .getHeaders()
                 .setAccept(Arrays.asList(MediaType.APPLICATION_OCTET_STREAM, MediaType.ALL));
@@ -37,7 +38,7 @@ public class DownloaderPDF {
         };
         restTemplate.execute(uri, HttpMethod.GET, requestCallback, responseExtractor);
         log.debug("file with URI: " + uri + " was saved.");
-        return true;
+        return Paths.get(savePath);
     }
 
     private String getPath() {
@@ -46,6 +47,6 @@ public class DownloaderPDF {
         if (!pdfDir.exists()) {
             pdfDir.mkdir();
         }
-        return currentPathPosition.toAbsolutePath() + DIR_TO_SAVE_PDF;
+        return currentPathPosition.toAbsolutePath().toString() + DIR_TO_SAVE_PDF;
     }
 }

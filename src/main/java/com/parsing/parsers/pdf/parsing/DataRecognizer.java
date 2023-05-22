@@ -29,7 +29,8 @@ public class DataRecognizer {
     private BigDecimal price = null;
     private BigDecimal totalPrice = null;
 
-    public final void recognizeLotPDFResult(List<Row> rows) {
+    public final boolean recognizeLotPDFResult(List<Row> rows) {
+        boolean result = false;
         for (Row row : rows) {
             if (isModelRow(row)) {
                 int modelColumnNumber = getModelColumnNumber(row);
@@ -45,15 +46,18 @@ public class DataRecognizer {
                 }
                 getAmount(amounts);
                 getPriceAndTotalPrice(prices);
-                saveItems();
+                result = saveItems();
             }
         }
+        return result;
     }
 
-    private void saveItems() {
+    private boolean saveItems() {
         if (totalPrice != null && totalPrice.equals(BigDecimal.valueOf(amount).multiply(price))) {
             lotPDFResultService.saveLaptopItem(model, price, amount);
+            return true;
         }
+        return false;
     }
 
     private void getAmount(List<String> amounts) {
