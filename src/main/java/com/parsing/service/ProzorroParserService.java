@@ -1,5 +1,6 @@
 package com.parsing.service;
 
+import com.parsing.model.LotPDFResult;
 import com.parsing.model.LotResult;
 import com.parsing.model.Status;
 import com.parsing.parsers.prozorro.URLListBuilder;
@@ -18,6 +19,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -30,24 +32,30 @@ public class ProzorroParserService {
     private static final String NOT_PRESENT = "NOT PRESENT";
     private static final List<String> urls = URLListBuilder.buildListURLS();
     private final LotResultRepository lotResultRepository;
+    private static final List<String> LAPTOPS_DK = List.of("30230000", "30210000");
 
     @Transactional
     public void parse() throws IOException {
         for (String url : urls) {
-            log.debug("Starting parsing for url " + url);
+            log.info("Starting parsing for url " + url);
             Document document = Jsoup.connect(url).get();
             Element element = document.getElementsByClass("infobox-link").first();
             if (Objects.nonNull(element)) {
                 LotResult lot = new LotResult();
-                lot.setUrl(url);
-                lot.setDk(parseDK(document));
-                lot.setParsingDate(parseDate(url));
-                lot.setPdfLink(parsePDFLink(document));
-                lot.setPrice(parsePrice(document));
-                Status status = parsePDFLink(document).equals(NOT_PRESENT) ? Status.CREATED : Status.PARSED;
-                lot.setStatus(status);
-                lotResultRepository.save(lot);
-                log.debug("parsed URL = " + url);
+                String Dk = parseDK(document);
+                if (Dk != null && LAPTOPS_DK.contains(Dk)) {
+                    lot.setDk(parseDK(document));
+                    lot.setUrl(url);
+                    lot.setPdfLink(parsePDFLink(document));
+                    Status status = parsePDFLink(document).equals(NOT_PRESENT) ? Status.CREATED : Status.PARSED;
+                    lot.setStatus(status);
+                    lot.setPrice(parsePrice(document));
+                    lot.setParsingDate(parseDate(url));
+                    lot.setLotPDFResult(new LotPDFResult());
+                    lotResultRepository.saveAndFlush(lot);
+                    UUID id = lot.getId();
+                    log.info("parsed URL = " + url);
+                }
             }
         }
     }
@@ -63,9 +71,9 @@ public class ProzorroParserService {
     }
 
     private String parsePDFLink(Document document) {
-        Optional<Element> element = Optional.of(document.select("table[class=table table-striped margin-bottom prev]").last());
+        Optional<Element> element = Optional.ofNullable(document.select("table[class=table table-striped margin-bottom prev]").last());
         if (!element.isPresent()) {
-            element = Optional.of(document.select("table[class=table table-striped margin-bottom prev]").first());
+            element = Optional.ofNullable(document.select("table[class=table table-striped margin-bottom prev]").first());
         }
         if (element.isPresent()) {
             List<Element> elements = element.get().getElementsByAttribute("href");
@@ -88,12 +96,15 @@ public class ProzorroParserService {
     }
 
     private BigDecimal parsePrice(Document document) {
-        Element element = document.getElementsByClass("green tender--description--cost--number").first();
-        String source = element.getElementsByTag("strong").toString();
-        String price = source.replace("<strong>", "")
-                .replace("<span class=\"small\">UAH</span></strong>", "")
-                .replace(" ", "")
-                .replace(",", ".");
-        return new BigDecimal(price);
+        Optional<Element> element = Optional.ofNullable(document.getElementsByClass("green tender--description--cost--number").first());
+        if (element.isPresent()) {
+            String source = element.get().getElementsByTag("strong").toString();
+            String price = source.replace("<strong>", "")
+                    .replace("<span class=\"small\">UAH</span></strong>", "")
+                    .replace(" ", "")
+                    .replace(",", ".");
+            return new BigDecimal(price);
+        }
+        return BigDecimal.valueOf(0);
     }
 }

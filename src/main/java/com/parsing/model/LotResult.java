@@ -1,5 +1,6 @@
 package com.parsing.model;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -29,8 +30,6 @@ import java.util.UUID;
 @Table(name = "lot_result")
 public class LotResult {
 
-    @OneToOne
-    LotPDFResult lotPDFResult;
     @Id
     @Column(name = "id")
     @GeneratedValue(generator = "UUID")
@@ -48,4 +47,6 @@ public class LotResult {
     private BigDecimal price;
     @Column(name = "parsing_date")
     private LocalDate parsingDate;
+    @OneToOne(cascade = CascadeType.ALL)
+    LotPDFResult lotPDFResult;
 }

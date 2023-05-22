@@ -20,13 +20,14 @@ public class SchedulerParsingPDF {
 
     private static final long TEN_MINUTES = 600000L;
     private final LotResultRepository lotResultRepository;
-    private final DownloaderPDF prozorroClient;
+    private final DownloaderPDF downloaderPDF;
 
     @Scheduled(initialDelay = TEN_MINUTES, fixedDelay = TEN_MINUTES)
+    //todo check two weeks lotresult and try download and parse
     private void SchedulingParsingPDF() {
         List<LotResult> lotResults = lotResultRepository.findAllByStatus(Status.PARSED);
         for (LotResult lotResult : lotResults) {
-            if (prozorroClient.downloadByUrl(URI.create(lotResult.getPdfLink()))) {
+            if (downloaderPDF.downloadByUrl(URI.create(lotResult.getPdfLink()))) {
                 lotResult.setStatus(Status.DOWNLOADED);
             }
         }
