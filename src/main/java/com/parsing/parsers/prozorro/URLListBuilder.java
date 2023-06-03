@@ -11,8 +11,8 @@ import java.util.stream.IntStream;
 @Slf4j
 public class URLListBuilder {
 
-    private static final LocalDate START_DATE = LocalDate.of(2023, 04, 26);
-    private static final LocalDate END_DATE = LocalDate.of(2023, 04, 26);
+    private static final LocalDate START_DATE = LocalDate.of(2023, 04, 04);
+    private static final LocalDate END_DATE = LocalDate.of(2023, 05, 24);
     private static final int START_LOT = 1;
     private static final int END_LOT = 15000;
     private static final String MAIN_URI = "https://prozorro.gov.ua/tender/UA";
@@ -20,18 +20,24 @@ public class URLListBuilder {
     private static final String END_URI = "-a";
 
 
-    public static List<String> buildListURLS() {
+    public static List<List<String>> buildListURLS() {
         List<String> dates = createDates();
-        List<String> lots = createDayLots();
-        List<String> urls = new ArrayList<>();
-        List<String> temp = dates.stream().map(x -> MAIN_URI.concat(DASH).concat(x).concat(DASH)).toList();
-        for (String datesCounter : temp) {
-            for (String intCounter : lots) {
-                urls.add(datesCounter.concat(intCounter).concat(END_URI));
-            }
+        List<List<String>> result = new ArrayList<>();
+        for (String date : dates) {
+            result.add(buildListUrlsForDay(date));
         }
-        log.debug("build list URLS complete for " + urls.size());
-        return urls;
+        log.debug("build list URLS complete for " + result.size());
+        return result;
+    }
+
+    private static List<String> buildListUrlsForDay(String day) {
+        List<String> lots = createDayLots();
+        List<String> urlsDay = new ArrayList<>();
+        String temp = MAIN_URI.concat(DASH).concat(day).concat(DASH);
+        for (String intCounter : lots) {
+            urlsDay.add(temp.concat(intCounter).concat(END_URI));
+        }
+        return urlsDay;
     }
 
     private static List<String> createDayLots() {

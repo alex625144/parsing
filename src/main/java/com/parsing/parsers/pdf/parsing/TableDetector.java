@@ -11,11 +11,15 @@ import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class TableDetector {
 
+    private static final int MINIMAL_QUANTITY_LINES_FOR_TABLE = 3;
     private static double x1 = 500;
     private static double y1 = 0;
     private static double x2 = 0;
@@ -26,6 +30,32 @@ public class TableDetector {
         double width = Math.sqrt(Math.pow((x2 - x1), 2) + Math.pow((y2 - y1), 2));
         double height = Math.sqrt(Math.pow((y3 - y2), 2));
         return new Rect((int) x1, (int) y3, (int) width, (int) height);
+    }
+
+    public boolean isTableExistOnPage(String fileSource) {
+        OpenCV.loadLocally();
+        Mat dst = new Mat(), cdst = new Mat(), cdstP, cropTable = new Mat();
+        Mat source = Imgcodecs.imread(fileSource, Imgcodecs.IMREAD_GRAYSCALE);
+        if (source.empty()) {
+            log.warn("Error opening image! Program Arguments: [image_name -- default " + fileSource + "] \n");
+            System.exit(-1);
+        }
+        Imgproc.Canny(source, dst, 50, 200, 3, false);
+        Imgcodecs.imwrite("afterCanny.png", dst);
+        Imgproc.cvtColor(dst, cdst, Imgproc.COLOR_GRAY2BGR);
+        cdstP = cdst.clone();
+        Mat linesP = new Mat();
+        Imgproc.HoughLinesP(dst, linesP, 3, Math.PI, 200, RectangleDetector.VERTICAL_LINE_LENGTH, 1);
+        log.debug("Quantity lines " + linesP.size().toString());
+        List<double[]> lines = new ArrayList<>();
+        for (int k = 0; k < linesP.rows(); k++) {
+            lines.add(linesP.get(k, 0));
+        }
+        if (lines.size() > MINIMAL_QUANTITY_LINES_FOR_TABLE) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public String detectTable(String fileSource) {

@@ -30,6 +30,6 @@ public class LotPDFResultService {
         } else {
             logInformation.append("Amount is null\n");
         }
-        log.info(logInformation.toString());
+        log.debug(logInformation.toString());
     }
 }

@@ -23,7 +23,7 @@ public class ProzorroParserResource {
     public void parsing() {
         try {
             parserService.parse();
-        } catch (RuntimeException | IOException ex) {
+        } catch (RuntimeException ex) {
             ex.printStackTrace();
         }
     }

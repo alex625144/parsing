@@ -25,43 +25,66 @@ import java.util.regex.Pattern;
 @RequiredArgsConstructor
 @Slf4j
 @Service
-@Transactional(readOnly = true)
 public class ProzorroParserService {
 
     private static final String NOT_PRESENT = "NOT PRESENT";
-    private static final List<String> urls = URLListBuilder.buildListURLS();
-    private final LotResultRepository lotResultRepository;
+    private static final String TENDER_NOT_FOUND = "Тендер не знайдено | ProZorro";
+    private static int MAX_COUNT = 500;
+    private static final List<List<String>> urls = URLListBuilder.buildListURLS();
     private static final List<String> LAPTOPS_DK = List.of("30230000", "30210000");
+    private final LotResultRepository lotResultRepository;
 
-    @Transactional
-    public void parse() throws IOException {
-        for (String url : urls) {
-            log.info("Starting parsing for url " + url);
-            Document document = null;
-
-            document = getDocument(url, document);
-
-            Element element = document.getElementsByClass("infobox-link").first();
-            if (Objects.nonNull(element)) {
-                LotResult lot = new LotResult();
-                String Dk = parseDK(document);
-                if (Dk != null && LAPTOPS_DK.contains(Dk)) {
-                    lot.setDk(parseDK(document));
-                    lot.setUrl(url);
-                    lot.setPdfLink(parsePDFLink(document));
-                    Status status = parsePDFLink(document).equals(NOT_PRESENT) ? Status.CREATED : Status.PARSED;
-                    lot.setStatus(status);
-                    lot.setPrice(parsePrice(document));
-                    lot.setParsingDate(parseDate(url));
-                    lot.setLotPDFResult(new LotPDFResult());
-                    lotResultRepository.saveAndFlush(lot);
-                    log.info("parsed URL = " + url);
+    public void parse() {
+        for (List<String> day : urls) {
+            MAX_COUNT = 500;
+            for (int x = 0; x < day.size(); x++) {
+                log.debug("Starting parsing for url " + day.get(x));
+                Document document = null;
+                int counter = 1;
+                document = getDocument(day.get(x), document, counter);
+                Element element = getElement(document);
+                if (isTenderNotFound(document) < 1) {
+                    x = day.size();
+                } else if (Objects.nonNull(element)) {
+                    LotResult lot = new LotResult();
+                    String Dk = parseDK(document);
+                    if (Dk != null && LAPTOPS_DK.contains(Dk)) {
+                        lot.setDk(parseDK(document));
+                        lot.setUrl(day.get(x));
+                        lot.setPdfLink(parsePDFLink(document));
+                        Status status = parsePDFLink(document).equals(NOT_PRESENT) ? Status.CREATED : Status.PARSED;
+                        lot.setStatus(status);
+                        lot.setPrice(parsePrice(document));
+                        lot.setParsingDate(parseDate(day.get(x)));
+                        lot.setLotPDFResult(new LotPDFResult());
+                        saveLotResult(day.get(x), lot);
+                    }
                 }
+
             }
+
         }
     }
 
-    private Document getDocument(String url, Document document) {
+    @Transactional
+    public void saveLotResult(String url, LotResult lot) {
+        lotResultRepository.saveAndFlush(lot);
+        log.debug("parsed URL = " + url);
+    }
+
+
+    private Element getElement(Document document) {
+        Element element = null;
+        try {
+            element = document.getElementsByClass("infobox-link").first();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return element;
+    }
+
+
+    Document getDocument(String url, Document document, int maxReconnect) {
         try {
             document = Jsoup.connect(url)
                     .timeout(100000)
@@ -69,9 +92,31 @@ public class ProzorroParserService {
                     .get();
         } catch (IOException e) {
             e.printStackTrace();
+            reconnect(document, url);
+            log.debug("Reconnect invoked!");
         }
         return document;
     }
+
+    private Document reconnect(Document document, String url) {
+        int count = 1;
+        int maxCount = 5;
+        while (count < maxCount) {
+            try {
+                document = Jsoup.connect(url)
+                        .timeout(100000)
+                        .ignoreHttpErrors(true)
+                        .get();
+                return document;
+            } catch (IOException e) {
+                e.printStackTrace();
+                count++;
+                log.debug("Reconnect!");
+            }
+        }
+        return null;
+    }
+
 
     private String parseDK(Document document) {
         String source = document.getElementsByClass("tender-date padding-left-more").toString();
@@ -119,5 +164,15 @@ public class ProzorroParserService {
             return new BigDecimal(price);
         }
         return BigDecimal.valueOf(0);
+    }
+
+    private int isTenderNotFound(Document document) {
+
+        Optional<String> element = Optional.ofNullable(document.title());
+        if (element.get().equals(TENDER_NOT_FOUND)) {
+            log.debug("Element" + element.get());
+            MAX_COUNT--;
+        }
+        return MAX_COUNT;
     }
 }

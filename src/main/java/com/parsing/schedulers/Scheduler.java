@@ -12,7 +12,9 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 @Service
@@ -35,8 +37,12 @@ public class Scheduler {
             if (filename != null) {
                 lotResult.setStatus(Status.DOWNLOADED);
             }
+
             File fileForParse = new File(filename.toString());
-            if (parserPDFService.parsePDF(fileForParse)) {
+            Path path = Paths.get(String.valueOf(fileForParse));
+            long bytes = Files.size(path);
+            log.debug("Size of file " + bytes);
+            if (!(bytes < 50000) && parserPDFService.parsePDF(fileForParse)) {
                 lotResult.setStatus(Status.PDF_SUCCESSFULL);
                 fileForParse.delete();
             } else {

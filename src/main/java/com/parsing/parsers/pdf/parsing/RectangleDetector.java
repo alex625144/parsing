@@ -110,7 +110,7 @@ public class RectangleDetector {
     }
 
     private List<Double> mergeLines(List<Double> pointsY) {
-        log.info("Lines has rows at start= " + pointsY.size());
+        log.debug("Lines has rows at start= " + pointsY.size());
         List<Double> result = new ArrayList<>(pointsY);
         for (int i = 0; i < pointsY.size(); i++) {
             if (i + 1 < pointsY.size()) {
@@ -122,7 +122,7 @@ public class RectangleDetector {
                 }
             }
         }
-        log.info("Lines has rows at finished= " + result.size());
+        log.debug("Lines has rows at finished= " + result.size());
         return result;
     }
 

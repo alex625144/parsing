@@ -15,7 +15,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TableProcessor {
 
-    private static Rectangle createRectangle(double xLeftBottom, double yLeftBottom, double xRightBottom, double yRightBottom, double yRightTop) {
+    public Rectangle createRectangle(double xLeftBottom, double yLeftBottom, double xRightBottom, double yRightBottom, double yRightTop) {
         double width = Math.sqrt(Math.pow((xRightBottom - xLeftBottom), 2) + Math.pow((yRightBottom - yLeftBottom), 2));
         double height = Math.sqrt(Math.pow((yRightTop - yRightBottom), 2));
         return new Rectangle((int) xLeftBottom, (int) yLeftBottom, (int) width, (int) height);

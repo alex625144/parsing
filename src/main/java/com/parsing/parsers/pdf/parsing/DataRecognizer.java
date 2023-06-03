@@ -64,7 +64,7 @@ public class DataRecognizer {
         if (amounts.size() == 1) {
             amount = Integer.parseInt(amounts.get(0));
         } else if (amounts.size() > 1) {
-            log.info("more than one amount number found in one row");
+            log.debug("more than one amount number found in one row");
             amount = 0;
         }
         if (amount == 0 && price != null) {
@@ -73,7 +73,12 @@ public class DataRecognizer {
     }
 
     private void getPriceAndTotalPrice(List<String> prices) {
-        List<BigDecimal> bigDecimals = prices.stream().map(BigDecimal::new).toList();
+        List<BigDecimal> bigDecimals = null;
+        try {
+            bigDecimals = prices.stream().map(BigDecimal::new).toList();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         Optional<BigDecimal> min = bigDecimals.stream().min(Comparator.naturalOrder());
         Optional<BigDecimal> max = bigDecimals.stream().max(Comparator.naturalOrder());
         if (min.isPresent() && max.isPresent()) {
@@ -139,9 +144,9 @@ public class DataRecognizer {
             String result = null;
             if (matcher.find()) {
                 result = matcher.group();
-                log.info("Matched amount found: " + result);
+                log.debug("Matched amount found: " + result);
             } else {
-                log.info("No match for amount found");
+                log.debug("No match for amount found");
             }
             return result;
         }

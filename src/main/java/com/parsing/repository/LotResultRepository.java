@@ -11,6 +11,8 @@ public interface LotResultRepository extends JpaRepository<LotResult, UUID> {
 
     List<LotResult> findAllByStatus(Status status);
 
+//    LotResult findByUrl(url);
+
 //    List<LotResult> findAllByStatusAndParsingDate(Status status);
 
     List<LotResult> findAllByStatusAndLotPDFResultIsNull(Status status);
