@@ -41,7 +41,7 @@ public class RozetkaParserService {
             ResultReport resultReport = new ResultReport();
 
             Map<String, LaptopItem> laptopsByModel = lotResult.getLotPDFResult().getLaptopItems().stream()
-                    .collect(Collectors.toMap(LaptopItem::getModel, x -> x));
+                    .collect(Collectors.toMap(lp -> lp.getModel().getModelName(), x -> x));
             for(RozetkaParsingReport rozetkaParsingReport : rozetkaParsingReports) {
                 LaptopItem laptopItem = laptopsByModel.get(rozetkaParsingReport.getModel());
 

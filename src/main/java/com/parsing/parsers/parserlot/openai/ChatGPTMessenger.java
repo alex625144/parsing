@@ -13,7 +13,7 @@ import java.util.List;
 @Setter
 public class ChatGPTMessenger {
 
-    private String model = "gpt-3.5-turbo";
+    private String model;
     private double temperature;
     private List<Message> messages;
 

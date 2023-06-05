@@ -11,7 +11,7 @@ import lombok.SneakyThrows;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
-import org.openqa.selenium.WebDriver;
+//import org.openqa.selenium.WebDriver;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -30,7 +30,7 @@ public class RozetkaParser {
 
     private final LotResultRepository lotResultRepository;
     private final RozetkaParsingResultRepository rozetkaParsingResultRepository;
-    private final WebDriver driver;
+//    private final WebDriver driver;
 
     public List<RozetkaParsingReport> parseByLotResult(LotResult lotResult) {
         List<String> models = getModelsFromLotResult(lotResult);
@@ -39,7 +39,7 @@ public class RozetkaParser {
         boolean isRozetkaParsingSuccessful = false;
         for (String model : models) {
             BigDecimal price = searchPriceByModel(model);
-            if (price == null || price.doubleValue() == 0.0 ) continue;
+            if (price == null || price.doubleValue() == 0.0) continue;
 
             isRozetkaParsingSuccessful = true;
             RozetkaParsingReport rozetkaParsingReport = new RozetkaParsingReport();
@@ -61,8 +61,9 @@ public class RozetkaParser {
     public BigDecimal searchPriceByModel(String model) {
         String price = "0";
 
-        driver.get(httpBuilder(model));
-        Document document = Jsoup.parse(driver.getPageSource());
+//        driver.get(httpBuilder(model));
+//        Document document = Jsoup.parse(driver.getPageSource());
+        Document document = Jsoup.parse(httpBuilder(model));
         Elements elements = document.getElementsByClass("goods-tile__price-value");
 
         if (elements.size() != 0) {
@@ -74,7 +75,7 @@ public class RozetkaParser {
 
     private List<String> getModelsFromLotResult(LotResult lotResult) {
         return lotResult.getLotPDFResult().getLaptopItems().stream()
-                .map(LaptopItem::getModel)
+                .map(lp -> lp.getModel().getModelName())
                 .collect(Collectors.toList());
     }
 

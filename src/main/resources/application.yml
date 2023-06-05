@@ -30,4 +30,4 @@ openai:
   temperature: 1.5
   api:
     url: "https://api.openai.com/v1/chat/completions"
-    key: "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"
+    key: ${chatGPT-API-key}
