@@ -11,7 +11,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class ChatGPTMessenger {
+public class ChatGPTRequestBody {
 
     private String model;
     private double temperature;

@@ -1,6 +1,6 @@
 package com.parsing.config;
 
-import com.parsing.parsers.parserlot.openai.ChatGPTMessenger;
+import com.parsing.parsers.parserlot.openai.ChatGPTRequestBody;
 import com.parsing.parsers.parserlot.openai.DTO.Pattern;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -36,7 +36,7 @@ public class OpenAIConfiguration {
     }
 
     @Bean
-    public ChatGPTMessenger createChatGptMessenger() {
+    public ChatGPTRequestBody createChatGptMessenger() {
         try (FileReader fileReader = new FileReader("src/main/resources/chatgpt/chatgp-parsing-pattern.txt");
              BufferedReader bufferedReader = new BufferedReader(fileReader)) {
             StringBuffer buffer = new StringBuffer();
@@ -45,7 +45,7 @@ public class OpenAIConfiguration {
                     .forEach(buffer::append);
             String patternText = buffer.toString();
 
-            ChatGPTMessenger messenger = new ChatGPTMessenger();
+            ChatGPTRequestBody messenger = new ChatGPTRequestBody();
             messenger.setModel(model);
             messenger.setTemperature(temperature);
             messenger.newPattern(new Pattern(patternText));
