@@ -9,6 +9,7 @@ import net.sourceforge.tess4j.ITesseract;
 import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.TesseractException;
 import net.sourceforge.tess4j.Word;
+import net.sourceforge.tess4j.util.Utils;
 import nu.pattern.OpenCV;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.ImageType;
@@ -46,7 +47,7 @@ public class ParserPDF {
     private final DataRecognizer dataRecognizer;
     private final TableDetector tableDetector;
     private final RotationImage rotationImage;
-    private final TableProcessor tableProcessor;
+    private final ManyTableDetector manyTableDetector;
 
     private List<Row> table = new ArrayList<>();
 
@@ -55,14 +56,27 @@ public class ParserPDF {
         JSONObject obj = new JSONObject();
         PDDocument document = PDDocument.load(file.getBytes());
         for (int page = document.getNumberOfPages() - PAGES_FOR_PARSE; page < document.getNumberOfPages(); page++) {
-            Rectangle pageRectangle = getPageRectangle(document, page);
+
             String pagePDF = getPagePDF(document, page);
             String rotatedPage = rotationImage.rotate(pagePDF);
+            Rectangle pageRectangle = getPageMainRectangle(document, page);
+
             Mat tableMat = Imgcodecs.imread(rotatedPage);
             Mat matPage = cleanTableBorders(tableMat, pageRectangle);
             Imgcodecs.imwrite(page + ".png", matPage);
+
+
+            getPageRectangles(page + ".png");
+
+
             if (tableDetector.isTableExistOnPage(page + ".png")) {
                 log.debug("Found table on page " + page);
+                List<double[]> lines = rectangleDetector.findVerticalLinesWithOpenCV(page + ".png");
+                log.debug("Quantity of lines = " + lines.size());
+                List<double[]> tablesLines = manyTableDetector.detectQuantityOfTables(lines);
+                rectangleDetector.saveIMageWithVerticalLines2(tablesLines);
+
+
                 String fileTableName = tableDetector.detectTable(rotatedPage);
                 table = rectangleDetector.detectRectangles(fileTableName);
                 table = extractTextFromScannedDocument(fileTableName);
@@ -99,7 +113,7 @@ public class ParserPDF {
 
     private List<Row> extractTextFromScannedDocument(String fileTableName) {
         ITesseract itesseract = new Tesseract();
-        itesseract.setDatapath(getPathTessData());
+        itesseract.setDatapath(getTessDataPath());
         itesseract.setLanguage("ukr+eng");
         final Mat tableMat = Imgcodecs.imread(fileTableName);
         for (Row row : table) {
@@ -144,13 +158,18 @@ public class ParserPDF {
         return xLeftUp < column && column < xRightDown && yLeftUp < row && row < yRightDown;
     }
 
-    private String getPathTessData() {
+    private String getTessDataPath() {
         Path currentPathPosition = Paths.get("").toAbsolutePath();
         File pdfDir = new File(currentPathPosition + DIR_TO_READ_TESSDATA);
         if (!pdfDir.exists()) {
             pdfDir.mkdir();
         }
         return currentPathPosition.toAbsolutePath() + DIR_TO_READ_TESSDATA;
+    }
+
+    private String getProjectPath() {
+        Path currentPathPosition = Paths.get("").toAbsolutePath();
+        return currentPathPosition.toAbsolutePath().toString();
     }
 
     private String getLastPagePDF(PDDocument document) throws IOException {
@@ -181,31 +200,79 @@ public class ParserPDF {
         return pagePDF;
     }
 
-    private Rectangle getPageRectangle(PDDocument document, int pageNumber) {
+    private Rectangle getPageMainRectangle(PDDocument document, int pageNumber) {
         Rectangle rectangle = new Rectangle();
         PDFRenderer pdfRenderer = new PDFRenderer(document);
         ITesseract itesseract = new Tesseract();
-        itesseract.setDatapath(getPathTessData());
+        itesseract.setDatapath(getTessDataPath());
         itesseract.setLanguage("ukr+eng");
         List<Word> result = new ArrayList<>();
         BufferedImage bim = null;
         try {
             BufferedImage bufferedImage = pdfRenderer.renderImageWithDPI(pageNumber, 300, ImageType.RGB);
             result = itesseract.getWords(bufferedImage, ITessAPI.TessPageIteratorLevel.RIL_BLOCK);
-            rectangle = result.get(0).getBoundingBox().getBounds();
-            Mat matrix = Imgcodecs.imread(getPagePDF(document, pageNumber));
-            Imgproc.rectangle(
-                    matrix,
-                    new Point(rectangle.getMinX(), rectangle.getMaxY()),
-                    new Point(rectangle.getMaxX(), rectangle.getMinY()),
-                    new Scalar(0, 0, 255),
-                    5);
-            String filename = pageNumber + "11111.png";
-            Imgcodecs.imwrite(filename, matrix);
+            if (result.size() > 0) {
+                rectangle = result.get(0).getBoundingBox().getBounds();
+                Mat matrix = Imgcodecs.imread(getPagePDF(document, pageNumber));
+                Imgproc.rectangle(
+                        matrix,
+                        new Point(rectangle.getMinX(), rectangle.getMaxY()),
+                        new Point(rectangle.getMaxX(), rectangle.getMinY()),
+                        new Scalar(0, 0, 255),
+                        5);
+                String filename = pageNumber + "11111.png";
+                Imgcodecs.imwrite(filename, matrix);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         return rectangle;
+    }
+
+
+    private List<Rectangle> getPageRectangles(String filename) {
+        List<Rectangle> result = new ArrayList<>();
+        ITesseract itesseract = new Tesseract();
+        itesseract.setDatapath(getTessDataPath());
+        itesseract.setLanguage("ukr+eng");
+        BufferedImage bim = null;
+        try {
+            log.debug(getProjectPath() + filename);
+            BufferedImage buf = ImageIO.read(new File(getProjectPath() + "\\" + filename));
+
+            int level = ITessAPI.TessPageIteratorLevel.RIL_SYMBOL;
+
+            log.debug("PageIteratorLevel: " + Utils.getConstantName(level, ITessAPI.TessPageIteratorLevel.class));
+            result = itesseract.getSegmentedRegions(buf, level);
+            for (int i = 0; i < result.size(); i++) {
+                Rectangle rect = result.get(i);
+                log.debug(String.format("Box[%d]: x=%d, y=%d, w=%d, h=%d", i, rect.x, rect.y, rect.width, rect.height));
+            }
+
+            if (result.size() > 0) {
+                Mat matrix = Imgcodecs.imread(filename);
+                for (Rectangle rectangle : result) {
+                    rectangle = rectangle.getBounds();
+                    Imgproc.rectangle(
+                            matrix,
+                            new Point(rectangle.getMinX(), rectangle.getMaxY()),
+                            new Point(rectangle.getMaxX(), rectangle.getMinY()),
+                            new Scalar(0, 0, 255),
+                            5);
+                }
+
+                String filename2 = filename + "00000.png";
+                Imgcodecs.imwrite(filename2, matrix);
+            } else {
+                log.debug("Text not found on page.");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (TesseractException e) {
+            e.printStackTrace();
+        }
+
+        return result;
     }
 }

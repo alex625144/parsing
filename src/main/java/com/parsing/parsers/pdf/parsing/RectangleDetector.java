@@ -92,11 +92,18 @@ public class RectangleDetector {
         return result;
     }
 
-    private void saveIMageWithVerticalLines(List<double[]> linesV) {
+    public void saveIMageWithVerticalLines(List<double[]> linesV) {
         for (double[] point : linesV) {
             Imgproc.line(verticalLinesMat, new Point(point[0], point[1]), new Point(point[2], point[3]), new Scalar(0, 0, 255), 3, Imgproc.LINE_AA, 0);
         }
         Imgcodecs.imwrite("rectVertical.png", verticalLinesMat);
+    }
+
+    public void saveIMageWithVerticalLines2(List<double[]> linesV) {
+        for (double[] point : linesV) {
+            Imgproc.line(verticalLinesMat, new Point(point[0], point[1]), new Point(point[2], point[3]), new Scalar(0, 0, 255), 3, Imgproc.LINE_AA, 0);
+        }
+        Imgcodecs.imwrite("rectVertical2.png", verticalLinesMat);
     }
 
     private void saveAllLines(List<VerticalLineCoordinate> verticalLine, List<HorizontalLineCoordinate> horizontalLines) {
@@ -176,7 +183,7 @@ public class RectangleDetector {
         return new HorizontalLineCoordinate(x1, x2, 0);
     }
 
-    private List<double[]> findVerticalLinesWithOpenCV(String fileSource) {
+    public List<double[]> findVerticalLinesWithOpenCV(String fileSource) {
         Mat dst = new Mat();
         Mat cdst = new Mat();
         OpenCV.loadLocally();
@@ -190,12 +197,13 @@ public class RectangleDetector {
         Imgproc.cvtColor(dst, cdst, Imgproc.COLOR_GRAY2BGR);
         verticalLinesMat = cdst.clone();
         Mat linesP = new Mat();
-        Imgproc.HoughLinesP(dst, linesP, 3, Math.PI, 200, RectangleDetector.VERTICAL_LINE_LENGTH, 10);
+        Imgproc.HoughLinesP(dst, linesP, 3, Math.PI, 200, RectangleDetector.VERTICAL_LINE_LENGTH, 5);
         List<double[]> lines = new ArrayList<>();
         for (int x = 0; x < linesP.rows(); x++) {
             double[] l = linesP.get(x, 0);
             lines.add(l);
         }
+        Imgcodecs.imwrite("verticalLines.png", linesP);
         return lines;
     }
 
