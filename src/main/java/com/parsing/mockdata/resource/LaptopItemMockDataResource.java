@@ -10,7 +10,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(value = "/rozetka-parser/generator/laptop-item")
+@RequestMapping(value = "/api/v1/rozetka-parser/generator/laptop-item")
 public class LaptopItemMockDataResource {
 
     private final LaptopItemMockDataGenerator laptopItemMockDataGenerator;

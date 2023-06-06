@@ -1,9 +1,10 @@
 package com.parsing.parsers.parserlot.openai;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.parsing.parsers.parserlot.openai.DTO.LaptopModelVO;
+import com.parsing.parsers.parserlot.openai.exception.NotExpectedChatGPTResponseBodyException;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -14,10 +15,13 @@ public class ChatGPTService {
 
     private final ChatGPTClient chatGPTClient;
 
-    @SneakyThrows
     public LaptopModelVO parseModel(String model) {
         String result = chatGPTClient.parseModel(model);
 
-        return objectMapper.readValue(result, LaptopModelVO.class);
+        try {
+            return objectMapper.readValue(result, LaptopModelVO.class);
+        } catch (JsonProcessingException e) {
+            throw new NotExpectedChatGPTResponseBodyException(e);
+        }
     }
 }

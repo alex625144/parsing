@@ -12,8 +12,8 @@ public class ChatGPTResource {
 
     private final ChatGPTService chatGPTService;
 
-    @GetMapping("/{model}")
-    public LaptopModelVO chat(@PathVariable String model) {
+    @GetMapping
+    public LaptopModelVO chat(@RequestParam String model) {
         return chatGPTService.parseModel(model);
     }
 }

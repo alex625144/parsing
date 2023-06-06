@@ -1,6 +1,11 @@
 package com.parsing.model;
 
-import jakarta.persistence.*;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -40,6 +45,8 @@ public class LaptopModel {
 
     @Column(name = "video_card")
     private String videoCard;
+
+    @Column(name = "monitor_scale")
     private String monitorScale;
 
     @Column(name = "monitor_type")

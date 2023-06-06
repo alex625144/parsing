@@ -17,7 +17,7 @@
         <java.version>17</java.version>
         <jsoup.version>1.15.4</jsoup.version>
         <mapstruct.version>1.4.2.Final</mapstruct.version>
-<!--        <selenium.version>4.8.3</selenium.version>-->
+        <selenium.version>4.8.3</selenium.version>
     </properties>
     <dependencies>
         <dependency>
@@ -61,16 +61,16 @@
             <version>1.4.2.Final</version>
             <scope>provided</scope>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>org.seleniumhq.selenium</groupId>-->
-<!--            <artifactId>selenium-java</artifactId>-->
-<!--            <version>${selenium.version}</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.seleniumhq.selenium</groupId>-->
-<!--            <artifactId>selenium-http-jdk-client</artifactId>-->
-<!--            <version>${selenium.version}</version>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-java</artifactId>
+            <version>${selenium.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-http-jdk-client</artifactId>
+            <version>${selenium.version}</version>
+        </dependency>
     </dependencies>
 
     <build>

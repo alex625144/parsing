@@ -6,6 +6,7 @@ import org.mapstruct.Mapping;
 
 @Mapper
 public interface LaptopMapper {
+
     @Mapping(target = "id", ignore = true)
     LaptopModel mapLaptopModelVOToLaptopModel(LaptopModelVO laptopModelVO);
 }
