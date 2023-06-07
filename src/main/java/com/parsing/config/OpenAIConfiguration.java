@@ -23,7 +23,7 @@ public class OpenAIConfiguration {
     @Value("${openai.temperature}")
     private double temperature;
 
-    private final static String CHAT_GPT_PATTERN = "src/main/resources/chatgpt/chatgp-parsing-pattern.txt";
+    private final static String CHAT_GPT_PATTERN_PATH = "src/main/resources/chatgpt/chatgp-parsing-pattern.txt";
 
     @Bean
     public RestTemplate openaiRestTemplate() {
@@ -39,7 +39,7 @@ public class OpenAIConfiguration {
 
     @Bean
     public ChatGPTRequestBody createChatGptMessenger() {
-        try (FileReader fileReader = new FileReader(CHAT_GPT_PATTERN);
+        try (FileReader fileReader = new FileReader(CHAT_GPT_PATTERN_PATH);
              BufferedReader bufferedReader = new BufferedReader(fileReader)) {
             StringBuffer buffer = new StringBuffer();
 
