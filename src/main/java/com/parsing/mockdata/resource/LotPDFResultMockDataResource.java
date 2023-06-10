@@ -11,7 +11,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(value = "/rozetka-parser/generator/lot-pdf-result")
+@RequestMapping(value = "/api/v1/rozetka-parser/generator/lot-pdf-result")
 public class LotPDFResultMockDataResource {
 
     private final LotPDFResultMockDataGenerator lotPDFResultMockDataGenerator;

@@ -39,7 +39,7 @@ public class RozetkaParser {
         boolean isRozetkaParsingSuccessful = false;
         for (String model : models) {
             BigDecimal price = searchPriceByModel(model);
-            if (price == null || price.doubleValue() == 0.0 ) continue;
+            if (price == null || price.doubleValue() == 0.0) continue;
 
             isRozetkaParsingSuccessful = true;
             RozetkaParsingReport rozetkaParsingReport = new RozetkaParsingReport();
@@ -74,7 +74,7 @@ public class RozetkaParser {
 
     private List<String> getModelsFromLotResult(LotResult lotResult) {
         return lotResult.getLotPDFResult().getLaptopItems().stream()
-                .map(LaptopItem::getModel)
+                .map(lp -> lp.getModel().getModelName())
                 .collect(Collectors.toList());
     }
 

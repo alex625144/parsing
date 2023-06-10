@@ -9,6 +9,8 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Column;
 import jakarta.persistence.Id;
 import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.CascadeType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -32,8 +34,8 @@ public class LaptopItem {
     @Column(name = "id")
     private UUID id;
 
-    @Column(name = "model")
-    private String model;
+    @OneToOne(cascade = CascadeType.ALL)
+    private LaptopModel model;
 
     @Column(name = "amount")
     private int amount;

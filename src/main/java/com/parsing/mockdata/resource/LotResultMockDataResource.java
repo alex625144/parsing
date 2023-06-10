@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "/rozetka-parser/generator/lot-result")
+@RequestMapping(value = "/api/v1/rozetka-parser/generator/lot-result")
 @RequiredArgsConstructor
 public class LotResultMockDataResource {
 

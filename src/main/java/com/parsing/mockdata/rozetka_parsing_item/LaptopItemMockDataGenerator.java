@@ -1,6 +1,7 @@
 package com.parsing.mockdata.rozetka_parsing_item;
 
 import com.parsing.model.LaptopItem;
+import com.parsing.model.LaptopModel;
 import com.parsing.model.LotPDFResult;
 import com.parsing.repository.LaptopItemRepository;
 import jakarta.transaction.Transactional;
@@ -12,6 +13,7 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -19,6 +21,7 @@ public class LaptopItemMockDataGenerator {
 
     private final LaptopItemRepository laptopItemRepository;
     private int modelCounter = 0;
+    private static final List<LaptopModel> LAPTOP_MODELS;
     private static final List<String> PREPARE_MOCK_MODEL_LIST = List.of(
             "Acer Aspire 7 A715-42G-R3EZ", "Dell Vostro 15 3501", "Xiaomi Mi RedmiBook 15",
             "Apple MacBook Air 13\" M1 256GB 2020", "Lenovo IdeaPad 3 15IAU7", "ASUS Laptop X515EA-BQ2066", "NOT_VALID_MODEL_NAME1",
@@ -27,6 +30,16 @@ public class LaptopItemMockDataGenerator {
             "Lenovo IdeaPad L3 15ITL6", "Lenovo IdeaPad Gaming 3 15ACH6", "Asus ROG Strix G15 G513IC-HN092", "NOT_VALID_MODEL_NAME2",
             "Huawei MateBook 14S 14.2\"", "Samsung Galaxy Book 2 Pro", "Huawei MateBook D 16"
     );
+
+    static {
+        LAPTOP_MODELS = PREPARE_MOCK_MODEL_LIST.stream()
+                .map( model -> {
+                    LaptopModel laptopModel = new LaptopModel();
+                    laptopModel.setModelName(model);
+                    return laptopModel;
+                })
+                .collect(Collectors.toList());
+    }
 
     @Transactional
     public List<LaptopItem> generate(LotPDFResult pdfResult) {
@@ -68,11 +81,11 @@ public class LaptopItemMockDataGenerator {
     }
 
 
-    private String getModel(int index) {
-        if(index >= PREPARE_MOCK_MODEL_LIST.size()) {
-            index %= PREPARE_MOCK_MODEL_LIST.size();
+    private LaptopModel getModel(int index) {
+        if(index >= LAPTOP_MODELS.size()) {
+            index %= LAPTOP_MODELS.size();
         }
 
-        return PREPARE_MOCK_MODEL_LIST.get(index);
+        return LAPTOP_MODELS.get(index);
     }
 }
