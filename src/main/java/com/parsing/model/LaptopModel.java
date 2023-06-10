@@ -52,8 +52,8 @@ public class LaptopModel {
     @Column(name = "monitor_type")
     private String monitorType;
 
-    @Column(name = "operation_system")
-    private String operationSystem;
+    @Column(name = "operating_system")
+    private String operatingSystem;
 
     @OneToOne
     private LaptopItem laptopItem;

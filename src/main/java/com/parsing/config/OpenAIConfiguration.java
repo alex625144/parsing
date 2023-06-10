@@ -43,8 +43,7 @@ public class OpenAIConfiguration {
              BufferedReader bufferedReader = new BufferedReader(fileReader)) {
             StringBuffer buffer = new StringBuffer();
 
-            bufferedReader.lines()
-                    .forEach(buffer::append);
+            bufferedReader.lines().forEach(buffer::append);
             String patternText = buffer.toString();
 
             ChatGPTRequestBody messenger = new ChatGPTRequestBody();
