@@ -23,6 +23,7 @@ import java.util.List;
 public class Scheduler {
 
     private static final long TEN_MINUTES = 600000L;
+    private static final int MINIMAL_SIZE_PDF_FILE = 50000;
 
     private final LotResultRepository lotResultRepository;
     private final DownloaderPDFService downloaderPDFService;
@@ -42,7 +43,7 @@ public class Scheduler {
             Path path = Paths.get(String.valueOf(fileForParse));
             long bytes = Files.size(path);
             log.debug("Size of file " + bytes);
-            if (!(bytes < 50000) && parserPDFService.parsePDF(fileForParse)) {
+            if (!(bytes < MINIMAL_SIZE_PDF_FILE) && parserPDFService.parsePDF(fileForParse)) {
                 lotResult.setStatus(Status.PDF_SUCCESSFULL);
                 fileForParse.delete();
             } else {

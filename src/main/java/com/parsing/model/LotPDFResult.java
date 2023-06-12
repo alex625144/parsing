@@ -36,6 +36,9 @@ public class LotPDFResult {
     @Column(name = "id")
     private UUID id;
 
+    @Column(name = "parsing_date")
+    private LocalDate parsingDate;
+
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "lot_result_id", referencedColumnName = "id")
     @JsonBackReference
@@ -43,7 +46,4 @@ public class LotPDFResult {
 
     @OneToMany(mappedBy = "lotPDFResult")
     private List<LaptopItem> laptopItems;
-
-    @Column(name = "parsing_date")
-    private LocalDate parsingDate;
 }

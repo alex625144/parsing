@@ -16,20 +16,30 @@ public class LotPDFResultService {
     private final LaptopItemRepository laptopItemRepository;
 
     public void saveLaptopItem(String model, BigDecimal price, Integer amount) {
-        StringBuilder logInformation = new StringBuilder();
+        StringBuilder lotInformationBuilder = new StringBuilder();
         if (model != null && price != null && amount != null) {
             LaptopItem laptopItem = new LaptopItem();
             laptopItem.setModel(model);
             laptopItem.setPrice(price);
             laptopItem.setAmount(amount);
             laptopItemRepository.save(laptopItem);
-        } else if (model == null) {
-            logInformation.append("Model is null.\n");
-        } else if (price == null) {
-            logInformation.append("Price is null.\n");
         } else {
-            logInformation.append("Amount is null\n");
+            if (model == null) {
+                lotInformationBuilder.append("Model is null.\n");
+            } else {
+                lotInformationBuilder.append("model = ").append(model).append("\n");
+            }
+            if (price == null) {
+                lotInformationBuilder.append("Price is null.\n");
+            } else {
+                lotInformationBuilder.append("price = ").append(price).append("\n");
+            }
+            if (amount == null) {
+                lotInformationBuilder.append("Amount is null\n");
+            } else {
+                lotInformationBuilder.append("amount = ").append(amount).append("\n");
+            }
+            log.debug(lotInformationBuilder.toString());
         }
-        log.debug(logInformation.toString());
     }
 }

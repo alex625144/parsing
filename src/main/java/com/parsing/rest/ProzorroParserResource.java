@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-@RestController()
+@RestController
 @RequiredArgsConstructor
 public class ProzorroParserResource {
 

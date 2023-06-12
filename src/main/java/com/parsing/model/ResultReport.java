@@ -24,8 +24,6 @@ import java.util.UUID;
 @Table(name = "result_report")
 public class ResultReport {
 
-    @OneToMany(mappedBy = "resultReport", cascade = CascadeType.ALL)
-    List<ResultReportItem> items;
     @Id
     @GeneratedValue(generator = "UUID")
     @Column(name = "id")
@@ -38,4 +36,6 @@ public class ResultReport {
     private BigDecimal lotPrice;
     @Column(name = "total_amount")
     private BigDecimal totalPriceViolation;
+    @OneToMany(mappedBy = "resultReport", cascade = CascadeType.ALL)
+    List<ResultReportItem> items;
 }

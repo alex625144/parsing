@@ -28,10 +28,12 @@ import java.util.regex.Pattern;
 public class ProzorroParserService {
 
     private static final String NOT_PRESENT = "NOT PRESENT";
+    private static final String DK_LAPTOPS_1 = "30230000";
+    private static final String DK_LAPTOPS_2 = "30210000";
     private static final String TENDER_NOT_FOUND = "Тендер не знайдено | ProZorro";
     private static int MAX_COUNT = 500;
     private static final List<List<String>> urls = URLListBuilder.buildListURLS();
-    private static final List<String> LAPTOPS_DK = List.of("30230000", "30210000");
+    private static final List<String> LAPTOPS_DK = List.of(DK_LAPTOPS_1, DK_LAPTOPS_2);
     private final LotResultRepository lotResultRepository;
 
     public void parse() {
@@ -72,17 +74,16 @@ public class ProzorroParserService {
         log.debug("parsed URL = " + url);
     }
 
-
     private Element getElement(Document document) {
         Element element = null;
         try {
             element = document.getElementsByClass("infobox-link").first();
         } catch (Exception e) {
+            log.warn("Document doesn't have class \"infobox-link\"");
             e.printStackTrace();
         }
         return element;
     }
-
 
     Document getDocument(String url, Document document, int maxReconnect) {
         try {
@@ -116,7 +117,6 @@ public class ProzorroParserService {
         }
         return null;
     }
-
 
     private String parseDK(Document document) {
         String source = document.getElementsByClass("tender-date padding-left-more").toString();
@@ -167,7 +167,6 @@ public class ProzorroParserService {
     }
 
     private int isTenderNotFound(Document document) {
-
         Optional<String> element = Optional.ofNullable(document.title());
         if (element.get().equals(TENDER_NOT_FOUND)) {
             log.debug("Element" + element.get());
