@@ -23,6 +23,12 @@ public class RectangleDetector {
 
     static final Double OFFSET = 5.0;
     static final double HORIZONTAL_LINE_LENGTH = 700;
+    static final int HORIZONTAL_THRESHOLD = 5;
+    static final double ALL_LINES_THRESHOLD1 = 50;
+    static final double ALL_LINES_THRESHOLD2 = 200;
+    static final int ALL_LINES_APERTURESIZE = 3;
+    static final int ALL_LINES_RHO = 3;
+    static final int ALL_LINES_MAXLINEGAP = 5;
     static final double VERTICAL_LINE_LENGTH = 100;
     private final TableProcessor tableProcessor;
     double maxCoordinate = 0;
@@ -188,12 +194,13 @@ public class RectangleDetector {
         Mat cdst = new Mat();
         OpenCV.loadLocally();
         Mat source = Imgcodecs.imread(fileSource, Imgcodecs.IMREAD_GRAYSCALE);
-        Imgproc.Canny(source, dst, 50, 200, 3, false);
+        Imgproc.Canny(source, dst, ALL_LINES_THRESHOLD1, ALL_LINES_THRESHOLD2, ALL_LINES_APERTURESIZE, false);
         Imgcodecs.imwrite("afterCannyRect.png", dst);
         Imgproc.cvtColor(dst, cdst, Imgproc.COLOR_GRAY2BGR);
         verticalLinesMat = cdst.clone();
         Mat linesP = new Mat();
-        Imgproc.HoughLinesP(dst, linesP, 3, Math.PI, 200, RectangleDetector.VERTICAL_LINE_LENGTH, 5);
+        Imgproc.HoughLinesP(dst, linesP, ALL_LINES_RHO, Math.PI, (int) ALL_LINES_THRESHOLD2,
+                RectangleDetector.VERTICAL_LINE_LENGTH, ALL_LINES_MAXLINEGAP);
         List<double[]> lines = new ArrayList<>();
         for (int x = 0; x < linesP.rows(); x++) {
             double[] l = linesP.get(x, 0);
@@ -208,11 +215,12 @@ public class RectangleDetector {
         Mat cdst = new Mat();
         OpenCV.loadLocally();
         Mat source = Imgcodecs.imread(fileSource, Imgcodecs.IMREAD_GRAYSCALE);
-        Imgproc.Canny(source, dst, 50, 200, 3, false);
+        Imgproc.Canny(source, dst, ALL_LINES_THRESHOLD1, ALL_LINES_THRESHOLD2, ALL_LINES_APERTURESIZE, false);
         Imgcodecs.imwrite("afterCannyRect.png", dst);
         Imgproc.cvtColor(dst, cdst, Imgproc.COLOR_GRAY2BGR);
         Mat linesP = new Mat();
-        Imgproc.HoughLinesP(dst, linesP, 3, Math.PI / 2, 5, RectangleDetector.HORIZONTAL_LINE_LENGTH, 5);
+        Imgproc.HoughLinesP(dst, linesP, ALL_LINES_RHO, Math.PI / 2, HORIZONTAL_THRESHOLD,
+                RectangleDetector.HORIZONTAL_LINE_LENGTH, ALL_LINES_MAXLINEGAP);
         List<double[]> lines = new ArrayList<>();
         for (int x = 0; x < linesP.rows(); x++) {
             double[] l = linesP.get(x, 0);

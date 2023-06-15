@@ -8,6 +8,7 @@ import com.parsing.service.DownloaderPDFService;
 import com.parsing.service.ParserPDFService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -29,8 +30,7 @@ public class Scheduler {
     private final DownloaderPDFService downloaderPDFService;
     private final ParserPDFService parserPDFService;
 
-    //    @Scheduled(initialDelay = TEN_MINUTES, fixedDelay = TEN_MINUTES)
-    //todo check two weeks lotresult and try download and parse
+    @Scheduled(initialDelay = TEN_MINUTES, fixedDelay = TEN_MINUTES)
     public void scheduled() throws IOException {
         List<LotResult> lotResults = lotResultRepository.findAllByStatus(Status.PARSED);
         for (LotResult lotResult : lotResults) {
