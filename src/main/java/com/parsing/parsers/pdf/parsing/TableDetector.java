@@ -25,10 +25,11 @@ public class TableDetector {
     private static double x2 = 0;
     private static double y2 = 0;
     private static double y3 = 1500;
+    private static int POWER_TWO = 2;
 
     private static Rect createRect(double x1, double y1, double x2, double y2, double y3) {
-        double width = Math.sqrt(Math.pow((x2 - x1), 2) + Math.pow((y2 - y1), 2));
-        double height = Math.sqrt(Math.pow((y3 - y2), 2));
+        double width = Math.sqrt(Math.pow((x2 - x1), POWER_TWO) + Math.pow((y2 - y1), POWER_TWO));
+        double height = Math.sqrt(Math.pow((y3 - y2), POWER_TWO));
         return new Rect((int) x1, (int) y3, (int) width, (int) height);
     }
 
@@ -36,10 +37,6 @@ public class TableDetector {
         OpenCV.loadLocally();
         Mat dst = new Mat(), cdst = new Mat(), cdstP, cropTable = new Mat();
         Mat source = Imgcodecs.imread(fileSource, Imgcodecs.IMREAD_GRAYSCALE);
-        if (source.empty()) {
-            log.warn("Error opening image! Program Arguments: [image_name -- default " + fileSource + "] \n");
-            System.exit(-1);
-        }
         Imgproc.Canny(source, dst, 50, 200, 3, false);
         Imgcodecs.imwrite("afterCanny.png", dst);
         Imgproc.cvtColor(dst, cdst, Imgproc.COLOR_GRAY2BGR);
@@ -62,10 +59,6 @@ public class TableDetector {
         OpenCV.loadLocally();
         Mat dst = new Mat(), cdst = new Mat(), cdstP, cropTable = new Mat();
         Mat source = Imgcodecs.imread(fileSource, Imgcodecs.IMREAD_GRAYSCALE);
-        if (source.empty()) {
-            log.warn("Error opening image! Program Arguments: [image_name -- default " + fileSource + "] \n");
-            System.exit(-1);
-        }
         Imgproc.Canny(source, dst, 50, 200, 3, false);
         Imgcodecs.imwrite("afterCanny.png", dst);
         Imgproc.cvtColor(dst, cdst, Imgproc.COLOR_GRAY2BGR);
@@ -98,7 +91,8 @@ public class TableDetector {
             Imgcodecs.imwrite(fileResult, cropTable);
             return fileResult;
         } catch (Exception ex) {
-            log.warn("can't crop image");
+            log.warn("Can't crop image. Rectangle x = " + rectangle.x + " y = " + rectangle.y + " height = " + rectangle.height
+                    + " width = " + rectangle.width + "source size = " + source.size());
         }
         return null;
     }

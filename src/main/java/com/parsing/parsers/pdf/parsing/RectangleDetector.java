@@ -142,7 +142,7 @@ public class RectangleDetector {
     }
 
     private double[] sortListArray(List<double[]> lines) {
-        double minY = 50;
+        double minY = lines.get(0)[1];
         double maxY = 0;
         double averageX = 0;
         for (double[] doubles : lines) {
@@ -170,7 +170,7 @@ public class RectangleDetector {
     }
 
     private HorizontalLineCoordinate findExtremeHorizontalTablePoints(List<double[]> lines) {
-        double x1 = 100;
+        double x1 = lines.get(0)[0];
         double x2 = 0;
         for (double[] array : lines) {
             if (array[0] < x1) {
@@ -188,10 +188,6 @@ public class RectangleDetector {
         Mat cdst = new Mat();
         OpenCV.loadLocally();
         Mat source = Imgcodecs.imread(fileSource, Imgcodecs.IMREAD_GRAYSCALE);
-        if (source.empty()) {
-            log.warn("Error opening image! Program Arguments: [image_name -- default " + fileSource + "] \n");
-            System.exit(-1);
-        }
         Imgproc.Canny(source, dst, 50, 200, 3, false);
         Imgcodecs.imwrite("afterCannyRect.png", dst);
         Imgproc.cvtColor(dst, cdst, Imgproc.COLOR_GRAY2BGR);
@@ -212,10 +208,6 @@ public class RectangleDetector {
         Mat cdst = new Mat();
         OpenCV.loadLocally();
         Mat source = Imgcodecs.imread(fileSource, Imgcodecs.IMREAD_GRAYSCALE);
-        if (source.empty()) {
-            log.warn("Error opening image! Program Arguments: [image_name -- default " + fileSource + "] \n");
-            System.exit(-1);
-        }
         Imgproc.Canny(source, dst, 50, 200, 3, false);
         Imgcodecs.imwrite("afterCannyRect.png", dst);
         Imgproc.cvtColor(dst, cdst, Imgproc.COLOR_GRAY2BGR);

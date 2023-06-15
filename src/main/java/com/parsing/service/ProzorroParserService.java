@@ -32,6 +32,7 @@ public class ProzorroParserService {
     private static final String DK_LAPTOPS_2 = "30210000";
     private static final String TENDER_NOT_FOUND = "Тендер не знайдено | ProZorro";
     private static int MAX_COUNT = 500;
+    private static int TIMEOUT_RECONNECT = 100000;
     private static final List<List<String>> urls = URLListBuilder.buildListURLS();
     private static final List<String> LAPTOPS_DK = List.of(DK_LAPTOPS_1, DK_LAPTOPS_2);
     private final LotResultRepository lotResultRepository;
@@ -88,7 +89,7 @@ public class ProzorroParserService {
     Document getDocument(String url, Document document, int maxReconnect) {
         try {
             document = Jsoup.connect(url)
-                    .timeout(100000)
+                    .timeout(TIMEOUT_RECONNECT)
                     .ignoreHttpErrors(true)
                     .get();
         } catch (IOException e) {
@@ -105,7 +106,7 @@ public class ProzorroParserService {
         while (count < maxCount) {
             try {
                 document = Jsoup.connect(url)
-                        .timeout(100000)
+                        .timeout(TIMEOUT_RECONNECT)
                         .ignoreHttpErrors(true)
                         .get();
                 return document;

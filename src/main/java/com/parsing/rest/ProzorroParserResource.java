@@ -1,5 +1,7 @@
 package com.parsing.rest;
 
+import com.parsing.exception.PDFParsingException;
+import com.parsing.exception.ProzorroSiteParseException;
 import com.parsing.schedulers.Scheduler;
 import com.parsing.service.ProzorroParserService;
 import lombok.RequiredArgsConstructor;
@@ -23,8 +25,8 @@ public class ProzorroParserResource {
     public void parsing() {
         try {
             parserService.parse();
-        } catch (RuntimeException ex) {
-            ex.printStackTrace();
+        } catch (ProzorroSiteParseException ex) {
+            throw new ProzorroSiteParseException(ex.getMessage());
         }
     }
 
@@ -33,8 +35,8 @@ public class ProzorroParserResource {
     public void parsingPDF() {
         try {
             schedulerParsingPDF.scheduled();
-        } catch (RuntimeException ex) {
-            ex.printStackTrace();
+        } catch (PDFParsingException ex) {
+            throw new PDFParsingException(ex.getMessage());
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {

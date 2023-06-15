@@ -1,11 +1,11 @@
 laptop:
-  models: lenovo
+  models: lenovo, hp, dell, apple, asus, microsoft, toshiba, sony, samsung, msi, lg, fujitsu, panasonic, huawei, razer, google, intel, gigabyte, alienware, xiaomi, vaio, nec, medion, sharp, gateway, ibm, compal, cyberpowerpc, eurocom, xotac, vizio, haier, positivo, jumper, chuwi, prestigio, everex, motion momputing, hasee, maxdata, aorus, teclast, malibal, system76, byond, tuxedo computers, nextbook, vinga, emdoor
 server:
   port: 8080
 
 logging:
   level:
-    com.neprozorro: INFO
+    com.parsing: INFO
 
 spring:
   servlet:
