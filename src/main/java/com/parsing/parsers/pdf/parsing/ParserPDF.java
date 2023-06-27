@@ -39,8 +39,8 @@ public class ParserPDF {
 
     private final RectangleDetector rectangleDetector;
     private final DataRecognizer dataRecognizer;
+    private final TableRecognizer tableRecognizer;
     private final TableDetector tableDetector;
-    private final ManyTableDetector manyTableDetector;
     private final PageOCRPreparator pageOCRPreparator;
 
     private List<Row> table = new ArrayList<>();
@@ -52,13 +52,13 @@ public class ParserPDF {
 
         for (int page = document.getNumberOfPages() - PAGES_FOR_PARSE; page < document.getNumberOfPages(); page++) {
             final String prePage = pageOCRPreparator.preparePage(document, page);
-            if (tableDetector.isTableExistOnPage(prePage)) {
+            if (tableRecognizer.isTableExistOnPage(prePage)) {
                 log.debug("Found table on page " + page);
                 List<double[]> lines = rectangleDetector.findVerticalLinesWithOpenCV(prePage);
                 log.debug("Quantity of lines = " + lines.size());
-                List<double[]> tablesLines = manyTableDetector.detectQuantityOfTables(lines);
+                List<double[]> tablesLines = tableDetector.detectQuantityOfTables(lines);
                 rectangleDetector.saveIMageWithVerticalLines2(tablesLines);
-                String fileTableName = tableDetector.detectTable(prePage);
+                String fileTableName = tableRecognizer.detectTable(prePage);
                 table = rectangleDetector.detectRectangles(fileTableName);
                 table = extractTextFromScannedDocument(fileTableName);
                 dataRecognizer.recognizeLotPDFResult(table);
@@ -81,7 +81,7 @@ public class ParserPDF {
         OpenCV.loadLocally();
         try (PDDocument document = PDDocument.load(file)) {
             String lastPagePDF = getLastPagePDF(document);
-            String fileTableName = tableDetector.detectTable(lastPagePDF);
+            String fileTableName = tableRecognizer.detectTable(lastPagePDF);
             if (fileTableName != null) {
                 table = rectangleDetector.detectRectangles(fileTableName);
                 table = extractTextFromScannedDocument(fileTableName);

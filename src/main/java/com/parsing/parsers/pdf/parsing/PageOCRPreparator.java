@@ -36,6 +36,8 @@ public class PageOCRPreparator {
     private final RotationImage rotationImage;
 
     private static final String DIR_TO_READ_TESSDATA = "/tessdata/";
+    private static final int MINIMAL_WIDTH_WORD_FOR_OCR = 3;
+    private static final int THICKNESS_LINE = 5;
     private static final double OFFSET = 5;
     private static final String REGEX = ".*[А-ЩЬЮЯЄЇІа-щьюяєїі].*";
     private static final double[] RGB_WHITE_COLOUR = {255, 255, 255};
@@ -65,7 +67,7 @@ public class PageOCRPreparator {
         List<Rectangle> result = new ArrayList<>();
         final Mat tableMat = Imgcodecs.imread(filename);
         for (Rectangle rectangle : rectangles) {
-            if (rectangle.getWidth() >= 3) {
+            if (rectangle.getWidth() >= MINIMAL_WIDTH_WORD_FOR_OCR) {
                 String resultTemp = null;
                 try {
                     resultTemp = itesseract.doOCR(new File(filename), rectangle).trim();
@@ -128,8 +130,8 @@ public class PageOCRPreparator {
                         new org.opencv.core.Point(rectangle.getMinX(), rectangle.getMaxY()),
                         new Point(rectangle.getMaxX(), rectangle.getMinY()),
                         new Scalar(0, 0, 255),
-                        5);
-                String filename = pageNumber + "11111.png";
+                        THICKNESS_LINE);
+                String filename = pageNumber + "_PageMainRectangle.png";
                 Imgcodecs.imwrite(filename, matrix);
             }
         } catch (IOException e) {
@@ -201,7 +203,7 @@ public class PageOCRPreparator {
                             new Point(rectangle.getMinX(), rectangle.getMaxY()),
                             new Point(rectangle.getMaxX(), rectangle.getMinY()),
                             new Scalar(0, 0, 255),
-                            5);
+                            THICKNESS_LINE);
                 }
 
                 String filename2 = filename + "00000.png";
@@ -245,7 +247,7 @@ public class PageOCRPreparator {
                         new Point(rectangle.getMinX(), rectangle.getMaxY()),
                         new Point(rectangle.getMaxX(), rectangle.getMinY()),
                         new Scalar(0, 0, 255),
-                        5);
+                        THICKNESS_LINE);
             }
 
             filenameResult = filenameImage + "saveRectanglesOnImage.png";
