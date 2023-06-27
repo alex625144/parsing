@@ -5,11 +5,11 @@ start:
 end:
   date: "2023-05-30"
 server:
-  port: 8080
+  port:
 
 logging:
   level:
-    com.parsing: INFO
+    com.neprozorro: INFO
 
 spring:
   servlet:
