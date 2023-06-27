@@ -206,7 +206,7 @@ public class PageOCRPreparator {
                             THICKNESS_LINE);
                 }
 
-                String filename2 = filename + "00000.png";
+                String filename2 = filename + "_AllWords.png";
                 Imgcodecs.imwrite(filename2, matrix);
             } else {
                 log.debug("Text not found on page.");
