@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/rozetka-parser")
+@RequestMapping("/api/v1/rozetka-parser")
 public class RozetkaParserResource {
 
     private final RozetkaParserService rozetkaSevice;

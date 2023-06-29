@@ -74,7 +74,7 @@ public class RozetkaParser {
 
     private List<String> getModelsFromLotResult(LotResult lotResult) {
         return lotResult.getLotPDFResult().getLaptopItems().stream()
-                .map(LaptopItem::getModel)
+                .map(lp -> lp.getModel().getModelName())
                 .collect(Collectors.toList());
     }
 
