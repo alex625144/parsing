@@ -33,8 +33,8 @@ public class URLListBuilder {
         }
     }
 
-    private static final int START_LOT = 1;
-    private static final int END_LOT = 15000;
+    private static final int START_LOT = 100;
+    private static final int END_LOT = 200;
     private static final String MAIN_URI = "https://prozorro.gov.ua/tender/UA";
     private static final String DASH = "-";
     private static final String END_URI = "-a";

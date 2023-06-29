@@ -25,7 +25,7 @@ public class DownloaderPDF {
     private static final String DIR_TO_SAVE_PDF = "/pdf/";
     private final RestTemplate restTemplate;
 
-    public Path downloadByUrl(URI uri, UUID uuid) {
+    public boolean downloadByUrl(URI uri, UUID uuid) {
         String savePath = getPath() + uuid.toString() + ".pdf";
         RequestCallback requestCallback = request -> request
                 .getHeaders()
@@ -38,7 +38,7 @@ public class DownloaderPDF {
         };
         restTemplate.execute(uri, HttpMethod.GET, requestCallback, responseExtractor);
         log.debug("file with URI: " + uri + " was saved.");
-        return Paths.get(savePath);
+        return true;
     }
 
     private String getPath() {
