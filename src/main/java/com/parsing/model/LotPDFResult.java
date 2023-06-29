@@ -12,11 +12,10 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
-import lombok.Setter;
 import lombok.Getter;
-
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -34,8 +33,11 @@ public class LotPDFResult {
 
     @Id
     @GeneratedValue(generator = "UUID")
-    @Column(name ="id")
+    @Column(name = "id")
     private UUID id;
+
+    @Column(name = "parsing_date")
+    private LocalDate parsingDate;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "lot_result_id", referencedColumnName = "id")
@@ -44,7 +46,4 @@ public class LotPDFResult {
 
     @OneToMany(mappedBy = "lotPDFResult")
     private List<LaptopItem> laptopItems;
-
-    @Column(name = "parsing_date")
-    private LocalDate parsingDate;
 }

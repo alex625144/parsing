@@ -1,3 +1,9 @@
+laptop:
+  models: lenovo, hp, dell, apple, asus, microsoft, toshiba, sony, samsung, msi, lg, fujitsu, panasonic, huawei, razer, google, intel, gigabyte, alienware, xiaomi, vaio, nec, medion, sharp, gateway, ibm, compal, cyberpowerpc, eurocom, xotac, vizio, haier, positivo, jumper, chuwi, prestigio, everex, motion momputing, hasee, maxdata, aorus, teclast, malibal, system76, byond, tuxedo computers, nextbook, vinga, emdoor
+start:
+  date: "2023-04-01"
+end:
+  date: "2023-05-30"
 server:
   port:
 
@@ -6,6 +12,10 @@ logging:
     com.neprozorro: INFO
 
 spring:
+  servlet:
+    multipart:
+      max-file-size: -1
+      max-request-size: -1
   output:
     ansi:
       enabled: ALWAYS
@@ -16,7 +26,7 @@ spring:
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: create
     show-sql: false
     properties:
       hibernate:

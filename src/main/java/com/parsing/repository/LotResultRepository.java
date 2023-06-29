@@ -10,6 +10,4 @@ import java.util.UUID;
 public interface LotResultRepository extends JpaRepository<LotResult, UUID> {
 
     List<LotResult> findAllByStatus(Status status);
-
-    List<LotResult> findAllByStatusAndLotPDFResultIsNull(Status status);
 }
