@@ -2,30 +2,25 @@ package com.parsing.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
 @Entity
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Setter
-@Getter
-@Builder
-@ToString(exclude = "lotPDFResult")
-@Table(name = "lot_result")
-public class LotResult {
+@Table(name = "lot_info")
+public class LotInfo {
 
     @Id
-    @Column(name = "id")
     @GeneratedValue(generator = "UUID")
+    @Column(name = "id")
     private UUID id;
 
     @ManyToOne
@@ -55,14 +50,4 @@ public class LotResult {
 
     @OneToMany(mappedBy = "lotInfo", cascade = CascadeType.ALL)
     private List<LotItemInfo> lotItems;
-
-    @Enumerated(value = EnumType.STRING)
-    @Column(name = "status")
-    private Status status;
-
-    @Column(name = "parsing_date")
-    private LocalDate parsingDate;
-
-    @OneToOne(cascade = CascadeType.ALL)
-    LotPDFResult lotPDFResult;
 }
