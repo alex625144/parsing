@@ -53,9 +53,6 @@ public class LotResult {
     @Column(name = "pdf_url")
     private String pdfURL;
 
-    @OneToMany(mappedBy = "lotInfo", cascade = CascadeType.ALL)
-    private List<LotItemInfo> lotItems;
-
     @Enumerated(value = EnumType.STRING)
     @Column(name = "status")
     private Status status;
