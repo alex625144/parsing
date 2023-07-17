@@ -18,13 +18,14 @@ import java.net.URL;
 @Component
 public class ExtractorLotId {
 
-    private final String OFFSET = "1672534861"; // this date 2023-01-01
     ObjectMapper objectMapper = new ObjectMapper();
     JsonNode jsonNode = null;
     private final LotIdRepository lotIDRepository;
 
     public boolean extractLots() {
 
+        // this date 2023-01-01
+        String OFFSET = "1672534861";
         String START_DATE = "https://public.api.openprocurement.org/api/2.5/tenders?offset=" + OFFSET;
         try {
             URL url = new URL(START_DATE);
@@ -32,7 +33,7 @@ public class ExtractorLotId {
         } catch (MalformedURLException e) {
             e.printStackTrace();
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
         return false;
     }
@@ -61,7 +62,7 @@ public class ExtractorLotId {
     }
 
     @Transactional
-    void saveLot(JsonNode data) {
+    public void saveLot(JsonNode data) {
         for (JsonNode lot : data) {
             String dateModified = lot.get("dateModified").toString();
             String id = lot.get("id").toString();
