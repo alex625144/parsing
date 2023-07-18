@@ -5,6 +5,7 @@ import com.parsing.service.APIParserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -19,6 +20,16 @@ public class APIParserResource {
     public void parsing() {
         try {
             apiParserService.parse();
+        } catch (ProzorroSiteParseException ex) {
+            throw new ProzorroSiteParseException(ex.getMessage());
+        }
+    }
+
+    @GetMapping("/api_lot_information/{lotId}")
+    @ResponseStatus(HttpStatus.FOUND)
+    public void parsing(@RequestParam String lotId) {
+        try {
+            apiParserService.parseInfo(lotId);
         } catch (ProzorroSiteParseException ex) {
             throw new ProzorroSiteParseException(ex.getMessage());
         }

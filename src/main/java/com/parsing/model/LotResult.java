@@ -33,6 +33,9 @@ import java.util.UUID;
 @Table(name = "lot_result")
 public class LotResult {
 
+
+    // need lots/0/title
+    //
     @Id
     @Column(name = "id")
     @GeneratedValue(generator = "UUID")
