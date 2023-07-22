@@ -1,6 +1,6 @@
 package com.parsing.mockdata.resource;
 
-import com.parsing.mockdata.rozetka_parsing_item.LaptopItemMockDataGenerator;
+import com.parsing.mockdata.mock_data_generator.LaptopItemMockDataGenerator;
 import com.parsing.model.LaptopItem;
 import com.parsing.model.LotPDFResult;
 import lombok.RequiredArgsConstructor;
@@ -10,7 +10,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(value = "/api/v1/rozetka-parser/generator/laptop-item")
+@RequestMapping(value = "/api/v1/mock_data_generator/laptop-item")
 public class LaptopItemMockDataResource {
 
     private final LaptopItemMockDataGenerator laptopItemMockDataGenerator;

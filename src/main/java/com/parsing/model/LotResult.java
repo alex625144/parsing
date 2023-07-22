@@ -45,7 +45,7 @@ public class LotResult {
     private Participant seller;
 
     @Enumerated(value = EnumType.STRING)
-    @Column(name = "status")
+    @Column(name = "lot_status")
     private LotStatus lotStatus;
 
     @Column(name = "dk")

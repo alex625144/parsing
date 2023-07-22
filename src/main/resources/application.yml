@@ -26,7 +26,7 @@ spring:
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: validate
     show-sql: false
     properties:
       hibernate:
@@ -34,10 +34,3 @@ spring:
         format_sql: true
         order_by:
           default_null_ordering: last
-
-openai:
-  model: "gpt-3.5-turbo"
-  temperature: 1.5
-  api:
-    url: "https://api.openai.com/v1/chat/completions"
-    key: ${chatGPT-API-key}
