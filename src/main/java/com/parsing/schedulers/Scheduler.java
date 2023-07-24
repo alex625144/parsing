@@ -1,6 +1,5 @@
 package com.parsing.schedulers;
 
-
 import com.parsing.model.LotResult;
 import com.parsing.model.Status;
 import com.parsing.repository.LotResultRepository;
@@ -34,7 +33,7 @@ public class Scheduler {
     public void scheduled() throws IOException {
         List<LotResult> lotResults = lotResultRepository.findAllByStatus(Status.PARSED);
         for (LotResult lotResult : lotResults) {
-            Path filename = downloaderPDFService.downloadPDF(lotResult.getPdfLink(), lotResult.getId());
+            Path filename = downloaderPDFService.downloadPDF(lotResult.getLotURL(), lotResult.getId());
             if (filename != null) {
                 lotResult.setStatus(Status.DOWNLOADED);
             }

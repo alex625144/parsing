@@ -53,11 +53,11 @@ public class ProzorroParserService {
                     String Dk = parseDK(document);
                     if (Dk != null && LAPTOPS_DK.contains(Dk)) {
                         lot.setDk(parseDK(document));
-                        lot.setUrl(day.get(x));
-                        lot.setPdfLink(parsePDFLink(document));
+                        lot.setLotURL(day.get(x));
+                        lot.setPdfURL(parsePDFLink(document));
                         Status status = parsePDFLink(document).equals(NOT_PRESENT) ? Status.CREATED : Status.PARSED;
                         lot.setStatus(status);
-                        lot.setPrice(parsePrice(document));
+                        lot.setLotTotalPrice(parsePrice(document));
                         lot.setParsingDate(parseDate(day.get(x)));
                         lot.setLotPDFResult(new LotPDFResult());
                         saveLotResult(day.get(x), lot);

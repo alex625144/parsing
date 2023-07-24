@@ -7,7 +7,7 @@ import com.parsing.parsers.pdf.parsing.model.VerticalLineCoordinate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.awt.*;
+import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
 

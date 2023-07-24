@@ -3,6 +3,7 @@ package com.parsing.parsers.pdf.parsing;
 import com.parsing.exception.UnableToConvertPriceException;
 import com.parsing.parsers.pdf.parsing.model.Column;
 import com.parsing.parsers.pdf.parsing.model.Row;
+import com.parsing.service.LotPDFResultService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,7 +26,7 @@ public class DataRecognizer {
     private final LotPDFResultService lotPDFResultService;
 
     @Value("${laptop.models}")
-    private final String[] laptopModels;
+    private String[] laptopModels;
 
     private static final int MIN_PRICE_AMOUNT_DIGITS = 4;
     private String model;

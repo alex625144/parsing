@@ -19,7 +19,7 @@ import org.opencv.imgproc.Imgproc;
 import org.springframework.stereotype.Component;
 
 import javax.imageio.ImageIO;
-import java.awt.*;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;

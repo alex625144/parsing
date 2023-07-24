@@ -1,6 +1,6 @@
 package com.parsing.mockdata.resource;
 
-import com.parsing.mockdata.rozetka_parsing_item.LotPDFResultMockDataGenerator;
+import com.parsing.mockdata.mock_data_generator.LotPDFResultMockDataGenerator;
 import com.parsing.model.LotPDFResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,7 +11,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(value = "/api/v1/rozetka-parser/generator/lot-pdf-result")
+@RequestMapping(value = "/api/v1/mock_data_generator/lot-pdf-result")
 public class LotPDFResultMockDataResource {
 
     private final LotPDFResultMockDataGenerator lotPDFResultMockDataGenerator;
