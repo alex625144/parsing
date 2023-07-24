@@ -91,7 +91,7 @@ public class ExtractorLotInformation {
         seller.setName(data.get("awards").get("suppliers").get("identifiers").get("legalName").toString());
         seller.setEdrpou(data.get("awards").get("suppliers").get("identifiers").get("id").toString());
         //set lotStatus
-        lotResult.setLotStatus(data.get("complete").toString());
+//        lotResult.setLotStatus(data.get("complete").toString());
 
     }
 }
