@@ -20,7 +20,7 @@ public class APIParserService {
         extractorLots.extractLots();
     }
 
-    public void parseInfo(String idLot) {
-        extractorLotInformation.extractLotInformation(idLot);
+    public void parseInfo(String lotId) {
+        extractorLotInformation.extractLotInformation(lotId);
     }
 }
