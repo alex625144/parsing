@@ -1,0 +1,10 @@
+### generate only lotResults
+GET {{host}}/{{generator}}/lot-result
+Content-Type: application/json
+
+### generate lotResults and lotPDFResults with laptopItems for those lotResults who have the status PDF_SUCCESSFULL
+GET {{host}}/{{generator}}/lot-pdf-result
+Content-Type: application/json
+
+### generate laptopItems for one already exist lotPDFResult
+GET {{host}}/{{generator}}/laptop-item/{{lotPDFResult}}
