@@ -1,4 +1,4 @@
-package com.parsing.mockdata.rozetka_parsing_item;
+package com.parsing.mockdata.mock_data_generator;
 
 import com.parsing.model.LotResult;
 import com.parsing.model.Status;
@@ -31,13 +31,13 @@ public class LotResultMockDataGenerator {
             LotResult lotResult = new LotResult();
 
             lotResult.setDk(DK);
-            lotResult.setUrl(URL_TEMPLATE + "/lot" + lotCounter++);
-            lotResult.setPdfLink(URL_TEMPLATE + "/pdf" + lotCounter);
+            lotResult.setLotURL(URL_TEMPLATE + "/lot" + lotCounter++);
+            lotResult.setPdfURL(URL_TEMPLATE + "/pdf" + lotCounter);
             lotResult.setStatus(randomStatusGenerator());
             lotResult.setParsingDate(LocalDate.now());
 
             if (lotResult.getStatus() == Status.PDF_SUCCESSFULL)
-                lotResult.setPrice(BigDecimal.valueOf(ThreadLocalRandom.current().nextInt(50_000, 1_000_000)));
+                lotResult.setLotTotalPrice(BigDecimal.valueOf(ThreadLocalRandom.current().nextInt(50_000, 1_000_000)));
 
             lotResults.add(lotResult);
         }
@@ -58,7 +58,8 @@ public class LotResultMockDataGenerator {
             case 5 -> Status.PDF_FAILED;
             case 6 -> Status.ROZETKA_SUCCESSFULL;
             case 7 -> Status.ROZETKA_FAILED;
-            default -> throw new IllegalStateException("Unexpected value: " + ThreadLocalRandom.current().nextInt(minValue, maxValue));
+            default ->
+                    throw new IllegalStateException("Unexpected value: " + ThreadLocalRandom.current().nextInt(minValue, maxValue));
         };
     }
 }

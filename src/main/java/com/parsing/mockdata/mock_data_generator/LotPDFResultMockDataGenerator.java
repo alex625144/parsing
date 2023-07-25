@@ -1,4 +1,4 @@
-package com.parsing.mockdata.rozetka_parsing_item;
+package com.parsing.mockdata.mock_data_generator;
 
 import com.parsing.model.LotPDFResult;
 import com.parsing.model.LotResult;
