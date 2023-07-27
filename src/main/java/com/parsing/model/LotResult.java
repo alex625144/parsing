@@ -70,8 +70,8 @@ public class LotResult {
     @Column(name = "status")
     private Status status;
 
-    @Column(name = "parsing_date")
-    private LocalDate parsingDate;
+    @Column(name = "date_modified")
+    private String dateModified;
 
     @OneToOne(cascade = CascadeType.ALL)
     LotPDFResult lotPDFResult;
