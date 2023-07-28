@@ -1,0 +1,3 @@
+### manual starter lot-info parsing job
+GET {{host}}/lot-info
+Content-Type: application/json

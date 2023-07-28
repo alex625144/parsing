@@ -34,7 +34,7 @@ public class ProzorroParserResource {
     @ResponseStatus(HttpStatus.FOUND)
     public void parsingPDF() {
         try {
-            schedulerParsingPDF.scheduled();
+            schedulerParsingPDF.parsLotResultAndLotPDFResult();
         } catch (PDFParsingException ex) {
             throw new PDFParsingException(ex.getMessage());
         } catch (FileNotFoundException e) {

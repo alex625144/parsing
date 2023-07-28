@@ -2,6 +2,7 @@ package com.parsing.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -13,6 +14,7 @@ import java.util.UUID;
 @Entity
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "lot_info")
@@ -50,4 +52,7 @@ public class LotInfo {
 
     @OneToMany(mappedBy = "lotInfo", cascade = CascadeType.ALL)
     private List<LotItemInfo> lotItems;
+
+    @OneToOne
+    private LotResult lotResult;
 }
