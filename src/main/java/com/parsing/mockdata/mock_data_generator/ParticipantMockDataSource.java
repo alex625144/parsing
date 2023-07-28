@@ -30,13 +30,13 @@ public class ParticipantMockDataSource {
     }
 
     private List<Participant> generate() {
-        List<Participant> dataList = new ArrayList<>();
-        Set<String> uniqueValue = new HashSet<>();
+        List<Participant> generatedParticipants;
+        Set<String> uniqueValues = new HashSet<>();
 
         try (BufferedReader reader = new BufferedReader(new FileReader(source))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                uniqueValue.add(line);
+                uniqueValues.add(line);
             }
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
@@ -44,7 +44,7 @@ public class ParticipantMockDataSource {
             throw new RuntimeException(e);
         }
 
-        dataList = new ArrayList<>(uniqueValue.stream()
+        generatedParticipants = new ArrayList<>(uniqueValues.stream()
                 .map(name -> {
                     var participant = new Participant();
                     participant.setEdrpou(String.valueOf(++edrpouCounter));
@@ -52,9 +52,9 @@ public class ParticipantMockDataSource {
                     return participant;
                 })
                 .toList());
-        Collections.shuffle(dataList);
+        Collections.shuffle(generatedParticipants);
 
-        return participantRepository.saveAll(dataList);
+        return participantRepository.saveAll(generatedParticipants);
     }
 
     public Participant getNextParticipant() {

@@ -13,7 +13,7 @@ public class LotInfoResource {
 
     private final Scheduler scheduler;
 
-    @GetMapping("/lot-info")
+    @GetMapping("/lot-infos")
     void testLotInfoSchedule() {
         scheduler.mapLotInfo();
     }

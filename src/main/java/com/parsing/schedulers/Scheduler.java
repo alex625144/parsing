@@ -71,7 +71,7 @@ public class Scheduler {
 
     @Transactional
     @Scheduled(initialDelay = TEN_MINUTES, fixedDelay = TEN_MINUTES)
-    public void parsLotResultAndLotPDFResult() throws IOException {
+    public void parseLotResultAndLotPDFResult() throws IOException {
         List<LotResult> lotResults = lotResultService.findAllByStatus(Status.PARSED);
         for (LotResult lotResult : lotResults) {
             Path filename = downloaderPDFService.downloadPDF(lotResult.getLotURL(), lotResult.getId());
