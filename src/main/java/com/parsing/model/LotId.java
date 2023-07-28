@@ -1,4 +1,4 @@
-package com.parsing.api.model;
+package com.parsing.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

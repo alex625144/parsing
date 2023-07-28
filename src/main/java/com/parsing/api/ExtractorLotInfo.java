@@ -10,48 +10,53 @@ import com.parsing.repository.LotResultRepository;
 import com.parsing.repository.ParticipantRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
 @Component
-public class ExtractorLotInformation {
+public class ExtractorLotInfo {
 
-    ObjectMapper objectMapper = new ObjectMapper();
     private final String URL_LOT = "https://public.api.openprocurement.org/api/2.5/tenders/";
     private final String LOT_STATUS = "complete";
     JsonNode jsonNode = null;
     private final LotResultRepository lotResultRepository;
     private final ParticipantRepository participantRepository;
 
-    public boolean extractLotInformation(String idLot) {
+    public void extractLotInformation(String idLot) {
         try {
             log.debug(URL_LOT + idLot);
-            URL url = new URL(URL_LOT + idLot);
+            URI url = new URI(URL_LOT + idLot);
             System.out.println(URL_LOT+idLot);
-            return getLotsFromURL(url);
+            getLotsFromURL(url);
         } catch (MalformedURLException e) {
             e.printStackTrace();
         } catch (IOException e) {
             throw new RuntimeException(e);
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
         }
-        return false;
     }
 
-    private boolean getLotsFromURL(URL url) throws IOException {
-        try {
-            jsonNode = objectMapper.readTree(url);
-        } catch (IOException e) {
-            e.printStackTrace();
+    private boolean getLotsFromURL(URI uri) throws IOException {
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<String> response = restTemplate.getForEntity(uri, String.class);
+        if (response.getStatusCode().is2xxSuccessful()) {
+            String jsonData = response.getBody();
+            ObjectMapper objectMapper = new ObjectMapper();
+            jsonNode = objectMapper.readTree(jsonData);
         }
         final JsonNode data = jsonNode.get("data");
         saveLotResult(data);
@@ -92,8 +97,8 @@ public class ExtractorLotInformation {
         for (JsonNode award : awards) {
             JsonNode suppliers = award.get("suppliers");
             for (JsonNode supplier : suppliers) {
-                seller.setName(supplier.get("identifier").get("legalName").toString());
-                seller.setEdrpou(supplier.get("identifier").get("id").toString());
+                seller.setName(supplier.get("identifier").get("legalName").textValue());
+                seller.setEdrpou(supplier.get("identifier").get("id").textValue());
             }
         }
         participantRepository.save(seller);
@@ -107,7 +112,7 @@ public class ExtractorLotInformation {
             JsonNode documents = contract.get("documents");
             for (int i = 0; i < documents.size(); i++) {
                 if (i == 0) {
-                    pdfUrl = documents.get(i).get("url").toString();
+                    pdfUrl = documents.get(i).get("url").textValue();
                 }
             }
         }
@@ -115,7 +120,7 @@ public class ExtractorLotInformation {
     }
 
     private static void extractLotUrl(JsonNode data, LotResult lotResult) {
-        String lotUrl = "https://prozorro.gov.ua/tender/" + data.get("tenderID").toString();
+        String lotUrl = "https://prozorro.gov.ua/tender/" + data.get("tenderID").textValue();
         lotResult.setLotURL(lotUrl);
     }
 
@@ -128,7 +133,7 @@ public class ExtractorLotInformation {
     private static void extractDk(JsonNode data, LotResult lotResult) {
         JsonNode items = data.get("items");
         for (JsonNode item : items) {
-            lotResult.setDk(item.get("classification").get("id").toString());
+            lotResult.setDk(item.get("classification").get("id").textValue());
         }
     }
 
@@ -139,8 +144,8 @@ public class ExtractorLotInformation {
             JsonNode tenderers = node.get("tenderers");
             for (JsonNode jsonNode1 : tenderers) {
                 Participant participant = new Participant();
-                participant.setName(jsonNode1.get("name").toString());
-                participant.setEdrpou(jsonNode1.get("identifier").get("id").toString());
+                participant.setName(jsonNode1.get("name").textValue());
+                participant.setEdrpou(jsonNode1.get("identifier").get("id").textValue());
                 participants.add(participant);
                 participantRepository.save(participant);
             }
@@ -150,8 +155,8 @@ public class ExtractorLotInformation {
 
     private void extractBuyer(JsonNode data, LotResult lotResult) {
         Participant buyer = new Participant();
-        buyer.setName(data.get("procuringEntity").get("name").toString());
-        buyer.setEdrpou(data.get("procuringEntity").get("identifier").get("id").toString());
+        buyer.setName(data.get("procuringEntity").get("name").textValue());
+        buyer.setEdrpou(data.get("procuringEntity").get("identifier").get("id").textValue());
         lotResult.setLotStatus(LotStatus.COMPLETE);
         participantRepository.save(buyer);
         lotResult.setBuyer(buyer);
