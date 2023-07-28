@@ -1,6 +1,6 @@
-package com.parsing.repository;
+package com.parsing.api.repository;
 
-import com.parsing.model.LotId;
+import com.parsing.api.model.LotId;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.UUID;

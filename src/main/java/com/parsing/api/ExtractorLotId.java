@@ -2,8 +2,8 @@ package com.parsing.api;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.parsing.model.LotId;
-import com.parsing.repository.LotIdRepository;
+import com.parsing.api.model.LotId;
+import com.parsing.api.repository.LotIdRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -22,19 +22,20 @@ public class ExtractorLotId {
     JsonNode jsonNode = null;
     private final LotIdRepository lotIDRepository;
 
-    public void extractLots() {
+    public boolean extractLots() {
 
         // this date 2023-01-01
         String OFFSET = "1672534861";
         String START_DATE = "https://public.api.openprocurement.org/api/2.5/tenders?offset=" + OFFSET;
         try {
             URL url = new URL(START_DATE);
-            getLotsFromURL(url);
+            return getLotsFromURL(url);
         } catch (MalformedURLException e) {
             e.printStackTrace();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        return false;
     }
 
     private boolean getLotsFromURL(URL url) throws IOException {
