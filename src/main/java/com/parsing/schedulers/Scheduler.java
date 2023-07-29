@@ -1,10 +1,9 @@
 package com.parsing.schedulers;
 
-import com.parsing.model.LaptopItem;
 import com.parsing.model.LotInfo;
-import com.parsing.model.LotItemInfo;
 import com.parsing.model.LotResult;
 import com.parsing.model.Status;
+import com.parsing.model.mapper.LotInfoMapper;
 import com.parsing.service.DownloaderPDFService;
 import com.parsing.service.LotInfoService;
 import com.parsing.service.LotResultService;
@@ -17,13 +16,10 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -37,37 +33,7 @@ public class Scheduler {
     private final DownloaderPDFService downloaderPDFService;
     private final ParserPDFService parserPDFService;
     private final LotInfoService lotInfoService;
-
-    @Transactional
-    @Scheduled(initialDelay = TEN_MINUTES, fixedDelay = TEN_MINUTES)
-    public void mapLotInfo() {
-        List<LotResult> lotResults = lotResultService.findAllPDFParserLots();
-        List<LotInfo> lotInfos = new ArrayList<>(lotResults.size());
-
-        for (LotResult lotResult : lotResults) {
-            List<LotItemInfo> lotItemInfos;
-
-            LotInfo lotInfo = LotInfo.builder()
-                    .buyer(lotResult.getBuyer())
-                    .seller(lotResult.getSeller())
-                    .lotStatus(lotResult.getLotStatus())
-                    .dk(lotResult.getDk())
-                    .lotTotalPrice(lotResult.getLotTotalPrice())
-                    .lotURL(lotResult.getLotURL().isEmpty() ?
-                            null : lotResult.getLotURL())
-                    .pdfURL(lotResult.getPdfURL())
-                    .lotItems(Objects.nonNull(lotResult.getLotPDFResult()) ?
-                            parsLotInfo(lotResult.getLotPDFResult().getLaptopItems()) : null)
-                    .lotResult(lotResult)
-                    .build();
-
-            lotInfos.add(lotInfo);
-            lotResult.setStatus(lotResult.getStatus() == Status.PDF_SUCCESSFULL ? Status.MAPPED_TO_INFO_SUCCESSFULL : Status.MAPPED_TO_INFO_FAILED);
-        }
-
-        lotResultService.saveAll(lotResults);
-        lotInfoService.saveAll(lotInfos);
-    }
+    private final LotInfoMapper lotInfoMapper;
 
     @Transactional
     @Scheduled(initialDelay = TEN_MINUTES, fixedDelay = TEN_MINUTES)
@@ -92,20 +58,29 @@ public class Scheduler {
         }
     }
 
-    private List<LotItemInfo> parsLotInfo(List<LaptopItem> laptopItems) {
-        if (laptopItems == null || laptopItems.isEmpty()) {
-            return null;
+    @Transactional
+    @Scheduled(initialDelay = TEN_MINUTES, fixedDelay = TEN_MINUTES)
+    public void mapLotInfo() {
+        List<LotResult> lotResults = lotResultService.findAllPDFParserLots();
+        List<LotInfo> lotInfos = lotInfoMapper.toLotInfoList(lotResults);
+
+        lotResultService.saveAll(refreshLotResalts(lotResults));
+        lotInfoService.saveAll(prepareLotInfoToSaving(lotInfos));
+    }
+
+    private List<LotInfo> prepareLotInfoToSaving(List<LotInfo> lotInfos) {
+        for (LotInfo lotInfo : lotInfos) {
+            lotInfo.getLotItems().forEach(lotItemInfo -> lotItemInfo.setLotInfo(lotInfo));
         }
 
-        return laptopItems.stream()
-                .map(laptopItem -> LotItemInfo.builder()
-                        .model(laptopItem.getModel())
-                        .amount(laptopItem.getAmount())
-                        .price(laptopItem.getPrice())
-                        .totalItemPrice(laptopItem.getPrice()
-                                .multiply(BigDecimal.valueOf(laptopItem.getAmount())))
-                        .build())
-                .toList();
+        return lotInfos;
+    }
+
+    private List<LotResult> refreshLotResalts(List<LotResult> lotResults) {
+        lotResults.forEach(lotResult ->
+                lotResult.setStatus(lotResult.getStatus() == Status.PDF_SUCCESSFULL ? Status.MAPPED_TO_INFO_SUCCESSFULL : Status.MAPPED_TO_INFO_FAILED));
+
+        return lotResults;
     }
 }
 
