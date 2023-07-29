@@ -1,6 +1,7 @@
 package com.parsing.schedulers;
 
 import com.parsing.model.LotInfo;
+import com.parsing.model.LotItemInfo;
 import com.parsing.model.LotResult;
 import com.parsing.model.Status;
 import com.parsing.model.mapper.LotInfoMapper;
@@ -20,6 +21,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -64,21 +66,25 @@ public class Scheduler {
         List<LotResult> lotResults = lotResultService.findAllPDFParserLots();
         List<LotInfo> lotInfos = lotInfoMapper.toLotInfoList(lotResults);
 
-        lotResultService.saveAll(refreshLotResalts(lotResults));
+        lotResultService.saveAll(refreshLotResults(lotResults));
         lotInfoService.saveAll(prepareLotInfoToSaving(lotInfos));
     }
 
     private List<LotInfo> prepareLotInfoToSaving(List<LotInfo> lotInfos) {
         for (LotInfo lotInfo : lotInfos) {
-            lotInfo.getLotItems().forEach(lotItemInfo -> lotItemInfo.setLotInfo(lotInfo));
+            List<LotItemInfo> lotItemInfos = lotInfo.getLotItems();
+            if (Objects.nonNull(lotItemInfos)) {
+                lotInfo.getLotItems().forEach(lotItemInfo -> lotItemInfo.setLotInfo(lotInfo));
+            }
         }
 
         return lotInfos;
     }
 
-    private List<LotResult> refreshLotResalts(List<LotResult> lotResults) {
+    private List<LotResult> refreshLotResults(List<LotResult> lotResults) {
         lotResults.forEach(lotResult ->
-                lotResult.setStatus(lotResult.getStatus() == Status.PDF_SUCCESSFULL ? Status.MAPPED_TO_INFO_SUCCESSFULL : Status.MAPPED_TO_INFO_FAILED));
+                lotResult.setStatus(lotResult.getStatus() == Status.PDF_SUCCESSFULL ?
+                        Status.MAPPED_TO_INFO_SUCCESSFULL : Status.MAPPED_TO_INFO_FAILED));
 
         return lotResults;
     }

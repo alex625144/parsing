@@ -11,18 +11,18 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @Mapper(componentModel = "spring")
-public abstract class LotItemInfoMapper {
-
-    @IterableMapping(qualifiedByName = "toLotItemInfoList")
-    public abstract List<LotItemInfo> toLotItemInfoList(List<LaptopItem> laptopItems);
+public interface LotItemInfoMapper {
 
     @Named("toLotItemInfoList")
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "totalItemPrice", source = "laptopItem", qualifiedByName = "calculateTotalPrice")
-    public abstract LotItemInfo toLotItemInfoList(LaptopItem laptopItem);
+    @IterableMapping(qualifiedByName = "toLotItemInfo")
+    List<LotItemInfo> toLotItemInfoList(List<LaptopItem> laptopItems);
 
-    @Named("calculateTotalPrice")
-    public BigDecimal calculateTotalPrice(LaptopItem laptopItem) {
+    @Named("toLotItemInfo")
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "totalItemPrice", expression = "java(calculateTotalPrice(laptopItem))")
+    LotItemInfo toLotItemInfo(LaptopItem laptopItem);
+
+    default BigDecimal calculateTotalPrice(LaptopItem laptopItem) {
         return laptopItem.getPrice()
                 .multiply(BigDecimal.valueOf(laptopItem.getAmount()));
     }
