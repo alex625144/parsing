@@ -17,7 +17,7 @@ public class APIParserService {
     private final ExtractorLotId extractorLots;
 
     public void parse() {
-        extractorLots.extractLots();
+        extractorLots.tryExtractLots();
     }
 
     public void parseInfo(String lotId) {

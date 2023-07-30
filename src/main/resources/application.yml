@@ -4,12 +4,17 @@ start:
   date: "2023-04-01"
 end:
   date: "2023-05-30"
+time:
+  offset: 1672534861
 server:
   port:
 
 logging:
   level:
-    com.neprozorro: INFO
+    com.com.parsing: DEBUG
+  logback:
+    rollingpolicy:
+      clean-history-on-start:
 
 spring:
   servlet:
@@ -20,7 +25,7 @@ spring:
     ansi:
       enabled: ALWAYS
   datasource:
-    url: jdbc:postgresql://localhost:5432/postgres?currentSchema=neprozorro
+    url: jdbc:postgresql://localhost:5432/postgres
     username: postgres
     password: 123
     driver-class-name: org.postgresql.Driver

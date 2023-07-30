@@ -1,75 +1,90 @@
 package com.parsing.api;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.parsing.api.model.LotId;
 import com.parsing.api.repository.LotIdRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 @Slf4j
 @RequiredArgsConstructor
 @Component
 public class ExtractorLotId {
 
-    ObjectMapper objectMapper = new ObjectMapper();
-    JsonNode jsonNode = null;
-    private final LotIdRepository lotIDRepository;
+    private final ObjectMapper objectMapper;
 
-    public boolean extractLots() {
+    private final LotIdRepository lotIdRepository;
 
-        // this date 2023-01-01
-        String OFFSET = "1672534861";
-        String START_DATE = "https://public.api.openprocurement.org/api/2.5/tenders?offset=" + OFFSET;
-        try {
-            URL url = new URL(START_DATE);
-            return getLotsFromURL(url);
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+    private final RestTemplate restTemplate;
+
+    private String offset = null;
+
+    @Value("${time.offset}")
+    private void setTimeOffset(String timeOffset) {
+        if (timeOffset != null && !timeOffset.isEmpty()) {
+            offset = timeOffset;
         }
-        return false;
     }
 
-    private boolean getLotsFromURL(URL url) throws IOException {
+    public void tryExtractLots() {
+        String START_DATE_URL = "https://public.api.openprocurement.org/api/2.5/tenders?offset=" + offset;
+        JsonNode jsonNode = null;
+        ResponseEntity<String> response = null;
+        URI uri = null;
         try {
-            jsonNode = objectMapper.readTree(url);
-        } catch (IOException e) {
-            e.printStackTrace();
+            uri = new URI(START_DATE_URL);
+            log.info(String.valueOf(uri));
+            response = restTemplate.getForEntity(uri, String.class);
+            jsonNode = objectMapper.readTree(response.getBody());
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
         }
-        final JsonNode data = jsonNode.get("data");
-        saveLot(data);
-        final JsonNode nextPage = jsonNode.get("next_page");
-        final JsonNode uri = nextPage.get("uri");
-        System.out.println(uri);
-        if (!nextPage.isEmpty()) {
+        saveLot(jsonNode.get("data"));
+        JsonNode nextPage = jsonNode.get("next_page");
+        URI nextPageUri = null;
+        try {
+            nextPageUri = new URI(nextPage.get("uri").textValue());
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+        while (nextPageUri != null) {
+            log.info(String.valueOf(nextPageUri));
+            response = restTemplate.getForEntity(nextPageUri, String.class);
+
             try {
-                URL url1 = new URL(uri.asText());
-                System.out.println(url1);
-                return getLotsFromURL(url1);
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
+                jsonNode = objectMapper.readTree(response.getBody());
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
+            saveLot(jsonNode.get("data"));
+            nextPage = jsonNode.get("next_page");
+            try {
+                nextPageUri = new URI(nextPage.get("uri").textValue());
+            } catch (URISyntaxException e) {
+                throw new RuntimeException(e);
             }
         }
-        return true;
     }
 
     @Transactional
     public void saveLot(JsonNode data) {
         for (JsonNode lot : data) {
-            String dateModified = lot.get("dateModified").toString();
-            String id = lot.get("id").toString();
             LotId lotID = new LotId();
-            lotID.setId(id);
-            lotID.setDateModified(dateModified);
-            lotIDRepository.save(lotID);
+            lotID.setId(lot.get("id").textValue());
+            lotID.setDateModified(lot.get("dateModified").textValue());
+            lotIdRepository.save(lotID);
         }
     }
 }

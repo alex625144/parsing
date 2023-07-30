@@ -19,7 +19,6 @@ import lombok.Setter;
 import lombok.ToString;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -33,9 +32,6 @@ import java.util.UUID;
 @Table(name = "lot_result")
 public class LotResult {
 
-
-    // need lots/0/title
-    //
     @Id
     @Column(name = "id")
     @GeneratedValue(generator = "UUID")
