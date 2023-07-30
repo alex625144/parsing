@@ -19,6 +19,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 import java.math.BigDecimal;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -67,7 +68,7 @@ public class LotResult {
     private Status status;
 
     @Column(name = "date_modified")
-    private String dateModified;
+    private ZonedDateTime dateModified;
 
     @OneToOne(cascade = CascadeType.ALL)
     LotPDFResult lotPDFResult;

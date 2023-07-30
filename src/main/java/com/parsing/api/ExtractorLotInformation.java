@@ -19,6 +19,7 @@ import org.springframework.web.client.RestTemplate;
 import java.math.BigDecimal;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -143,7 +144,7 @@ public class ExtractorLotInformation {
     }
 
     private static void extractDateModified(JsonNode data, LotResult lotResult) {
-        String dateModified = data.get("dateModified").textValue();
+        ZonedDateTime dateModified = ZonedDateTime.parse(data.get("dateModified").textValue());
         lotResult.setDateModified(dateModified);
     }
 }
