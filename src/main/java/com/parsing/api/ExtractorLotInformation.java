@@ -38,6 +38,7 @@ public class ExtractorLotInformation {
 
     private final RestTemplate restTemplate;
 
+    @Transactional
     public void extractLotInformation(String lotId) {
         ResponseEntity<String> response;
         URI uri;
@@ -53,7 +54,6 @@ public class ExtractorLotInformation {
         }
     }
 
-    @Transactional
     public void saveLotResult(JsonNode data) {
         LotResult lotResult = new LotResult();
         String status = data.get("status").textValue();
