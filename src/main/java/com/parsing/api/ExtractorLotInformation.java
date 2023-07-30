@@ -16,13 +16,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.IOException;
 import java.math.BigDecimal;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,9 +38,9 @@ public class ExtractorLotInformation {
 
     private final RestTemplate restTemplate;
 
-    public boolean extractLotInformation(String lotId) {
-        ResponseEntity<String> response = null;
-        URI uri = null;
+    public void extractLotInformation(String lotId) {
+        ResponseEntity<String> response;
+        URI uri;
         try {
             uri = new URI(URL_LOT+lotId);
             log.info(String.valueOf(uri));
@@ -52,10 +48,7 @@ public class ExtractorLotInformation {
             JsonNode jsonNode = objectMapper.readTree(response.getBody());
             JsonNode data = jsonNode.get("data");
             saveLotResult(data);
-            return true;
-        } catch (URISyntaxException e) {
-            throw new RuntimeException(e);
-        } catch (JsonProcessingException e) {
+        } catch (URISyntaxException | JsonProcessingException e) {
             throw new RuntimeException(e);
         }
     }

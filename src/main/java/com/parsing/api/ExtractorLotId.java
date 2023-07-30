@@ -36,24 +36,23 @@ public class ExtractorLotId {
         }
     }
 
+    @Transactional
     public void tryExtractLots() {
         String START_DATE_URL = "https://public.api.openprocurement.org/api/2.5/tenders?offset=" + offset;
-        JsonNode jsonNode = null;
-        ResponseEntity<String> response = null;
-        URI uri = null;
+        JsonNode jsonNode;
+        ResponseEntity<String> response;
+        URI uri;
         try {
             uri = new URI(START_DATE_URL);
             log.info(String.valueOf(uri));
             response = restTemplate.getForEntity(uri, String.class);
             jsonNode = objectMapper.readTree(response.getBody());
-        } catch (URISyntaxException e) {
-            throw new RuntimeException(e);
-        } catch (JsonProcessingException e) {
+        } catch (URISyntaxException | JsonProcessingException e) {
             throw new RuntimeException(e);
         }
         saveLot(jsonNode.get("data"));
         JsonNode nextPage = jsonNode.get("next_page");
-        URI nextPageUri = null;
+        URI nextPageUri;
         try {
             nextPageUri = new URI(nextPage.get("uri").textValue());
         } catch (URISyntaxException e) {
@@ -78,7 +77,6 @@ public class ExtractorLotId {
         }
     }
 
-    @Transactional
     public void saveLot(JsonNode data) {
         for (JsonNode lot : data) {
             LotId lotID = new LotId();
