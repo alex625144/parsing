@@ -58,7 +58,6 @@ public class ProzorroParserService {
                         Status status = parsePDFLink(document).equals(NOT_PRESENT) ? Status.CREATED : Status.PARSED;
                         lot.setStatus(status);
                         lot.setLotTotalPrice(parsePrice(document));
-//                        lot.setParsingDate(parseDate(day.get(x)));
                         lot.setLotPDFResult(new LotPDFResult());
                         saveLotResult(day.get(x), lot);
                     }

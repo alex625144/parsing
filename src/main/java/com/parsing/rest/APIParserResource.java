@@ -1,13 +1,10 @@
 package com.parsing.rest;
 
-import com.parsing.exception.ProzorroSiteParseException;
+import com.parsing.exception.ProzorroParsingException;
 import com.parsing.service.APIParserService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-
-import java.sql.SQLOutput;
 
 @RestController
 @RequiredArgsConstructor
@@ -15,13 +12,13 @@ public class APIParserResource {
 
     private final APIParserService apiParserService;
 
-    @GetMapping("/api_lot_extract_all")
+    @GetMapping("/api-lot-extract-all")
     @ResponseStatus(HttpStatus.FOUND)
     public void parsingId() {
         try {
             apiParserService.parse();
-        } catch (ProzorroSiteParseException ex) {
-            throw new ProzorroSiteParseException(ex.getMessage());
+        } catch (ProzorroParsingException ex) {
+            throw new ProzorroParsingException(ex.getMessage());
         }
     }
 
@@ -30,8 +27,8 @@ public class APIParserResource {
     public void parsingLot(@PathVariable String lotId) {
         try {
             apiParserService.parseInfo(lotId);
-        } catch (ProzorroSiteParseException ex) {
-            throw new ProzorroSiteParseException(ex.getMessage());
+        } catch (ProzorroParsingException ex) {
+            throw new ProzorroParsingException(ex.getMessage());
         }
     }
 }

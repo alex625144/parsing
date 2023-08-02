@@ -77,11 +77,11 @@ public class ExtractorLotId {
         }
     }
 
-    public void saveLot(JsonNode data) {
-        for (JsonNode lot : data) {
+    public void saveLot(JsonNode lotIds) {
+        for (JsonNode lotId : lotIds) {
             LotId lotID = new LotId();
-            lotID.setId(lot.get("id").textValue());
-            lotID.setDateModified(lot.get("dateModified").textValue());
+            lotID.setId(lotId.get("id").textValue());
+            lotID.setDateModified(lotId.get("dateModified").textValue());
             lotIdRepository.save(lotID);
         }
     }
