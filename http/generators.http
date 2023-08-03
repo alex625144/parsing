@@ -10,7 +10,11 @@ Content-Type: application/json
 GET {{host}}/{{generator}}/laptop-item/{{lotPDFResult}}
 
 ### receive all lots from prozorro api
-GET {{host}}/api-lot-extract-all
+GET {{host}}/extract-lotid-all
+Content-Type: application/json
+
+### receive all lots information from prozorro api
+GET {{host}}/extract-lot-information-all
 Content-Type: application/json
 
 ### receive one lot from prozorro api

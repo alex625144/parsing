@@ -12,7 +12,7 @@ public class APIParserResource {
 
     private final APIParserService apiParserService;
 
-    @GetMapping("/api-lot-extract-all")
+    @GetMapping("/extract-lotid-all")
     @ResponseStatus(HttpStatus.FOUND)
     public void parsingId() {
         try {
@@ -27,6 +27,16 @@ public class APIParserResource {
     public void parsingLot(@PathVariable String lotId) {
         try {
             apiParserService.parseInfo(lotId);
+        } catch (ProzorroParsingException ex) {
+            throw new ProzorroParsingException(ex.getMessage());
+        }
+    }
+
+    @GetMapping("/extract-lot-information-all")
+    @ResponseStatus(HttpStatus.FOUND)
+    public void parsingLotInformation() {
+        try {
+            apiParserService.parseLotInformation();
         } catch (ProzorroParsingException ex) {
             throw new ProzorroParsingException(ex.getMessage());
         }

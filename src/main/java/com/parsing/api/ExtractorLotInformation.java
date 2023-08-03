@@ -3,6 +3,8 @@ package com.parsing.api;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.parsing.api.model.LotId;
+import com.parsing.api.repository.LotIdRepository;
 import com.parsing.model.LotResult;
 import com.parsing.model.LotStatus;
 import com.parsing.model.Participant;
@@ -22,6 +24,7 @@ import java.net.URISyntaxException;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -32,6 +35,8 @@ public class ExtractorLotInformation {
     private final String LOT_STATUS = "complete";
 
     private final LotResultRepository lotResultRepository;
+
+    private final LotIdRepository lotIdRepository;
 
     private final ParticipantRepository participantRepository;
 
@@ -44,7 +49,7 @@ public class ExtractorLotInformation {
         ResponseEntity<String> response;
         URI uri;
         try {
-            uri = new URI(URL_LOT+lotId);
+            uri = new URI(URL_LOT + lotId);
             log.info(String.valueOf(uri));
             response = restTemplate.getForEntity(uri, String.class);
             JsonNode jsonNode = objectMapper.readTree(response.getBody());
@@ -52,6 +57,25 @@ public class ExtractorLotInformation {
             saveLotResult(data);
         } catch (URISyntaxException | JsonProcessingException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    @Transactional
+    public void extractAllLotInformation() {
+        List<LotId> lotIds = lotIdRepository.findAll();
+        for (LotId lotId : lotIds) {
+            ResponseEntity<String> response;
+            URI uri;
+            try {
+                uri = new URI(URL_LOT + lotId.getId());
+                log.info(String.valueOf(uri));
+                response = restTemplate.getForEntity(uri, String.class);
+                JsonNode jsonNode = objectMapper.readTree(response.getBody());
+                JsonNode data = jsonNode.get("data");
+                saveLotResult(data);
+            } catch (URISyntaxException | JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
@@ -92,19 +116,21 @@ public class ExtractorLotInformation {
     }
 
     private void extractParticipants(JsonNode data, LotResult lotResult) {
-        JsonNode jsonNode = data.get("bids");
-        List<Participant> participants = new ArrayList<>();
-        for (JsonNode node : jsonNode) {
-            JsonNode tenderers = node.get("tenderers");
-            for (JsonNode tenderer : tenderers) {
-                Participant participant = new Participant();
-                participant.setName(tenderer.get("name").toString());
-                participant.setEdrpou(tenderer.get("identifier").get("id").toString());
-                participants.add(participant);
-                participantRepository.save(participant);
+        JsonNode bids = data.get("bids");
+        if (bids!=null) {
+            List<Participant> participants = new ArrayList<>();
+            for (JsonNode node : bids) {
+                JsonNode tenderers = node.get("tenderers");
+                for (JsonNode tenderer : tenderers) {
+                    Participant participant = new Participant();
+                    participant.setName(tenderer.get("name").toString());
+                    participant.setEdrpou(tenderer.get("identifier").get("id").toString());
+                    participants.add(participant);
+                    participantRepository.save(participant);
+                }
             }
+            lotResult.setParticipants(participants);
         }
-        lotResult.setParticipants(participants);
     }
 
     private static void extractDk(JsonNode data, LotResult lotResult) {
@@ -123,8 +149,10 @@ public class ExtractorLotInformation {
         JsonNode contracts = data.get("contracts");
         String pdfUrl = null;
         for (JsonNode contract : contracts) {
-            JsonNode documents = contract.get("documents");
-            pdfUrl = documents.get(0).get("url").toString();
+            Optional<JsonNode> documents = Optional.ofNullable(contract.get("documents"));
+            if (documents.isPresent()) {
+                pdfUrl = documents.get().get(0).get("url").toString();
+            }
         }
         lotResult.setPdfURL(pdfUrl);
     }
@@ -133,10 +161,13 @@ public class ExtractorLotInformation {
         Participant seller = new Participant();
         JsonNode awards = data.get("awards");
         for (JsonNode award : awards) {
-            JsonNode suppliers = award.get("suppliers");
-            for (JsonNode supplier : suppliers) {
-                seller.setName(supplier.get("identifier").get("legalName").toString());
-                seller.setEdrpou(supplier.get("identifier").get("id").toString());
+            Optional<JsonNode> suppliers = Optional.ofNullable(award.get("suppliers"));
+            for (JsonNode supplier : suppliers.get()) {
+                Optional<JsonNode> supplierOpt = Optional.ofNullable(supplier);
+                if (!supplierOpt.get().isNull()) {
+                    seller.setName(supplierOpt.get().get("identifier").get("legalName").toString());
+                    seller.setEdrpou(supplierOpt.get().get("identifier").get("id").toString());
+                }
             }
         }
         participantRepository.save(seller);

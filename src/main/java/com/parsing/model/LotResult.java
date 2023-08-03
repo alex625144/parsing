@@ -1,5 +1,6 @@
 package com.parsing.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -31,6 +32,7 @@ import java.util.UUID;
 @Builder
 @ToString(exclude = "lotPDFResult")
 @Table(name = "lot_result")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class LotResult {
 
     @Id

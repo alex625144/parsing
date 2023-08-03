@@ -23,4 +23,8 @@ public class APIParserService {
     public void parseInfo(String lotId) {
         extractorLotInformation.extractLotInformation(lotId);
     }
+
+    public void parseLotInformation() {
+        extractorLotInformation.extractAllLotInformation();
+    }
 }

@@ -36,7 +36,6 @@ public class ExtractorLotId {
         }
     }
 
-    @Transactional
     public void tryExtractLots() {
         String START_DATE_URL = "https://public.api.openprocurement.org/api/2.5/tenders?offset=" + offset;
         JsonNode jsonNode;
@@ -77,6 +76,7 @@ public class ExtractorLotId {
         }
     }
 
+    @Transactional
     public void saveLot(JsonNode lotIds) {
         for (JsonNode lotId : lotIds) {
             LotId lotID = new LotId();
