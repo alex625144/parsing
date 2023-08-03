@@ -60,8 +60,7 @@ public class ExtractorLotInformation {
         }
     }
 
-    @Transactional
-    public void extractAllLotInformation() {
+    public void extractAllLotsInformation() {
         List<LotId> lotIds = lotIdRepository.findAll();
         for (LotId lotId : lotIds) {
             ResponseEntity<String> response;
@@ -79,6 +78,7 @@ public class ExtractorLotInformation {
         }
     }
 
+    @Transactional
     public void saveLotResult(JsonNode data) {
         LotResult lotResult = new LotResult();
         String status = data.get("status").textValue();
@@ -120,13 +120,15 @@ public class ExtractorLotInformation {
         if (bids!=null) {
             List<Participant> participants = new ArrayList<>();
             for (JsonNode node : bids) {
-                JsonNode tenderers = node.get("tenderers");
-                for (JsonNode tenderer : tenderers) {
-                    Participant participant = new Participant();
-                    participant.setName(tenderer.get("name").toString());
-                    participant.setEdrpou(tenderer.get("identifier").get("id").toString());
-                    participants.add(participant);
-                    participantRepository.save(participant);
+                Optional<JsonNode> tenderers = Optional.ofNullable(node.get("tenderers"));
+                if(tenderers.isPresent()) {
+                    for (JsonNode tenderer : tenderers.get()) {
+                        Participant participant = new Participant();
+                        participant.setName(tenderer.get("name").toString());
+                        participant.setEdrpou(tenderer.get("identifier").get("id").toString());
+                        participants.add(participant);
+                        participantRepository.save(participant);
+                    }
                 }
             }
             lotResult.setParticipants(participants);
@@ -151,7 +153,10 @@ public class ExtractorLotInformation {
         for (JsonNode contract : contracts) {
             Optional<JsonNode> documents = Optional.ofNullable(contract.get("documents"));
             if (documents.isPresent()) {
-                pdfUrl = documents.get().get(0).get("url").toString();
+                Optional<String> url = Optional.ofNullable(documents.get().get(0).get("url").toString());
+                if(url.isPresent()){
+                 pdfUrl = documents.get().get(0).get("url").toString();
+                }
             }
         }
         lotResult.setPdfURL(pdfUrl);
@@ -165,8 +170,10 @@ public class ExtractorLotInformation {
             for (JsonNode supplier : suppliers.get()) {
                 Optional<JsonNode> supplierOpt = Optional.ofNullable(supplier);
                 if (!supplierOpt.get().isNull()) {
-                    seller.setName(supplierOpt.get().get("identifier").get("legalName").toString());
-                    seller.setEdrpou(supplierOpt.get().get("identifier").get("id").toString());
+                    seller.setName(Optional.ofNullable(supplier.findValue("identifier")
+                            .findValue("legalName")).map(JsonNode::asText).orElse(null));
+                    seller.setEdrpou(Optional.ofNullable(supplier.findValue("identifier")
+                            .findValue("id")).map(JsonNode::asText).orElse(null));
                 }
             }
         }

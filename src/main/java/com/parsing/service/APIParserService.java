@@ -25,6 +25,6 @@ public class APIParserService {
     }
 
     public void parseLotInformation() {
-        extractorLotInformation.extractAllLotInformation();
+        extractorLotInformation.extractAllLotsInformation();
     }
 }

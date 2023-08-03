@@ -59,10 +59,10 @@ public class LotResult {
     @ManyToMany
     private List<Participant> participants;
 
-    @Column(name = "lot_url")
+    @Column(name = "lot_url", length = 1024)
     private String lotURL;
 
-    @Column(name = "pdf_url")
+    @Column(name = "pdf_url", length = 1024)
     private String pdfURL;
 
     @Enumerated(value = EnumType.STRING)
