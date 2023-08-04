@@ -25,6 +25,7 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -117,17 +118,21 @@ public class ExtractorLotInformation {
 
     private void extractParticipants(JsonNode data, LotResult lotResult) {
         JsonNode bids = data.get("bids");
-        if (bids!=null) {
+        if (bids != null) {
             List<Participant> participants = new ArrayList<>();
             for (JsonNode node : bids) {
                 Optional<JsonNode> tenderers = Optional.ofNullable(node.get("tenderers"));
-                if(tenderers.isPresent()) {
+                if (tenderers.isPresent()) {
                     for (JsonNode tenderer : tenderers.get()) {
                         Participant participant = new Participant();
                         participant.setName(tenderer.get("name").toString());
                         participant.setEdrpou(tenderer.get("identifier").get("id").toString());
-                        participants.add(participant);
-                        participantRepository.save(participant);
+                        List<Participant> participantAll = participantRepository.findAll();
+                        List<String> edrpous = participantAll.stream().map(x -> participant.getEdrpou()).toList();
+                        if (!edrpous.contains(participant.getEdrpou())) {
+                            participants.add(participant);
+                            participantRepository.save(participant);
+                        }
                     }
                 }
             }
@@ -154,8 +159,8 @@ public class ExtractorLotInformation {
             Optional<JsonNode> documents = Optional.ofNullable(contract.get("documents"));
             if (documents.isPresent()) {
                 Optional<String> url = Optional.ofNullable(documents.get().get(0).get("url").toString());
-                if(url.isPresent()){
-                 pdfUrl = documents.get().get(0).get("url").toString();
+                if (url.isPresent()) {
+                    pdfUrl = documents.get().get(0).get("url").toString();
                 }
             }
         }

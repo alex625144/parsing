@@ -25,7 +25,7 @@ public class Participant {
     @Column(name = "id")
     private UUID id;
 
-    @Column(name = "edrpou")
+    @Column(name = "edrpou", unique = true)
     private String edrpou;
 
     @Column(name = "name")
