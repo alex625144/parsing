@@ -3,8 +3,8 @@ package com.parsing.api;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.parsing.api.model.LotId;
-import com.parsing.api.repository.LotIdRepository;
+import com.parsing.model.LotId;
+import com.parsing.repository.LotIdRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,8 +13,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
+import javax.swing.text.html.Option;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.ZonedDateTime;
+import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -43,7 +46,7 @@ public class ExtractorLotId {
         URI uri;
         try {
             uri = new URI(START_DATE_URL);
-            log.info(String.valueOf(uri));
+            log.debug(String.valueOf(uri));
             response = restTemplate.getForEntity(uri, String.class);
             jsonNode = objectMapper.readTree(response.getBody());
         } catch (URISyntaxException | JsonProcessingException e) {
@@ -51,15 +54,16 @@ public class ExtractorLotId {
         }
         saveLot(jsonNode.get("data"));
         JsonNode nextPage = jsonNode.get("next_page");
-        URI nextPageUri;
+        Optional<URI> nextPageUri;
         try {
-            nextPageUri = new URI(nextPage.get("uri").textValue());
+            nextPageUri = Optional.of(new URI(nextPage.get("uri").textValue()));
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
+
         }
-        while (nextPageUri != null) {
-            log.info(String.valueOf(nextPageUri));
-            response = restTemplate.getForEntity(nextPageUri, String.class);
+        while (nextPageUri.isPresent()) {
+            log.debug(String.valueOf(nextPageUri));
+            response = restTemplate.getForEntity(nextPageUri.get(), String.class);
 
             try {
                 jsonNode = objectMapper.readTree(response.getBody());
@@ -69,7 +73,7 @@ public class ExtractorLotId {
             saveLot(jsonNode.get("data"));
             nextPage = jsonNode.get("next_page");
             try {
-                nextPageUri = new URI(nextPage.get("uri").textValue());
+                nextPageUri = Optional.of(new URI(nextPage.get("uri").textValue()));
             } catch (URISyntaxException e) {
                 throw new RuntimeException(e);
             }
@@ -81,7 +85,8 @@ public class ExtractorLotId {
         for (JsonNode lotId : lotIds) {
             LotId lotID = new LotId();
             lotID.setId(lotId.get("id").textValue());
-            lotID.setDateModified(lotId.get("dateModified").textValue());
+            ZonedDateTime dateModified = ZonedDateTime.parse(lotId.get("dateModified").textValue());
+            lotID.setDateModified(dateModified);
             lotIdRepository.save(lotID);
         }
     }

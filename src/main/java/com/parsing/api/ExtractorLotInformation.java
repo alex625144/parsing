@@ -3,8 +3,8 @@ package com.parsing.api;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.parsing.api.model.LotId;
-import com.parsing.api.repository.LotIdRepository;
+import com.parsing.model.LotId;
+import com.parsing.repository.LotIdRepository;
 import com.parsing.model.LotResult;
 import com.parsing.model.LotStatus;
 import com.parsing.model.Participant;
@@ -50,7 +50,7 @@ public class ExtractorLotInformation {
         URI uri;
         try {
             uri = new URI(URL_LOT + lotId);
-            log.info(String.valueOf(uri));
+            log.debug(String.valueOf(uri));
             response = restTemplate.getForEntity(uri, String.class);
             JsonNode jsonNode = objectMapper.readTree(response.getBody());
             JsonNode data = jsonNode.get("data");
@@ -67,7 +67,7 @@ public class ExtractorLotInformation {
             URI uri;
             try {
                 uri = new URI(URL_LOT + lotId.getId());
-                log.info(String.valueOf(uri));
+                log.debug(String.valueOf(uri));
                 response = restTemplate.getForEntity(uri, String.class);
                 JsonNode jsonNode = objectMapper.readTree(response.getBody());
                 JsonNode data = jsonNode.get("data");
@@ -82,7 +82,6 @@ public class ExtractorLotInformation {
     public void saveLotResult(JsonNode data) {
         LotResult lotResult = new LotResult();
         String status = data.get("status").textValue();
-        System.out.println(status);
         if (status.equals(LOT_STATUS)) {
             extractLotTotalPrice(data, lotResult);
             extractBuyer(data, lotResult);
@@ -117,11 +116,11 @@ public class ExtractorLotInformation {
 
     private void extractParticipants(JsonNode data, LotResult lotResult) {
         JsonNode bids = data.get("bids");
-        if (bids!=null) {
+        if (bids != null) {
             List<Participant> participants = new ArrayList<>();
             for (JsonNode node : bids) {
                 Optional<JsonNode> tenderers = Optional.ofNullable(node.get("tenderers"));
-                if(tenderers.isPresent()) {
+                if (tenderers.isPresent()) {
                     for (JsonNode tenderer : tenderers.get()) {
                         Participant participant = new Participant();
                         participant.setName(tenderer.get("name").toString());
@@ -154,8 +153,8 @@ public class ExtractorLotInformation {
             Optional<JsonNode> documents = Optional.ofNullable(contract.get("documents"));
             if (documents.isPresent()) {
                 Optional<String> url = Optional.ofNullable(documents.get().get(0).get("url").toString());
-                if(url.isPresent()){
-                 pdfUrl = documents.get().get(0).get("url").toString();
+                if (url.isPresent()) {
+                    pdfUrl = documents.get().get(0).get("url").toString();
                 }
             }
         }
@@ -170,10 +169,8 @@ public class ExtractorLotInformation {
             for (JsonNode supplier : suppliers.get()) {
                 Optional<JsonNode> supplierOpt = Optional.ofNullable(supplier);
                 if (!supplierOpt.get().isNull()) {
-                    seller.setName(Optional.ofNullable(supplier.findValue("identifier")
-                            .findValue("legalName")).map(JsonNode::asText).orElse(null));
-                    seller.setEdrpou(Optional.ofNullable(supplier.findValue("identifier")
-                            .findValue("id")).map(JsonNode::asText).orElse(null));
+                    seller.setName(Optional.ofNullable(supplier.findValue("identifier").findValue("legalName")).map(JsonNode::asText).orElse(null));
+                    seller.setEdrpou(Optional.ofNullable(supplier.findValue("identifier").findValue("id")).map(JsonNode::asText).orElse(null));
                 }
             }
         }
