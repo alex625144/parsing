@@ -25,6 +25,7 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -125,8 +126,12 @@ public class ExtractorLotInformation {
                         Participant participant = new Participant();
                         participant.setName(tenderer.get("name").toString());
                         participant.setEdrpou(tenderer.get("identifier").get("id").toString());
-                        participants.add(participant);
-                        participantRepository.save(participant);
+                        List<Participant> participantAll = participantRepository.findAll();
+                        List<String> edrpous = participantAll.stream().map(x -> participant.getEdrpou()).toList();
+                        if (!edrpous.contains(participant.getEdrpou())) {
+                            participants.add(participant);
+                            participantRepository.save(participant);
+                        }
                     }
                 }
             }
