@@ -44,7 +44,6 @@ public class ExtractorLotInformation {
 
     private final RestTemplate restTemplate;
 
-    @Transactional
     public void extractLotInformation(String lotId) {
         ResponseEntity<String> response;
         URI uri;
@@ -110,8 +109,8 @@ public class ExtractorLotInformation {
         buyer.setName(data.get("procuringEntity").get("name").toString());
         buyer.setEdrpou(data.get("procuringEntity").get("identifier").get("id").toString());
         lotResult.setLotStatus(LotStatus.COMPLETED_PURCHASE);
-        if (checkSavedParticipant(buyer)) {
-            participantRepository.save(buyer);
+        if (checkSavedParticipant(buyer) != null) {
+            buyer = checkSavedParticipant(buyer);
         }
         lotResult.setBuyer(buyer);
     }
@@ -127,8 +126,8 @@ public class ExtractorLotInformation {
                         Participant participant = new Participant();
                         participant.setName(tenderer.get("name").toString());
                         participant.setEdrpou(tenderer.get("identifier").get("id").toString());
-                        if (checkSavedParticipant(participant)) {
-                            participantRepository.save(participant);
+                        if (checkSavedParticipant(participant) != null) {
+                            participant = checkSavedParticipant(participant);
                         }
                         participants.add(participant);
                     }
@@ -178,6 +177,9 @@ public class ExtractorLotInformation {
                 }
             }
         }
+        if (checkSavedParticipant(seller) != null) {
+            seller = checkSavedParticipant(seller);
+        }
         lotResult.setSeller(seller);
     }
 
@@ -186,13 +188,13 @@ public class ExtractorLotInformation {
         lotResult.setDateModified(dateModified);
     }
 
-    private boolean checkSavedParticipant(Participant participant) {
+    private Participant checkSavedParticipant(Participant participant) {
         List<Participant> participantAll = participantRepository.findAll();
         List<String> edrpous = participantAll.stream().map(x -> x.getEdrpou()).toList();
         if (!edrpous.contains(participant.getEdrpou())) {
-            return true;
+            return participantRepository.findByEdrpou(participant.getEdrpou().toString());
         } else {
-            return false;
+            return null;
         }
     }
 }
