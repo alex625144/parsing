@@ -25,7 +25,6 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Predicate;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -111,7 +110,9 @@ public class ExtractorLotInformation {
         buyer.setName(data.get("procuringEntity").get("name").toString());
         buyer.setEdrpou(data.get("procuringEntity").get("identifier").get("id").toString());
         lotResult.setLotStatus(LotStatus.COMPLETED_PURCHASE);
-        participantRepository.save(buyer);
+        if (checkSavedParticipant(buyer)) {
+            participantRepository.save(buyer);
+        }
         lotResult.setBuyer(buyer);
     }
 
@@ -126,12 +127,10 @@ public class ExtractorLotInformation {
                         Participant participant = new Participant();
                         participant.setName(tenderer.get("name").toString());
                         participant.setEdrpou(tenderer.get("identifier").get("id").toString());
-                        List<Participant> participantAll = participantRepository.findAll();
-                        List<String> edrpous = participantAll.stream().map(x -> participant.getEdrpou()).toList();
-                        if (!edrpous.contains(participant.getEdrpou())) {
-                            participants.add(participant);
+                        if (checkSavedParticipant(participant)) {
                             participantRepository.save(participant);
                         }
+                        participants.add(participant);
                     }
                 }
             }
@@ -179,13 +178,22 @@ public class ExtractorLotInformation {
                 }
             }
         }
-        participantRepository.save(seller);
         lotResult.setSeller(seller);
     }
 
     private static void extractDateModified(JsonNode data, LotResult lotResult) {
         ZonedDateTime dateModified = ZonedDateTime.parse(data.get("dateModified").textValue());
         lotResult.setDateModified(dateModified);
+    }
+
+    private boolean checkSavedParticipant(Participant participant) {
+        List<Participant> participantAll = participantRepository.findAll();
+        List<String> edrpous = participantAll.stream().map(x -> x.getEdrpou()).toList();
+        if (!edrpous.contains(participant.getEdrpou())) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }
 

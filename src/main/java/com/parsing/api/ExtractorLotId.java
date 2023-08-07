@@ -46,7 +46,7 @@ public class ExtractorLotId {
         URI uri;
         try {
             uri = new URI(START_DATE_URL);
-            log.debug(String.valueOf(uri));
+            log.info(String.valueOf(uri));
             response = restTemplate.getForEntity(uri, String.class);
             jsonNode = objectMapper.readTree(response.getBody());
         } catch (URISyntaxException | JsonProcessingException e) {
@@ -62,7 +62,7 @@ public class ExtractorLotId {
 
         }
         while (nextPageUri.isPresent()) {
-            log.debug(String.valueOf(nextPageUri));
+            log.info(String.valueOf(nextPageUri));
             response = restTemplate.getForEntity(nextPageUri.get(), String.class);
 
             try {

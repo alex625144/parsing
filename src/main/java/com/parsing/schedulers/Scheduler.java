@@ -31,7 +31,7 @@ public class Scheduler {
 
     @Scheduled(initialDelay = TEN_MINUTES, fixedDelay = TEN_MINUTES)
     public void scheduled() throws IOException {
-        List<LotResult> lotResults = lotResultRepository.findAllByStatus(Status.PARSED);
+        List<LotResult> lotResults = lotResultRepository.findAllByStatusAndLotPDFResultIsNull(Status.CREATED);
         for (LotResult lotResult : lotResults) {
             Path filename = downloaderPDFService.downloadPDF(lotResult.getLotURL(), lotResult.getId());
             if (filename != null) {
