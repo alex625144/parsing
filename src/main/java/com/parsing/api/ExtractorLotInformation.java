@@ -111,6 +111,8 @@ public class ExtractorLotInformation {
         lotResult.setLotStatus(LotStatus.COMPLETED_PURCHASE);
         if (checkSavedParticipant(buyer) != null) {
             buyer = checkSavedParticipant(buyer);
+        } else {
+            participantRepository.save(buyer);
         }
         lotResult.setBuyer(buyer);
     }
@@ -128,6 +130,8 @@ public class ExtractorLotInformation {
                         participant.setEdrpou(tenderer.get("identifier").get("id").toString());
                         if (checkSavedParticipant(participant) != null) {
                             participant = checkSavedParticipant(participant);
+                        } else {
+                            participantRepository.save(participant);
                         }
                         participants.add(participant);
                     }
@@ -179,6 +183,8 @@ public class ExtractorLotInformation {
         }
         if (checkSavedParticipant(seller) != null) {
             seller = checkSavedParticipant(seller);
+        } else {
+            participantRepository.save(seller);
         }
         lotResult.setSeller(seller);
     }
@@ -191,7 +197,7 @@ public class ExtractorLotInformation {
     private Participant checkSavedParticipant(Participant participant) {
         List<Participant> participantAll = participantRepository.findAll();
         List<String> edrpous = participantAll.stream().map(x -> x.getEdrpou()).toList();
-        if (!edrpous.contains(participant.getEdrpou())) {
+        if (edrpous.contains(participant.getEdrpou().toString())) {
             return participantRepository.findByEdrpou(participant.getEdrpou().toString());
         } else {
             return null;

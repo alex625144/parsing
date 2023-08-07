@@ -62,7 +62,7 @@ public class ExtractorLotId {
 
         }
         while (nextPageUri.isPresent()) {
-            log.info(String.valueOf(nextPageUri));
+            log.info(String.valueOf(nextPageUri.get().toString()));
             response = restTemplate.getForEntity(nextPageUri.get(), String.class);
 
             try {
