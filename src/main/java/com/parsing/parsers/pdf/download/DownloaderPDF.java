@@ -25,8 +25,8 @@ public class DownloaderPDF {
     private static final String DIR_TO_SAVE_PDF = "/pdf/";
     private final RestTemplate restTemplate;
 
-    public Path downloadByUrl(URI uri, UUID uuid) {
-        String savePath = getPath() + uuid.toString() + ".pdf";
+    public Path downloadByUrl(URI uri, String id) {
+        String savePath = getPath() + id + ".pdf";
         RequestCallback requestCallback = request -> request
                 .getHeaders()
                 .setAccept(Arrays.asList(MediaType.APPLICATION_OCTET_STREAM, MediaType.ALL));

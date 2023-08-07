@@ -37,8 +37,7 @@ public class LotResult {
 
     @Id
     @Column(name = "id")
-    @GeneratedValue(generator = "UUID")
-    private UUID id;
+    private String id;
 
     @ManyToOne
     private Participant buyer;

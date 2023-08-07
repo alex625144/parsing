@@ -53,7 +53,7 @@ public class ExtractorLotInformation {
             response = restTemplate.getForEntity(uri, String.class);
             JsonNode jsonNode = objectMapper.readTree(response.getBody());
             JsonNode data = jsonNode.get("data");
-            saveLotResult(data);
+            saveLotResult(data, lotId);
         } catch (URISyntaxException | JsonProcessingException e) {
             throw new RuntimeException(e);
         }
@@ -70,7 +70,7 @@ public class ExtractorLotInformation {
                 response = restTemplate.getForEntity(uri, String.class);
                 JsonNode jsonNode = objectMapper.readTree(response.getBody());
                 JsonNode data = jsonNode.get("data");
-                saveLotResult(data);
+                saveLotResult(data, lotId.getId());
             } catch (URISyntaxException | JsonProcessingException e) {
                 throw new RuntimeException(e);
             }
@@ -78,8 +78,9 @@ public class ExtractorLotInformation {
     }
 
     @Transactional
-    public void saveLotResult(JsonNode data) {
+    public void saveLotResult(JsonNode data, String id) {
         LotResult lotResult = new LotResult();
+        lotResult.setId(id);
         String status = data.get("status").textValue();
         if (status.equals(LOT_STATUS)) {
             extractLotTotalPrice(data, lotResult);
@@ -174,10 +175,12 @@ public class ExtractorLotInformation {
         for (JsonNode award : awards) {
             Optional<JsonNode> suppliers = Optional.ofNullable(award.get("suppliers"));
             for (JsonNode supplier : suppliers.get()) {
-                Optional<JsonNode> supplierOpt = Optional.ofNullable(supplier);
-                if (!supplierOpt.get().isNull()) {
-                    seller.setName(Optional.ofNullable(supplier.findValue("identifier").findValue("legalName")).map(JsonNode::asText).orElse(null));
-                    seller.setEdrpou(Optional.ofNullable(supplier.findValue("identifier").findValue("id")).map(JsonNode::asText).orElse(null));
+                Optional<JsonNode> supplierOptional = Optional.ofNullable(supplier);
+                if (!supplierOptional.get().isNull()) {
+                    seller.setName(Optional.ofNullable(supplier.findValue("identifier")
+                            .findValue("legalName")).map(JsonNode::asText).orElse(null));
+                    seller.setEdrpou(Optional.ofNullable(supplier.findValue("identifier")
+                            .findValue("id")).map(JsonNode::asText).orElse(null));
                 }
             }
         }
@@ -196,9 +199,9 @@ public class ExtractorLotInformation {
 
     private Participant checkSavedParticipant(Participant participant) {
         List<Participant> participantAll = participantRepository.findAll();
-        List<String> edrpous = participantAll.stream().map(x -> x.getEdrpou()).toList();
-        if (edrpous.contains(participant.getEdrpou().toString())) {
-            return participantRepository.findByEdrpou(participant.getEdrpou().toString());
+        List<String> edrpous = participantAll.stream().map(Participant::getEdrpou).toList();
+        if (edrpous.contains(participant.getEdrpou())) {
+            return participantRepository.findByEdrpou(participant.getEdrpou());
         } else {
             return null;
         }
