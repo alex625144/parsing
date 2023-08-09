@@ -13,6 +13,7 @@ import com.parsing.repository.LotResultRepository;
 import com.parsing.repository.ParticipantRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.security.oauth2.resource.OAuth2ResourceServerProperties;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -110,8 +111,9 @@ public class ExtractorLotInformation {
         buyer.setName(data.get("procuringEntity").get("name").toString());
         buyer.setEdrpou(data.get("procuringEntity").get("identifier").get("id").toString());
         lotResult.setLotStatus(LotStatus.COMPLETED_PURCHASE);
-        if (checkSavedParticipant(buyer) != null) {
-            buyer = checkSavedParticipant(buyer);
+        Optional<Participant> checkedParticipant = checkSavedParticipant(buyer);
+        if (checkedParticipant.isPresent()) {
+            buyer = checkedParticipant.get();
         } else {
             participantRepository.save(buyer);
         }
@@ -129,8 +131,9 @@ public class ExtractorLotInformation {
                         Participant participant = new Participant();
                         participant.setName(tenderer.get("name").toString());
                         participant.setEdrpou(tenderer.get("identifier").get("id").toString());
-                        if (checkSavedParticipant(participant) != null) {
-                            participant = checkSavedParticipant(participant);
+                        Optional<Participant> checkedParticipant = checkSavedParticipant(participant);
+                        if (checkedParticipant.isPresent()) {
+                            participant = checkedParticipant.get();
                         } else {
                             participantRepository.save(participant);
                         }
@@ -184,8 +187,9 @@ public class ExtractorLotInformation {
                 }
             }
         }
-        if (checkSavedParticipant(seller) != null) {
-            seller = checkSavedParticipant(seller);
+        Optional<Participant> checkedParticipant = checkSavedParticipant(seller);
+        if (checkedParticipant.isPresent()) {
+            seller = checkedParticipant.get();
         } else {
             participantRepository.save(seller);
         }
@@ -197,14 +201,8 @@ public class ExtractorLotInformation {
         lotResult.setDateModified(dateModified);
     }
 
-    private Participant checkSavedParticipant(Participant participant) {
-        List<Participant> participantAll = participantRepository.findAll();
-        List<String> edrpous = participantAll.stream().map(Participant::getEdrpou).toList();
-        if (edrpous.contains(participant.getEdrpou())) {
-            return participantRepository.findByEdrpou(participant.getEdrpou());
-        } else {
-            return null;
-        }
+    private Optional<Participant> checkSavedParticipant(Participant participant) {
+        return participantRepository.findByEdrpou(participant.getEdrpou());
     }
 }
 
