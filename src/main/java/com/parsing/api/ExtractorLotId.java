@@ -45,7 +45,7 @@ public class ExtractorLotId {
         URI uri;
         try {
             uri = new URI(START_DATE_URL);
-            log.info(String.valueOf(uri));
+            log.info("URI {} saved to db", uri);
             response = restTemplate.getForEntity(uri, String.class);
             jsonNode = objectMapper.readTree(response.getBody());
         } catch (URISyntaxException | JsonProcessingException e) {
@@ -58,10 +58,9 @@ public class ExtractorLotId {
             nextPageUri = Optional.of(new URI(nextPage.get("uri").textValue()));
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
-
         }
         while (nextPageUri.isPresent()) {
-            log.info(String.valueOf(nextPageUri.get().toString()));
+            log.info("URI {} saved to db", nextPageUri.get());
             response = restTemplate.getForEntity(nextPageUri.get(), String.class);
 
             try {

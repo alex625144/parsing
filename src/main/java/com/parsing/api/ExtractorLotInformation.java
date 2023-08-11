@@ -13,6 +13,7 @@ import com.parsing.repository.LotResultRepository;
 import com.parsing.repository.ParticipantRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,8 +32,8 @@ import java.util.Optional;
 @Component
 public class ExtractorLotInformation {
 
-    private final String URL_LOT = "https://public.api.openprocurement.org/api/2.5/tenders/";
-    private final String LOT_STATUS = "complete";
+    private final String PROZORRO_URL = "https://prozorro.gov.ua/tender/";
+    private final String COMPLETE_STATUS = "complete";
 
     private final LotResultRepository lotResultRepository;
 
@@ -44,11 +45,20 @@ public class ExtractorLotInformation {
 
     private final RestTemplate restTemplate;
 
+    private String LOT_URL;
+
+    @Value("${lot.url}")
+    private void setTimeOffset(String lotURL) {
+        if (lotURL != null && !lotURL.isEmpty()) {
+            LOT_URL = lotURL;
+        }
+    }
+
     public void extractLotInformation(String lotId) {
         ResponseEntity<String> response;
         URI uri;
         try {
-            uri = new URI(URL_LOT + lotId);
+            uri = new URI(LOT_URL + lotId);
             log.debug(String.valueOf(uri));
             response = restTemplate.getForEntity(uri, String.class);
             JsonNode jsonNode = objectMapper.readTree(response.getBody());
@@ -65,7 +75,7 @@ public class ExtractorLotInformation {
             ResponseEntity<String> response;
             URI uri;
             try {
-                uri = new URI(URL_LOT + lotId.getId());
+                uri = new URI(LOT_URL + lotId.getId());
                 log.debug(String.valueOf(uri));
                 response = restTemplate.getForEntity(uri, String.class);
                 JsonNode jsonNode = objectMapper.readTree(response.getBody());
@@ -82,7 +92,7 @@ public class ExtractorLotInformation {
         LotResult lotResult = new LotResult();
         lotResult.setId(id);
         String status = data.get("status").textValue();
-        if (status.equals(LOT_STATUS)) {
+        if (status.equals(COMPLETE_STATUS)) {
             extractLotTotalPrice(data, lotResult);
             extractBuyer(data, lotResult);
             extractParticipants(data, lotResult);
@@ -112,8 +122,6 @@ public class ExtractorLotInformation {
         lotResult.setLotStatus(LotStatus.COMPLETED_PURCHASE);
         if (checkSavedParticipant(buyer) != null) {
             buyer = checkSavedParticipant(buyer);
-        } else {
-            participantRepository.save(buyer);
         }
         lotResult.setBuyer(buyer);
     }
@@ -131,8 +139,6 @@ public class ExtractorLotInformation {
                         participant.setEdrpou(tenderer.get("identifier").get("id").toString());
                         if (checkSavedParticipant(participant) != null) {
                             participant = checkSavedParticipant(participant);
-                        } else {
-                            participantRepository.save(participant);
                         }
                         participants.add(participant);
                     }
@@ -149,8 +155,8 @@ public class ExtractorLotInformation {
         }
     }
 
-    private static void extractLotUrl(JsonNode data, LotResult lotResult) {
-        String lotUrl = "https://prozorro.gov.ua/tender/" + data.get("tenderID").toString();
+    private void extractLotUrl(JsonNode data, LotResult lotResult) {
+        String lotUrl = PROZORRO_URL + data.get("tenderID").toString();
         lotResult.setLotURL(lotUrl);
     }
 
@@ -186,8 +192,6 @@ public class ExtractorLotInformation {
         }
         if (checkSavedParticipant(seller) != null) {
             seller = checkSavedParticipant(seller);
-        } else {
-            participantRepository.save(seller);
         }
         lotResult.setSeller(seller);
     }
@@ -198,13 +202,15 @@ public class ExtractorLotInformation {
     }
 
     private Participant checkSavedParticipant(Participant participant) {
+        Participant participantFromPersist = new Participant();
         List<Participant> participantAll = participantRepository.findAll();
         List<String> edrpous = participantAll.stream().map(Participant::getEdrpou).toList();
         if (edrpous.contains(participant.getEdrpou())) {
-            return participantRepository.findByEdrpou(participant.getEdrpou());
+            participantFromPersist = participantRepository.findByEdrpou(participant.getEdrpou()).get();
         } else {
-            return null;
+            participantRepository.save(participant);
         }
+        return participantFromPersist;
     }
 }
 
