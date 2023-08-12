@@ -28,7 +28,6 @@ public class LotIdExtractor {
     private final LotIdRepository lotIdRepository;
 
     private final RestTemplate restTemplate;
-    private Optional<URI> nextPageUri;
 
     @Value("${time.offset}")
     private String offset;
@@ -54,7 +53,7 @@ public class LotIdExtractor {
         }
         saveLot(jsonNode.get("data"));
         JsonNode nextPage = jsonNode.get("next_page");
-
+        Optional<URI> nextPageUri;
         try {
             nextPageUri = Optional.of(new URI(nextPage.get("uri").textValue()));
         } catch (URISyntaxException e) {
