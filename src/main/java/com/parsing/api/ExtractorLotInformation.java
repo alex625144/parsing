@@ -32,7 +32,6 @@ import java.util.Optional;
 @Component
 public class ExtractorLotInformation {
 
-    private final String PROZORRO_URL = "https://prozorro.gov.ua/tender/";
     private final String COMPLETE_STATUS = "complete";
 
     private final LotResultRepository lotResultRepository;
@@ -48,9 +47,17 @@ public class ExtractorLotInformation {
     private String LOT_URL;
 
     @Value("${lot.url}")
-    private void setTimeOffset(String lotURL) {
+    private void setLotURL(String lotURL) {
         if (lotURL != null && !lotURL.isEmpty()) {
             LOT_URL = lotURL;
+        }
+    }
+    private String PROZORRO_URL;
+
+    @Value("${prozorro.url}")
+    private void setTimeOffset(String prozorroURL) {
+        if (prozorroURL != null && !prozorroURL.isEmpty()) {
+            PROZORRO_URL = prozorroURL;
         }
     }
 

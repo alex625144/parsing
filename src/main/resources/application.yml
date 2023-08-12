@@ -6,15 +6,16 @@ end:
   date: "2023-05-30"
 time:
   offset: 1672534861
+lot:
+  url: https://public.api.openprocurement.org/api/2.5/tenders/
+prozorro:
+  url: https://prozorro.gov.ua/tender/
 server:
   port:
 
 logging:
   level:
-    com.com.parsing: DEBUG
-  logback:
-    rollingpolicy:
-      clean-history-on-start:
+    com.parsing: DEBUG
 
 spring:
   servlet:
@@ -25,7 +26,7 @@ spring:
     ansi:
       enabled: ALWAYS
   datasource:
-    url: jdbc:postgresql://localhost:5432/postgres
+    url: jdbc:postgresql://localhost:5432/postgres?currentSchema=neprozorro
     username: postgres
     password: 123
     driver-class-name: org.postgresql.Driver
