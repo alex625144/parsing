@@ -58,7 +58,7 @@ public class LotInformationExtractor {
             JsonNode jsonNode = objectMapper.readTree(response.getBody());
             JsonNode data = jsonNode.get("data");
             saveLotResult(data, lotId);
-        }catch (URISyntaxException e) {
+        } catch (URISyntaxException e) {
             log.debug("URI syntax is wrong = " + uri);
             throw new RuntimeException("URI syntax is wrong!", e);
         } catch (JsonProcessingException e) {
@@ -181,7 +181,7 @@ public class LotInformationExtractor {
         JsonNode awards = data.get("awards");
         for (JsonNode award : awards) {
             Optional<JsonNode> suppliers = Optional.ofNullable(award.get("suppliers"));
-            for (JsonNode supplier : suppliers.get()) {
+            for (JsonNode supplier : suppliers.orElse(null)) {
                 Optional<JsonNode> supplierOptional = Optional.ofNullable(supplier);
                 if (!supplierOptional.get().isNull()) {
                     seller.setName(Optional.ofNullable(supplier.findValue("identifier")
@@ -207,7 +207,7 @@ public class LotInformationExtractor {
         List<Participant> participantAll = participantRepository.findAll();
         List<String> edrpous = participantAll.stream().map(Participant::getEdrpou).toList();
         if (edrpous.contains(participant.getEdrpou())) {
-            participantFromPersist = participantRepository.findByEdrpou(participant.getEdrpou()).get();
+            participantFromPersist = participantRepository.findByEdrpou(participant.getEdrpou()).orElse(null);
         } else {
             participantRepository.save(participant);
         }
