@@ -32,8 +32,6 @@ import java.util.Optional;
 @Component
 public class LotInformationExtractor {
 
-    private final String COMPLETE_STATUS = "complete";
-
     private final LotResultRepository lotResultRepository;
 
     private final LotIdRepository lotIdRepository;
@@ -94,6 +92,7 @@ public class LotInformationExtractor {
         LotResult lotResult = new LotResult();
         lotResult.setId(id);
         String status = data.get("status").textValue();
+        String COMPLETE_STATUS = "complete";
         if (status.equals(COMPLETE_STATUS)) {
             extractLotTotalPrice(data, lotResult);
             extractBuyer(data, lotResult);
