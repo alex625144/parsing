@@ -46,7 +46,7 @@ public class LotIdExtractor {
             response = restTemplate.getForEntity(uri, String.class);
             jsonNode = objectMapper.readTree(response.getBody());
         } catch (URISyntaxException e) {
-            log.debug("URI syntax is wrong = " + uri.toString() );
+            log.debug("URI syntax is wrong = " + uri);
             throw new RuntimeException("URI syntax is wrong!", e);
         } catch (JsonProcessingException e) {
             throw new RuntimeException("Json processing is bad!", e);
@@ -57,7 +57,7 @@ public class LotIdExtractor {
         try {
             nextPageUri = Optional.of(new URI(nextPage.get("uri").textValue()));
         } catch (URISyntaxException e) {
-            log.debug("URI syntax is wrong = " + uri.toString() );
+            log.debug("URI syntax is wrong = " + uri);
             throw new RuntimeException("URI syntax is wrong!", e);
         }
         while (nextPageUri.isPresent()) {
@@ -74,7 +74,7 @@ public class LotIdExtractor {
             try {
                 nextPageUri = Optional.of(new URI(nextPage.get("uri").textValue()));
             } catch (URISyntaxException e) {
-                log.debug("URI syntax is wrong = " + uri.toString() );
+                log.debug("URI syntax is wrong = " + uri);
                 throw new RuntimeException("URI syntax is wrong!", e);
             }
         }

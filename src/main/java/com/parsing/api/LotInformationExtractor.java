@@ -61,7 +61,7 @@ public class LotInformationExtractor {
             JsonNode data = jsonNode.get("data");
             saveLotResult(data, lotId);
         }catch (URISyntaxException e) {
-            log.debug("URI syntax is wrong = " + uri.toString() );
+            log.debug("URI syntax is wrong = " + uri);
             throw new RuntimeException("URI syntax is wrong!", e);
         } catch (JsonProcessingException e) {
             throw new RuntimeException("Json processing is bad!", e);
@@ -81,7 +81,7 @@ public class LotInformationExtractor {
                 JsonNode data = jsonNode.get("data");
                 saveLotResult(data, lotId.getId());
             } catch (URISyntaxException e) {
-                log.debug("URI syntax is wrong = " + uri.toString() );
+                log.debug("URI syntax is wrong = " + uri);
                 throw new RuntimeException("URI syntax is wrong!", e);
             } catch (JsonProcessingException e) {
                 throw new RuntimeException("Json processing is bad!", e);
