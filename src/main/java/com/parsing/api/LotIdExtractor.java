@@ -21,7 +21,7 @@ import java.util.Optional;
 @Slf4j
 @RequiredArgsConstructor
 @Component
-public class ExtractorLotId {
+public class LotIdExtractor {
 
     private final ObjectMapper objectMapper;
 
@@ -29,27 +29,27 @@ public class ExtractorLotId {
 
     private final RestTemplate restTemplate;
 
-    private String offset = null;
-
     @Value("${time.offset}")
-    private void setTimeOffset(String timeOffset) {
-        if (timeOffset != null && !timeOffset.isEmpty()) {
-            offset = timeOffset;
-        }
-    }
+    private String offset;
+
+    @Value("${date.url}")
+    private String dateURL;
 
     public void tryExtractLots() {
-        String START_DATE_URL = "https://public.api.openprocurement.org/api/2.5/tenders?offset=" + offset;
+        String START_DATE_URL = dateURL + offset;
         JsonNode jsonNode;
         ResponseEntity<String> response;
-        URI uri;
+        URI uri = null;
         try {
             uri = new URI(START_DATE_URL);
             log.info("URI {} saved to db", uri);
             response = restTemplate.getForEntity(uri, String.class);
             jsonNode = objectMapper.readTree(response.getBody());
-        } catch (URISyntaxException | JsonProcessingException e) {
-            throw new RuntimeException(e);
+        } catch (URISyntaxException e) {
+            log.debug("URI syntax is wrong = " + uri.toString() );
+            throw new RuntimeException("URI syntax is wrong!", e);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Json processing is bad!", e);
         }
         saveLot(jsonNode.get("data"));
         JsonNode nextPage = jsonNode.get("next_page");
@@ -57,7 +57,8 @@ public class ExtractorLotId {
         try {
             nextPageUri = Optional.of(new URI(nextPage.get("uri").textValue()));
         } catch (URISyntaxException e) {
-            throw new RuntimeException(e);
+            log.debug("URI syntax is wrong = " + uri.toString() );
+            throw new RuntimeException("URI syntax is wrong!", e);
         }
         while (nextPageUri.isPresent()) {
             log.info("URI {} saved to db", nextPageUri.get());
@@ -66,14 +67,15 @@ public class ExtractorLotId {
             try {
                 jsonNode = objectMapper.readTree(response.getBody());
             } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException("Json processing is bad!", e);
             }
             saveLot(jsonNode.get("data"));
             nextPage = jsonNode.get("next_page");
             try {
                 nextPageUri = Optional.of(new URI(nextPage.get("uri").textValue()));
             } catch (URISyntaxException e) {
-                throw new RuntimeException(e);
+                log.debug("URI syntax is wrong = " + uri.toString() );
+                throw new RuntimeException("URI syntax is wrong!", e);
             }
         }
     }

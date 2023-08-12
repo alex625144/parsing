@@ -1,7 +1,7 @@
 package com.parsing.service;
 
-import com.parsing.api.ExtractorLotId;
-import com.parsing.api.ExtractorLotInformation;
+import com.parsing.api.LotIdExtractor;
+import com.parsing.api.LotInformationExtractor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -12,9 +12,9 @@ import org.springframework.stereotype.Service;
 @Service
 public class APIParserService {
 
-    private final ExtractorLotInformation extractorLotInformation;
+    private final LotInformationExtractor extractorLotInformation;
 
-    private final ExtractorLotId extractorLots;
+    private final LotIdExtractor extractorLots;
 
     public void parse() {
         extractorLots.tryExtractLots();

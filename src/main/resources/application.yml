@@ -6,6 +6,8 @@ end:
   date: "2023-05-30"
 time:
   offset: 1672534861
+date:
+  url: https://public.api.openprocurement.org/api/2.5/tenders?offset=
 lot:
   url: https://public.api.openprocurement.org/api/2.5/tenders/
 prozorro:

@@ -30,7 +30,7 @@ import java.util.Optional;
 @Slf4j
 @RequiredArgsConstructor
 @Component
-public class ExtractorLotInformation {
+public class LotInformationExtractor {
 
     private final String COMPLETE_STATUS = "complete";
 
@@ -44,26 +44,15 @@ public class ExtractorLotInformation {
 
     private final RestTemplate restTemplate;
 
+    @Value("${lot.url}")
     private String LOT_URL;
 
-    @Value("${lot.url}")
-    private void setLotURL(String lotURL) {
-        if (lotURL != null && !lotURL.isEmpty()) {
-            LOT_URL = lotURL;
-        }
-    }
-    private String PROZORRO_URL;
-
     @Value("${prozorro.url}")
-    private void setTimeOffset(String prozorroURL) {
-        if (prozorroURL != null && !prozorroURL.isEmpty()) {
-            PROZORRO_URL = prozorroURL;
-        }
-    }
+    private String PROZORRO_URL;
 
     public void extractLotInformation(String lotId) {
         ResponseEntity<String> response;
-        URI uri;
+        URI uri = null;
         try {
             uri = new URI(LOT_URL + lotId);
             log.debug(String.valueOf(uri));
@@ -71,8 +60,11 @@ public class ExtractorLotInformation {
             JsonNode jsonNode = objectMapper.readTree(response.getBody());
             JsonNode data = jsonNode.get("data");
             saveLotResult(data, lotId);
-        } catch (URISyntaxException | JsonProcessingException e) {
-            throw new RuntimeException(e);
+        }catch (URISyntaxException e) {
+            log.debug("URI syntax is wrong = " + uri.toString() );
+            throw new RuntimeException("URI syntax is wrong!", e);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Json processing is bad!", e);
         }
     }
 
@@ -80,7 +72,7 @@ public class ExtractorLotInformation {
         List<LotId> lotIds = lotIdRepository.findAll();
         for (LotId lotId : lotIds) {
             ResponseEntity<String> response;
-            URI uri;
+            URI uri = null;
             try {
                 uri = new URI(LOT_URL + lotId.getId());
                 log.debug(String.valueOf(uri));
@@ -88,8 +80,11 @@ public class ExtractorLotInformation {
                 JsonNode jsonNode = objectMapper.readTree(response.getBody());
                 JsonNode data = jsonNode.get("data");
                 saveLotResult(data, lotId.getId());
-            } catch (URISyntaxException | JsonProcessingException e) {
-                throw new RuntimeException(e);
+            } catch (URISyntaxException e) {
+                log.debug("URI syntax is wrong = " + uri.toString() );
+                throw new RuntimeException("URI syntax is wrong!", e);
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException("Json processing is bad!", e);
             }
         }
     }
