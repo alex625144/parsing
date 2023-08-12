@@ -183,7 +183,7 @@ public class LotInformationExtractor {
             Optional<JsonNode> suppliers = Optional.ofNullable(award.get("suppliers"));
             for (JsonNode supplier : suppliers.orElse(null)) {
                 Optional<JsonNode> supplierOptional = Optional.ofNullable(supplier);
-                if (!supplierOptional.get().isNull()) {
+                if (supplierOptional.isPresent()) {
                     seller.setName(Optional.ofNullable(supplier.findValue("identifier")
                             .findValue("legalName")).map(JsonNode::asText).orElse(null));
                     seller.setEdrpou(Optional.ofNullable(supplier.findValue("identifier")
