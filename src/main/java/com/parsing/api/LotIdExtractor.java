@@ -21,7 +21,7 @@ public class LotIdExtractor {
 
     private final ObjectMapper objectMapper;
 
-    private final SaverLotId saverLotId;
+    private final LotIdSaver lotIdSaver;
 
     private final RestTemplate restTemplate;
 
@@ -38,16 +38,17 @@ public class LotIdExtractor {
         URI uri = null;
         try {
             uri = new URI(START_DATE_URL);
-            log.info("URI {} saved to db", uri);
+            log.info("URI {} started parsing.", uri);
             response = restTemplate.getForEntity(uri, String.class);
             jsonNode = objectMapper.readTree(response.getBody());
         } catch (URISyntaxException e) {
             log.debug("URI syntax is wrong = " + uri);
             throw new RuntimeException("URI syntax is wrong!", e);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException("Json processing is bad!", e);
+            throw new RuntimeException("Json processing is fail!", e);
         }
-        saverLotId.saveLot(jsonNode.get("data"));
+        lotIdSaver.saveLot(jsonNode.get("data"));
+        log.info("URI {} finished parsing.", uri);
         JsonNode nextPage = jsonNode.get("next_page");
         Optional<URI> nextPageUri;
         try {
@@ -57,15 +58,15 @@ public class LotIdExtractor {
             throw new RuntimeException("URI syntax is wrong!", e);
         }
         while (nextPageUri.isPresent()) {
-            log.info("URI {} saved to db", nextPageUri.get());
+            log.info("URI {} started parsing.", nextPageUri.get());
             response = restTemplate.getForEntity(nextPageUri.get(), String.class);
-
             try {
                 jsonNode = objectMapper.readTree(response.getBody());
             } catch (JsonProcessingException e) {
-                throw new RuntimeException("Json processing is bad!", e);
+                throw new RuntimeException("Json processing is fail!", e);
             }
-            saverLotId.saveLot(jsonNode.get("data"));
+            lotIdSaver.saveLot(jsonNode.get("data"));
+            log.info("URI {} finished parsing.", nextPageUri.get());
             nextPage = jsonNode.get("next_page");
             try {
                 nextPageUri = Optional.of(new URI(nextPage.get("uri").textValue()));

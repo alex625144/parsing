@@ -13,7 +13,7 @@ import java.time.ZonedDateTime;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class SaverLotId {
+public class LotIdSaver {
 
     private final LotIdRepository lotIdRepository;
 

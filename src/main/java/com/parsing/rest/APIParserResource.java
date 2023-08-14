@@ -6,13 +6,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-@RestController
+@RestController("/api/v1")
 @RequiredArgsConstructor
 public class APIParserResource {
 
     private final APIParserService apiParserService;
 
-    @GetMapping("/extract-lotid-all")
+    @GetMapping("/extract/lotId")
     @ResponseStatus(HttpStatus.FOUND)
     public void parsingId() {
         try {
@@ -22,7 +22,7 @@ public class APIParserResource {
         }
     }
 
-    @GetMapping("/{lotId}")
+    @GetMapping("/extract/{lotId}")
     @ResponseStatus(HttpStatus.FOUND)
     public void parsingLot(@PathVariable String lotId) {
         try {
@@ -32,7 +32,7 @@ public class APIParserResource {
         }
     }
 
-    @GetMapping("/extract-lot-information-all")
+    @GetMapping("/extract/lotInformation")
     @ResponseStatus(HttpStatus.FOUND)
     public void parsingLotInformation() {
         try {

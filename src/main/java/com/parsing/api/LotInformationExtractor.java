@@ -23,7 +23,7 @@ public class LotInformationExtractor {
 
     private final LotIdRepository lotIdRepository;
 
-    private final SaverLotInformation saverLotInformation;
+    private final LotInformationSaver lotInformationSaver;
 
     private final ObjectMapper objectMapper;
 
@@ -41,7 +41,7 @@ public class LotInformationExtractor {
             response = restTemplate.getForEntity(uri, String.class);
             JsonNode jsonNode = objectMapper.readTree(response.getBody());
             JsonNode data = jsonNode.get("data");
-            saverLotInformation.saveLotResult(data, lotId);
+            lotInformationSaver.saveLotResult(data, lotId);
         } catch (URISyntaxException e) {
             log.debug("URI syntax is wrong = " + uri);
             throw new RuntimeException("URI syntax is wrong!", e);
@@ -61,7 +61,7 @@ public class LotInformationExtractor {
                 response = restTemplate.getForEntity(uri, String.class);
                 JsonNode jsonNode = objectMapper.readTree(response.getBody());
                 JsonNode data = jsonNode.get("data");
-                saverLotInformation.saveLotResult(data, lotId.getId());
+                lotInformationSaver.saveLotResult(data, lotId.getId());
             } catch (URISyntaxException e) {
                 log.debug("URI syntax is wrong = " + uri);
                 throw new RuntimeException("URI syntax is wrong!", e);

@@ -22,7 +22,7 @@ import java.util.Optional;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class SaverLotInformation {
+public class LotInformationSaver {
 
     private final LotResultRepository lotResultRepository;
 
