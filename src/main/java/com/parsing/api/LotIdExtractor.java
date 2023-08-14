@@ -25,7 +25,7 @@ public class LotIdExtractor {
 
     private final ObjectMapper objectMapper;
 
-    private final LotIdRepository lotIdRepository;
+    private final SaverLotId saverLotId;
 
     private final RestTemplate restTemplate;
 
@@ -51,7 +51,7 @@ public class LotIdExtractor {
         } catch (JsonProcessingException e) {
             throw new RuntimeException("Json processing is bad!", e);
         }
-        saveLot(jsonNode.get("data"));
+        saverLotId.saveLot(jsonNode.get("data"));
         JsonNode nextPage = jsonNode.get("next_page");
         Optional<URI> nextPageUri;
         try {
@@ -69,7 +69,7 @@ public class LotIdExtractor {
             } catch (JsonProcessingException e) {
                 throw new RuntimeException("Json processing is bad!", e);
             }
-            saveLot(jsonNode.get("data"));
+            saverLotId.saveLot(jsonNode.get("data"));
             nextPage = jsonNode.get("next_page");
             try {
                 nextPageUri = Optional.of(new URI(nextPage.get("uri").textValue()));
@@ -77,17 +77,6 @@ public class LotIdExtractor {
                 log.debug("URI syntax is wrong = " + uri);
                 throw new RuntimeException("URI syntax is wrong!", e);
             }
-        }
-    }
-
-    @Transactional
-    public void saveLot(JsonNode lotIds) {
-        for (JsonNode lotId : lotIds) {
-            LotId lotID = new LotId();
-            lotID.setId(lotId.get("id").textValue());
-            ZonedDateTime dateModified = ZonedDateTime.parse(lotId.get("dateModified").textValue());
-            lotID.setDateModified(dateModified);
-            lotIdRepository.save(lotID);
         }
     }
 }
