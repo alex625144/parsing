@@ -78,18 +78,22 @@ public class LotInformationSaver {
             for (JsonNode node : bids) {
                 Optional<JsonNode> tenderers = Optional.ofNullable(node.get("tenderers"));
                 if (tenderers.isPresent()) {
-                    for (JsonNode tenderer : tenderers.get()) {
-                        Participant participant = new Participant();
-                        participant.setName(tenderer.get("name").toString());
-                        participant.setEdrpou(tenderer.get("identifier").get("id").toString());
-                        if (checkSavedParticipant(participant) != null) {
-                            participant = checkSavedParticipant(participant);
-                        }
-                        participants.add(participant);
-                    }
+                    extractedTenderers(participants, tenderers);
                 }
             }
             lotResult.setParticipants(participants);
+        }
+    }
+
+    private void extractedTenderers(List<Participant> participants, Optional<JsonNode> tenderers) {
+        for (JsonNode tenderer : tenderers.get()) {
+            Participant participant = new Participant();
+            participant.setName(tenderer.get("name").toString());
+            participant.setEdrpou(tenderer.get("identifier").get("id").toString());
+            if (checkSavedParticipant(participant) != null) {
+                participant = checkSavedParticipant(participant);
+            }
+            participants.add(participant);
         }
     }
 
