@@ -37,13 +37,13 @@ public class LotInformationExtractor {
         URI uri = null;
         try {
             uri = new URI(LOT_URL + lotId);
-            log.debug(String.valueOf(uri));
+            log.info("URI {} started parsing.", uri);
             response = restTemplate.getForEntity(uri, String.class);
             JsonNode jsonNode = objectMapper.readTree(response.getBody());
             JsonNode data = jsonNode.get("data");
             lotInformationSaver.saveLotResult(data, lotId);
+            log.info("URI {} finished parsing.", uri);
         } catch (URISyntaxException e) {
-            log.debug("URI syntax is wrong = " + uri);
             throw new RuntimeException("URI syntax is wrong!", e);
         } catch (JsonProcessingException e) {
             throw new RuntimeException("Json processing is bad!", e);
@@ -57,13 +57,13 @@ public class LotInformationExtractor {
             URI uri = null;
             try {
                 uri = new URI(LOT_URL + lotId.getId());
-                log.debug(String.valueOf(uri));
+                log.info("URI {} started parsing.", uri);
                 response = restTemplate.getForEntity(uri, String.class);
                 JsonNode jsonNode = objectMapper.readTree(response.getBody());
                 JsonNode data = jsonNode.get("data");
                 lotInformationSaver.saveLotResult(data, lotId.getId());
+                log.info("URI {} finished parsing.", uri);
             } catch (URISyntaxException e) {
-                log.debug("URI syntax is wrong = " + uri);
                 throw new RuntimeException("URI syntax is wrong!", e);
             } catch (JsonProcessingException e) {
                 throw new RuntimeException("Json processing is bad!", e);
