@@ -34,7 +34,7 @@ public class LotInformationExtractor {
 
     public void extractLotInformation(String lotId) {
         ResponseEntity<String> response;
-        URI uri = null;
+        URI uri;
         try {
             uri = new URI(LOT_URL + lotId);
             log.info("URI {} started parsing.", uri);
@@ -54,7 +54,7 @@ public class LotInformationExtractor {
         List<LotId> lotIds = lotIdRepository.findAll();
         for (LotId lotId : lotIds) {
             ResponseEntity<String> response;
-            URI uri = null;
+            URI uri;
             try {
                 uri = new URI(LOT_URL + lotId.getId());
                 log.info("URI {} started parsing.", uri);

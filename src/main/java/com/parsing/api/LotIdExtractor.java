@@ -35,7 +35,7 @@ public class LotIdExtractor {
         String START_DATE_URL = dateURL + offset;
         JsonNode jsonNode;
         ResponseEntity<String> response;
-        URI uri = null;
+        URI uri;
         try {
             uri = new URI(START_DATE_URL);
             log.info("URI {} started parsing.", uri);
