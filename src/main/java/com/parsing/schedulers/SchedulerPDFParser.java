@@ -25,9 +25,10 @@ import java.util.List;
 @Slf4j
 @EnableScheduling
 @EnableAsync
-public class Scheduler {
+public class SchedulerPDFParser {
 
-    private static final long TEN_MINUTES = 600000L;
+    private static final long THREE_HOUR = 10_800_000L;
+    private static final Long UPDATE_TIME = 36_000_000L;
     private static final int MINIMAL_SIZE_PDF_FILE = 50000;
 
     private final LotResultRepository lotResultRepository;
@@ -35,7 +36,7 @@ public class Scheduler {
     private final ParserPDFService parserPDFService;
 
     @Async
-    @Scheduled(initialDelay = TEN_MINUTES, fixedDelay = TEN_MINUTES)
+    @Scheduled(initialDelay = THREE_HOUR, fixedDelay = UPDATE_TIME)
     public void scheduled() throws IOException {
         List<LotResult> lotResults = lotResultRepository.findAllByStatusAndLotPDFResultIsNull(Status.CREATED);
         for (LotResult lotResult : lotResults) {

@@ -16,12 +16,13 @@ import org.springframework.stereotype.Component;
 @EnableAsync
 public class SchedulerLotInformation {
 
-    private static final long THREE_MINUTES = 180000L;
+    private static final long TWO_HOUR = 7_200_000L;
+    private static final Long UPDATE_TIME = 36_000_000L;
 
     private final APIParserService apiParserService;
 
     @Async
-    @Scheduled(initialDelay = THREE_MINUTES, fixedDelay = THREE_MINUTES)
+    @Scheduled(initialDelay = TWO_HOUR, fixedDelay = UPDATE_TIME)
     public void scheduled() {
         log.info("Scheduler for download lotInformation started.");
         apiParserService.parseLotInformation();

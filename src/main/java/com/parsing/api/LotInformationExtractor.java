@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.parsing.model.LotId;
-import com.parsing.model.LotResult;
 import com.parsing.repository.LotIdRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,7 +35,7 @@ public class LotInformationExtractor {
     @Value("${lot.url}")
     private String LOT_URL;
 
-    public void extractLotInformation(String lotId) {
+    public void tryExtractLotInformation(String lotId) {
         ResponseEntity<String> response;
         URI uri;
         try {
@@ -54,7 +53,7 @@ public class LotInformationExtractor {
         }
     }
 
-    public void extractAllLotsInformation() {
+    public void tryExtractAllLotsInformation() {
         List<LotId> lotIds = lotIdRepository.findAll();
         for (LotId lotId : lotIds) {
             ResponseEntity<String> response;

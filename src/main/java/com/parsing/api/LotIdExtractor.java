@@ -55,7 +55,7 @@ public class LotIdExtractor {
         } catch (URISyntaxException e) {
             throw new RuntimeException("URI syntax is wrong!", e);
         }
-        while (nextPageUri.isPresent()) {
+        while (isDataExist(jsonNode)) {
             log.info("URI {} started parsing.", nextPageUri.get());
             response = restTemplate.getForEntity(nextPageUri.get(), String.class);
             try {
@@ -73,5 +73,13 @@ public class LotIdExtractor {
                 throw new RuntimeException("URI syntax is wrong!", e);
             }
         }
+    }
+
+    private boolean isDataExist (JsonNode jsonNode) {
+        Optional<String> id = Optional.ofNullable(jsonNode.get("data").get("id").textValue());
+        if (id.isPresent()) {
+            return true;
+        }
+        return false;
     }
 }
