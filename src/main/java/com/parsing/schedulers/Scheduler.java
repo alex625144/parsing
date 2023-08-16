@@ -7,6 +7,9 @@ import com.parsing.service.DownloaderPDFService;
 import com.parsing.service.ParserPDFService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +23,8 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@EnableScheduling
+@EnableAsync
 public class Scheduler {
 
     private static final long TEN_MINUTES = 600000L;
@@ -29,6 +34,7 @@ public class Scheduler {
     private final DownloaderPDFService downloaderPDFService;
     private final ParserPDFService parserPDFService;
 
+    @Async
     @Scheduled(initialDelay = TEN_MINUTES, fixedDelay = TEN_MINUTES)
     public void scheduled() throws IOException {
         List<LotResult> lotResults = lotResultRepository.findAllByStatusAndLotPDFResultIsNull(Status.CREATED);

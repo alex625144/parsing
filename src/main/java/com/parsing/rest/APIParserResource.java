@@ -16,7 +16,7 @@ public class APIParserResource {
     @ResponseStatus(HttpStatus.FOUND)
     public void parsingId() {
         try {
-            apiParserService.parse();
+            apiParserService.parseLotId();
         } catch (ProzorroParsingException ex) {
             throw new ProzorroParsingException(ex.getMessage());
         }
@@ -26,7 +26,7 @@ public class APIParserResource {
     @ResponseStatus(HttpStatus.FOUND)
     public void parsingLot(@PathVariable String lotId) {
         try {
-            apiParserService.parseInfo(lotId);
+            apiParserService.parseLotInformation(lotId);
         } catch (ProzorroParsingException ex) {
             throw new ProzorroParsingException(ex.getMessage());
         }

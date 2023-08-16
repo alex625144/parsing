@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.parsing.model.LotId;
+import com.parsing.model.LotResult;
 import com.parsing.repository.LotIdRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +21,9 @@ import java.util.List;
 @RequiredArgsConstructor
 @Component
 public class LotInformationExtractor {
+
+    private static final String DK_LAPTOPS_1 = "30210000-4";
+    private static final String DK_LAPTOPS_2 = "30230000-0";
 
     private final LotIdRepository lotIdRepository;
 
@@ -61,7 +65,9 @@ public class LotInformationExtractor {
                 response = restTemplate.getForEntity(uri, String.class);
                 JsonNode jsonNode = objectMapper.readTree(response.getBody());
                 JsonNode data = jsonNode.get("data");
-                lotInformationSaver.saveLotResult(data, lotId.getId());
+                if (isLaptopDk(data)) {
+                    lotInformationSaver.saveLotResult(data, lotId.getId());
+                }
                 log.info("URI {} finished parsing.", uri);
             } catch (URISyntaxException e) {
                 throw new RuntimeException("URI syntax is wrong!", e);
@@ -69,6 +75,17 @@ public class LotInformationExtractor {
                 throw new RuntimeException("Json processing is bad!", e);
             }
         }
+    }
+
+    private boolean isLaptopDk(JsonNode data) {
+        JsonNode items = data.get("items");
+        for (JsonNode item : items) {
+            if (item.get("classification").get("id").toString().equals(DK_LAPTOPS_1) ||
+                    (item.get("classification").get("id").toString()).equals(DK_LAPTOPS_2)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
 

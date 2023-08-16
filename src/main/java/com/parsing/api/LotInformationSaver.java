@@ -97,7 +97,7 @@ public class LotInformationSaver {
         }
     }
 
-    private static void extractDk(JsonNode data, LotResult lotResult) {
+    public static void extractDk(JsonNode data, LotResult lotResult) {
         JsonNode items = data.get("items");
         for (JsonNode item : items) {
             lotResult.setDk(item.get("classification").get("id").toString());

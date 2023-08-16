@@ -16,11 +16,11 @@ public class APIParserService {
 
     private final LotIdExtractor extractorLots;
 
-    public void parse() {
+    public void parseLotId() {
         extractorLots.tryExtractLots();
     }
 
-    public void parseInfo(String lotId) {
+    public void parseLotInformation(String lotId) {
         extractorLotInformation.extractLotInformation(lotId);
     }
 
