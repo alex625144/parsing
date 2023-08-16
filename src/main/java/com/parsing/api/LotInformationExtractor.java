@@ -15,6 +15,7 @@ import org.springframework.web.client.RestTemplate;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -79,10 +80,11 @@ public class LotInformationExtractor {
     private boolean isLaptopDk(JsonNode data) {
         JsonNode items = data.get("items");
         for (JsonNode item : items) {
-            if (item.get("classification").get("id").toString().equals(DK_LAPTOPS_1) ||
-                    (item.get("classification").get("id").toString()).equals(DK_LAPTOPS_2)) {
-                return true;
-            }
+            Optional<String> id = Optional.ofNullable(item.get("classification").get("id").textValue());
+            if (id.isPresent())
+                if (id.get().equals(DK_LAPTOPS_1) || id.get().equals((DK_LAPTOPS_2))) {
+                    return true;
+                }
         }
         return false;
     }
