@@ -1,6 +1,5 @@
 package com.parsing.schedulers;
 
-import com.parsing.service.APIParserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
