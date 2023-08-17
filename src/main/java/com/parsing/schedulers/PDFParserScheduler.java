@@ -25,31 +25,28 @@ import java.util.List;
 @Slf4j
 @EnableScheduling
 @EnableAsync
-public class SchedulerPDFParser {
+public class PDFParserScheduler {
 
     private static final long THREE_HOUR = 10_800_000L;
-    private static final Long UPDATE_TIME = 36_000_000L;
-    private static final int MINIMAL_SIZE_PDF_FILE = 50000;
+    private final long UPDATE_TIME = 36_000_000L;
 
     private final LotResultRepository lotResultRepository;
+
     private final DownloaderPDFService downloaderPDFService;
+
     private final ParserPDFService parserPDFService;
 
     @Async
     @Scheduled(initialDelay = THREE_HOUR, fixedDelay = UPDATE_TIME)
     public void scheduled() throws IOException {
-        List<LotResult> lotResults = lotResultRepository.findAllByStatusAndLotPDFResultIsNull(Status.CREATED);
+        List<LotResult> lotResults = lotResultRepository.findAllByStatusAndPdfURLNotNull(Status.CREATED);
         for (LotResult lotResult : lotResults) {
             Path filename = downloaderPDFService.downloadPDF(lotResult.getLotURL(), lotResult.getId());
             if (filename != null) {
                 lotResult.setStatus(Status.DOWNLOADED);
             }
-
             File fileForParse = new File(filename.toString());
-            Path path = Paths.get(String.valueOf(fileForParse));
-            long bytes = Files.size(path);
-            log.debug("Size of file " + bytes);
-            if (!(bytes < MINIMAL_SIZE_PDF_FILE) && parserPDFService.parsePDF(fileForParse)) {
+            if (parserPDFService.parsePDF(fileForParse)) {
                 lotResult.setStatus(Status.PDF_SUCCESSFULL);
                 fileForParse.delete();
             } else {

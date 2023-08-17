@@ -14,19 +14,17 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @EnableAsync
 @EnableScheduling
-public class ScheduletLotId {
+public class LotIdScheduler {
 
     private static final long ONE_HOUR = 3_600_000L;
 
-    private static final Long UPDATE_TIME = 36_000_000L;
-
-    private final APIParserService apiParserService;
+    private static final long UPDATE_TIME = 36_000_000L;
 
     @Async
     @Scheduled(initialDelay = ONE_HOUR, fixedDelay = UPDATE_TIME)
     public void scheduled() {
         log.info("Scheduler for download lotId started.");
-        apiParserService.parseLotId();
+
         log.info("Scheduler for download lotId finished.");
     }
 }

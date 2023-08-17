@@ -2,7 +2,7 @@ package com.parsing.rest;
 
 import com.parsing.exception.PDFParsingException;
 import com.parsing.exception.ProzorroParsingException;
-import com.parsing.schedulers.Scheduler;
+import com.parsing.schedulers.PDFParserScheduler;
 import com.parsing.service.ProzorroParserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,7 +18,7 @@ import java.io.IOException;
 public class ProzorroParserResource {
 
     private final ProzorroParserService parserService;
-    private final Scheduler schedulerParsingPDF;
+    private final PDFParserScheduler schedulerParsingPDF;
 
     @GetMapping("/parser-prozorro")
     @ResponseStatus(HttpStatus.FOUND)
