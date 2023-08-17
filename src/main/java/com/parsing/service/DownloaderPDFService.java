@@ -16,8 +16,8 @@ public class DownloaderPDFService {
 
     private final DownloaderPDF downloaderPDF;
 
-    public Path downloadPDF(String documentUrl, UUID uuid) {
-        return downloaderPDF.downloadByUrl(URI.create(documentUrl), uuid);
+    public Path downloadPDF(String documentUrl, String id) {
+        return downloaderPDF.downloadByUrl(URI.create(documentUrl), id);
     }
 
 }

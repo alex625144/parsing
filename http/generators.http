@@ -8,3 +8,15 @@ Content-Type: application/json
 
 ### generate laptopItems for one already exist lotPDFResult
 GET {{host}}/{{generator}}/laptop-item/{{lotPDFResult}}
+
+### receive all lots from prozorro api
+GET {{host}}/api/v1/extract/lotId
+Content-Type: application/json
+
+### receive all lots information from prozorro api
+GET {{host}}/api/v1/extract/lotInformation
+Content-Type: application/json
+
+### receive one lot from prozorro api
+GET {{host}}/api/v1/extract/:lotId
+Content-Type: application/json

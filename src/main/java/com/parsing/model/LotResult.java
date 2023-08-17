@@ -1,5 +1,6 @@
 package com.parsing.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -19,7 +20,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -31,12 +32,12 @@ import java.util.UUID;
 @Builder
 @ToString(exclude = "lotPDFResult")
 @Table(name = "lot_result")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class LotResult {
 
     @Id
     @Column(name = "id")
-    @GeneratedValue(generator = "UUID")
-    private UUID id;
+    private String id;
 
     @ManyToOne
     private Participant buyer;
@@ -57,18 +58,18 @@ public class LotResult {
     @ManyToMany
     private List<Participant> participants;
 
-    @Column(name = "lot_url")
+    @Column(name = "lot_url", length = 1024)
     private String lotURL;
 
-    @Column(name = "pdf_url")
+    @Column(name = "pdf_url", length = 1024)
     private String pdfURL;
 
     @Enumerated(value = EnumType.STRING)
     @Column(name = "status")
     private Status status;
 
-    @Column(name = "parsing_date")
-    private LocalDate parsingDate;
+    @Column(name = "date_modified")
+    private ZonedDateTime dateModified;
 
     @OneToOne(cascade = CascadeType.ALL)
     LotPDFResult lotPDFResult;

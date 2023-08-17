@@ -1,7 +1,6 @@
 package com.parsing.model;
 
 public enum LotStatus {
-
     CLARIFICATION_PERIOD("Період уточнень"),
     WAITING_FOR_ORDER("Очікування пропозицій"),
     PREQUALIFICATION("Прекваліфікація"),
