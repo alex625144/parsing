@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -40,7 +41,7 @@ public class LotResultMockDataGenerator {
             lotResult.setLotURL(URL_TEMPLATE + "/lot" + lotCounter++);
             lotResult.setPdfURL(URL_TEMPLATE + "/pdf" + lotCounter);
             lotResult.setStatus(randomStatusGenerator());
-            lotResult.setParsingDate(LocalDate.now());
+            lotResult.setDateModified(ZonedDateTime.now());
 
             if (lotResult.getStatus() == Status.PDF_SUCCESSFULL)
                 lotResult.setLotTotalPrice(BigDecimal.valueOf(ThreadLocalRandom.current().nextInt(50_000, 1_000_000)));
