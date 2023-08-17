@@ -36,7 +36,7 @@ public class PDFParserScheduler {
 
     @Async
     @Scheduled(initialDelay = THREE_HOUR, fixedDelay = UPDATE_TIME)
-    public void scheduled() throws IOException {
+    public void scheduled() {
         List<LotResult> lotResults = lotResultRepository.findAllByStatusAndPdfURLNotNull(Status.CREATED);
         for (LotResult lotResult : lotResults) {
             Path filename = downloaderPDFService.downloadPDF(lotResult.getLotURL(), lotResult.getId());
