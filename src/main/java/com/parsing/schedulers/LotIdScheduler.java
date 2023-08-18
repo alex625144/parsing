@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -22,7 +23,7 @@ import java.util.Optional;
 @EnableScheduling
 public class LotIdScheduler {
 
-    private static final long ONE_HOUR = 1000;
+    private static final long ONE_HOUR = 6_000_000;
 
     private static final long UPDATE_TIME = 36_000_000L;
 
@@ -34,12 +35,15 @@ public class LotIdScheduler {
     @Scheduled(initialDelay = ONE_HOUR, fixedDelay = UPDATE_TIME)
     public void scheduled() {
         log.info("Scheduler for download lotId started.");
-        Optional<LotId> lastLotId = lotIdRepository.findTopByOrderByIdDesc();
-        ZonedDateTime lastDateModified = null;
-        if(lastLotId.isPresent()) {
-            lastDateModified = lastLotId.get().getDateModified();
+        List<LotId> listLotId = lotIdRepository.findAll();
+
+        ZonedDateTime max =listLotId.get(0).getDateModified();
+        for (LotId lotId : listLotId) {
+            if (lotId.getDateModified().compareTo(max) > 0) {
+                max = lotId.getDateModified();
+            }
         }
-        OffsetDateTime offsetTime = lastDateModified.toOffsetDateTime();
+        OffsetDateTime offsetTime = max.toOffsetDateTime();
         lotIdExtractor.tryExtractLots(offsetTime.toString());
         log.info("Scheduler for download lotId finished.");
     }

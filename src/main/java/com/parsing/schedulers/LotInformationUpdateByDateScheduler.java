@@ -20,9 +20,9 @@ import java.util.List;
 @RequiredArgsConstructor
 @EnableScheduling
 @EnableAsync
-public class LotInformationScheduler {
+public class LotInformationUpdateByDateScheduler {
 
-    private static final long TWO_HOUR = 7_200_000L;
+    private static final long TWO_HOUR = 1_0000000L;
     private static final long UPDATE_TIME = 36_000_000L;
 
     private final LotIdRepository lotIdRepository;
@@ -41,6 +41,7 @@ public class LotInformationScheduler {
         List<LotId> listLotIdForUpdate = listLotId.stream().filter(lotId ->
                 listLotResult.stream().anyMatch(lotResult -> lotResult.getId().equals(lotId.getId())
                         && (lotResult.getDateModified().compareTo(lotId.getDateModified()) > 0))).toList();
+        log.info("Lots for update = " + listLotIdForUpdate.size());
         lotInformationExtractor.tryExtractLotsInformation(listLotIdForUpdate);
         log.info("Scheduler for UPDATE lotInformation finished.");
     }
