@@ -7,4 +7,5 @@ import java.util.Optional;
 
 public interface LotIdRepository extends JpaRepository<LotId, String> {
 
+    Optional<LotId> findTopByOrderByIdDesc();
 }
