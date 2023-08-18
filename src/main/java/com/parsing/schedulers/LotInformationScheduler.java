@@ -1,6 +1,5 @@
 package com.parsing.schedulers;
 
-import com.parsing.api.LotIdExtractor;
 import com.parsing.api.LotInformationExtractor;
 import com.parsing.model.LotId;
 import com.parsing.model.LotResult;
@@ -14,9 +13,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.time.ZonedDateTime;
 import java.util.List;
-import java.util.stream.Stream;
 
 @Slf4j
 @Component
