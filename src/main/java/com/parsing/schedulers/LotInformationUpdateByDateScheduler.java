@@ -22,7 +22,7 @@ import java.util.List;
 @EnableAsync
 public class LotInformationUpdateByDateScheduler {
 
-    private static final long TWO_HOUR = 1_0000000L;
+    private static final long TWO_HOUR = 6_000_000L;
     private static final long UPDATE_TIME = 36_000_000L;
 
     private final LotIdRepository lotIdRepository;
