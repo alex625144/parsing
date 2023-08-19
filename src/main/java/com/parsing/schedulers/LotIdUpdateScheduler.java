@@ -20,7 +20,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @EnableAsync
 @EnableScheduling
-public class LotIdScheduler {
+public class LotIdUpdateScheduler {
 
     private static final long ONE_HOUR = 6_000_000;
 

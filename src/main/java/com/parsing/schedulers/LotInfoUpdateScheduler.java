@@ -7,9 +7,11 @@ import com.parsing.model.Status;
 import com.parsing.model.mapper.LotInfoMapper;
 import com.parsing.service.LotInfoService;
 import com.parsing.service.LotResultService;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -19,15 +21,19 @@ import java.util.Objects;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class Scheduler {
+@EnableAsync
+@EnableScheduling
+public class LotInfoUpdateScheduler {
 
-    private static final long TEN_MINUTES = 600000L;
+    private static final long TEN_MINUTES = 60000000L;
 
     private final LotResultService lotResultService;
+
     private final LotInfoService lotInfoService;
+
     private final LotInfoMapper lotInfoMapper;
 
-    @Transactional
+    @Async
     @Scheduled(initialDelay = TEN_MINUTES, fixedDelay = TEN_MINUTES)
     public void mapLotInfo() {
         List<LotResult> lotResults = lotResultService.findAllPDFParserLots();
@@ -44,7 +50,6 @@ public class Scheduler {
                 lotInfo.getLotItems().forEach(lotItemInfo -> lotItemInfo.setLotInfo(lotInfo));
             }
         }
-
         return lotInfos;
     }
 
@@ -52,7 +57,6 @@ public class Scheduler {
         lotResults.forEach(lotResult ->
                 lotResult.setStatus(lotResult.getStatus() == Status.PDF_SUCCESSFULL ?
                         Status.MAPPED_TO_INFO_SUCCESSFULL : Status.MAPPED_TO_INFO_FAILED));
-
         return lotResults;
     }
 }
