@@ -77,15 +77,34 @@ public class ParserPDF {
         return obj.toString();
     }
 
-    public boolean parseProzorroFileForSheduler(File file) throws IOException {
+    public boolean parseProzorroFileForScheduler(File file) throws IOException {
         OpenCV.loadLocally();
         try (PDDocument document = PDDocument.load(file)) {
-            String lastPagePDF = getLastPagePDF(document);
-            String fileTableName = tableRecognizer.detectTable(lastPagePDF);
-            if (fileTableName != null) {
-                table = rectangleDetector.detectRectangles(fileTableName);
-                table = extractTextFromScannedDocument(fileTableName);
-                return dataRecognizer.recognizeLotPDFResult(table);
+
+//            String lastPagePDF = getLastPagePDF(document);
+//            String fileTableName = tableRecognizer.detectTable(lastPagePDF);
+//            if (fileTableName != null) {
+//                table = rectangleDetector.detectRectangles(fileTableName);
+//                table = extractTextFromScannedDocument(fileTableName);
+//                return dataRecognizer.recognizeLotPDFResult(table);
+            for (int page = document.getNumberOfPages() - PAGES_FOR_PARSE; page < document.getNumberOfPages(); page++) {
+                final String prePage = pageOCRPreparator.preparePage(document, page);
+                if (tableRecognizer.isTableExistOnPage(prePage)) {
+                    log.debug("Found table on page " + page);
+                    List<double[]> lines = rectangleDetector.findVerticalLinesWithOpenCV(prePage);
+                    log.debug("Quantity of lines = " + lines.size());
+                    List<double[]> tablesLines = tableDetector.detectQuantityOfTables(lines);
+                    rectangleDetector.saveIMageWithVerticalLines2(tablesLines);
+                    String fileTableName = tableRecognizer.detectTable(prePage);
+                    table = rectangleDetector.detectRectangles(fileTableName);
+                    table = extractTextFromScannedDocument(fileTableName);
+                    boolean isRecognized = dataRecognizer.recognizeLotPDFResult(table);
+                    if (isRecognized) {
+                        return true;
+                    }
+                } else {
+                    log.debug("Table did not found on page " + page);
+                }
             }
         }
         return false;

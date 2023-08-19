@@ -25,7 +25,7 @@ import java.util.List;
 @EnableAsync
 public class PDFParserScheduler {
 
-    private static final long THREE_HOUR = 10_800_000L;
+    private static final long THREE_HOUR = 10L;
     private final long UPDATE_TIME = 36_000_000L;
 
     private final LotResultRepository lotResultRepository;
@@ -39,16 +39,20 @@ public class PDFParserScheduler {
     public void scheduled() {
         List<LotResult> lotResults = lotResultRepository.findAllByStatusAndPdfURLNotNull(Status.CREATED);
         for (LotResult lotResult : lotResults) {
-            Path filename = downloaderPDFService.downloadPDF(lotResult.getLotURL(), lotResult.getId());
+            log.debug(lotResult.getLotURL());
+            Path filename = downloaderPDFService.downloadPDF(lotResult.getPdfURL(), lotResult.getId());
             if (filename != null) {
                 lotResult.setStatus(Status.DOWNLOADED);
             }
             File fileForParse = new File(filename.toString());
+            log.debug("File for parse = " + fileForParse);
             if (parserPDFService.parsePDF(fileForParse)) {
                 lotResult.setStatus(Status.PDF_SUCCESSFULL);
                 fileForParse.delete();
             } else {
                 lotResult.setStatus(Status.PDF_FAILED);
+                log.debug("PDF parsing was failed for URI {}", lotResult.getPdfURL() );
+                fileForParse.delete();
             }
         }
     }

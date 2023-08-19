@@ -105,7 +105,7 @@ public class LotInformationSaver {
     }
 
     private void extractLotUrl(JsonNode data, LotResult lotResult) {
-        String lotUrl = PROZORRO_URL + data.get("tenderID").toString();
+        String lotUrl = PROZORRO_URL + data.get("tenderID").textValue();
         lotResult.setLotURL(lotUrl);
     }
 
@@ -115,9 +115,20 @@ public class LotInformationSaver {
         for (JsonNode contract : contracts) {
             Optional<JsonNode> documents = Optional.ofNullable(contract.get("documents"));
             if (documents.isPresent()) {
-                Optional<String> url = Optional.ofNullable(documents.get().get(0).get("url").toString());
-                if (url.isPresent()) {
-                    pdfUrl = documents.get().get(0).get("url").toString();
+
+                for (JsonNode document : documents.get()) {
+                    Optional<JsonNode> documentType = Optional.ofNullable(document.get("documentType"));
+                    Optional<JsonNode> format = Optional.ofNullable(document.get("format"));
+
+                    if (documentType.isPresent()
+                            && format.isPresent()
+                            && documentType.get().textValue().equals("contractSigned")
+                            && format.get().textValue().equals("application/pdf")) {
+                        Optional<JsonNode> url = Optional.ofNullable(document.get("url"));
+                        if (url.isPresent()) {
+                            pdfUrl = document.get("url").textValue();
+                        }
+                    }
                 }
             }
         }
