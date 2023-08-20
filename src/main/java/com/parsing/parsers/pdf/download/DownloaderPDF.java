@@ -10,14 +10,12 @@ import org.springframework.web.client.ResponseExtractor;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URI;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.UUID;
 
 @Component
 @Slf4j
@@ -54,6 +52,6 @@ public class DownloaderPDF {
         if (!pdfDir.exists()) {
             pdfDir.mkdir();
         }
-        return currentPathPosition.toAbsolutePath().toString() + DIR_TO_SAVE_PDF;
+        return currentPathPosition.toAbsolutePath() + DIR_TO_SAVE_PDF;
     }
 }
