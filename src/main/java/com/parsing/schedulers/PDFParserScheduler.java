@@ -24,7 +24,7 @@ import java.util.List;
 @EnableAsync
 public class PDFParserScheduler {
 
-    private static final long THREE_HOUR = 1000000L;
+    private static final long TEN_HOURS = 60_000_000;
 
     private final LotResultRepository lotResultRepository;
 
@@ -33,7 +33,7 @@ public class PDFParserScheduler {
     private final ParserPDFService parserPDFService;
 
     @Async
-    @Scheduled(initialDelay = THREE_HOUR, fixedDelayString = "${update.time}")
+    @Scheduled(initialDelay = TEN_HOURS, fixedDelayString = "${update.time}")
     public void scheduled() {
         log.info("Scheduler for PDF parsing started.");
         List<LotResult> lotResults = lotResultRepository.findAllByStatusAndPdfURLNotNull(Status.CREATED);

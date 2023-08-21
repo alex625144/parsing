@@ -22,7 +22,7 @@ import java.util.List;
 @EnableAsync
 public class LotInformationUpdateByDateScheduler {
 
-    private static final long TWO_HOUR = 6000000L;
+    private static final long SIX_HOURS = 36_000_000;
 
     private final LotIdRepository lotIdRepository;
 
@@ -31,7 +31,7 @@ public class LotInformationUpdateByDateScheduler {
     private final LotInformationExtractor lotInformationExtractor;
 
     @Async
-    @Scheduled(initialDelay = TWO_HOUR, fixedDelayString = "${update.time}")
+    @Scheduled(initialDelay = SIX_HOURS, fixedDelayString = "${update.time}")
     public void scheduled() {
         log.info("Scheduler for UPDATE lotInformation started.");
         List<LotId> listLotId = lotIdRepository.findAll();

@@ -22,7 +22,7 @@ import java.util.List;
 @EnableAsync
 public class LotInformationUpdateByAbsentScheduler {
 
-    private static final long TWO_HOUR = 6_000L;
+    private static final long FOUR_HOURS = 24_000_000;
 
     private final LotIdRepository lotIdRepository;
 
@@ -31,7 +31,7 @@ public class LotInformationUpdateByAbsentScheduler {
     private final LotInformationExtractor lotInformationExtractor;
 
     @Async
-    @Scheduled(initialDelay = TWO_HOUR, fixedDelayString = "${update.time}")
+    @Scheduled(initialDelay = FOUR_HOURS, fixedDelayString = "${update.time}")
     public void scheduled() {
         log.info("Scheduler for UPDATE absent lotInformation started.");
         List<LotId> listLotId = lotIdRepository.findAll();

@@ -25,7 +25,7 @@ import java.util.Objects;
 @EnableScheduling
 public class LotInfoUpdateScheduler {
 
-    private static final long TEN_MINUTES = 60000000L;
+    private static final long EIGHT_HOURS = 48_000_000;
 
     private final LotResultService lotResultService;
 
@@ -34,7 +34,7 @@ public class LotInfoUpdateScheduler {
     private final LotInfoMapper lotInfoMapper;
 
     @Async
-    @Scheduled(initialDelay = TEN_MINUTES, fixedDelayString = "${update.time}")
+    @Scheduled(initialDelay = EIGHT_HOURS, fixedDelayString = "${update.time}")
     public void mapLotInfo() {
         log.info("Scheduler for UPDATE lotInfo started.");
         List<LotResult> lotResults = lotResultService.findAllPDFParserLots();

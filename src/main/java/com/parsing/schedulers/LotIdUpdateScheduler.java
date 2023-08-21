@@ -22,14 +22,14 @@ import java.util.List;
 @EnableScheduling
 public class LotIdUpdateScheduler {
 
-    private static final long ONE_HOUR = 6_000;
+    private static final long TWO_HOURS = 12_000_000;
 
     private final LotIdRepository lotIdRepository;
 
     private final LotIdExtractor lotIdExtractor;
 
     @Async
-    @Scheduled(initialDelay = ONE_HOUR, fixedDelayString = "${update.time}")
+    @Scheduled(initialDelay = TWO_HOURS, fixedDelayString = "${update.time}")
     public void scheduled() {
         log.info("Scheduler for download lotId started.");
         List<LotId> listLotId = lotIdRepository.findAll();
