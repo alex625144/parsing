@@ -22,20 +22,17 @@ import java.util.List;
 @EnableScheduling
 public class LotIdUpdateScheduler {
 
-    private static final long ONE_HOUR = 6_000_000;
-
-    private static final long UPDATE_TIME = 36_000_000L;
+    private static final long ONE_HOUR = 6_000;
 
     private final LotIdRepository lotIdRepository;
 
     private final LotIdExtractor lotIdExtractor;
 
     @Async
-    @Scheduled(initialDelay = ONE_HOUR, fixedDelay = UPDATE_TIME)
+    @Scheduled(initialDelay = ONE_HOUR, fixedDelayString = "${update.time}")
     public void scheduled() {
         log.info("Scheduler for download lotId started.");
         List<LotId> listLotId = lotIdRepository.findAll();
-
         ZonedDateTime max =listLotId.get(0).getDateModified();
         for (LotId lotId : listLotId) {
             if (lotId.getDateModified().compareTo(max) > 0) {

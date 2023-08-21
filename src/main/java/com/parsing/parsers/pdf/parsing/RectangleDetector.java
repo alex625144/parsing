@@ -37,20 +37,23 @@ public class RectangleDetector {
 
     public List<Row> detectRectangles(String fileSource) {
         List<double[]> horizontalLines = findHorizontalLinesWithOpenCV(fileSource);
-        List<Double> sortedHorizontalLines = sortLinesByY(horizontalLines);
-        List<Double> mergedHorizontalLines = mergeLines(sortedHorizontalLines);
-        HorizontalLineCoordinate horizontalLineCoordinate = findExtremeHorizontalTablePoints(horizontalLines);
-        List<HorizontalLineCoordinate> sortedHorizontalLinesCoordinates = formHorizontalLinesCoordinates(mergedHorizontalLines, horizontalLineCoordinate);
+        if (horizontalLines.size()>2) {
+            List<Double> sortedHorizontalLines = sortLinesByY(horizontalLines);
+            List<Double> mergedHorizontalLines = mergeLines(sortedHorizontalLines);
+            HorizontalLineCoordinate horizontalLineCoordinate = findExtremeHorizontalTablePoints(horizontalLines);
+            List<HorizontalLineCoordinate> sortedHorizontalLinesCoordinates = formHorizontalLinesCoordinates(mergedHorizontalLines, horizontalLineCoordinate);
 
-        List<double[]> verticalLines = findVerticalLinesWithOpenCV(fileSource);
-        List<Double> sortedVerticalLines = sortLinesByX(verticalLines);
-        List<Double> mergedVerticalLines = mergeLines(sortedVerticalLines);
-        List<VerticalLineCoordinate> sortedVerticalLinesCoordinates = formVerticalLinesCoordinates(mergedVerticalLines, verticalLines);
+            List<double[]> verticalLines = findVerticalLinesWithOpenCV(fileSource);
+            List<Double> sortedVerticalLines = sortLinesByX(verticalLines);
+            List<Double> mergedVerticalLines = mergeLines(sortedVerticalLines);
+            List<VerticalLineCoordinate> sortedVerticalLinesCoordinates = formVerticalLinesCoordinates(mergedVerticalLines, verticalLines);
 
-        saveIMageWithVerticalLines(verticalLines);
-        saveAllLines(sortedVerticalLinesCoordinates, sortedHorizontalLinesCoordinates);
+            saveIMageWithVerticalLines(verticalLines);
+            saveAllLines(sortedVerticalLinesCoordinates, sortedHorizontalLinesCoordinates);
 
-        return tableProcessor.cropRectangles(sortedHorizontalLinesCoordinates, sortedVerticalLinesCoordinates);
+            return tableProcessor.cropRectangles(sortedHorizontalLinesCoordinates, sortedVerticalLinesCoordinates);
+        }
+        return new ArrayList<>();
     }
 
     private List<VerticalLineCoordinate> formVerticalLinesCoordinates(List<Double> distinctPointsX, List<double[]> linesV) {
@@ -176,17 +179,17 @@ public class RectangleDetector {
     }
 
     private HorizontalLineCoordinate findExtremeHorizontalTablePoints(List<double[]> lines) {
-        double x1 = lines.get(0)[0];
-        double x2 = 0;
-        for (double[] array : lines) {
-            if (array[0] < x1) {
-                x1 = array[0];
+            double x1 = lines.get(0)[0];
+            double x2 = 0;
+            for (double[] array : lines) {
+                if (array[0] < x1) {
+                    x1 = array[0];
+                }
+                if (array[2] > x2) {
+                    x2 = array[2];
+                }
             }
-            if (array[2] > x2) {
-                x2 = array[2];
-            }
-        }
-        return new HorizontalLineCoordinate(x1, x2, 0);
+            return new HorizontalLineCoordinate(x1, x2, 0);
     }
 
     public List<double[]> findVerticalLinesWithOpenCV(String fileSource) {

@@ -9,6 +9,7 @@ import com.parsing.service.LotInfoService;
 import com.parsing.service.LotResultService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -34,13 +35,14 @@ public class LotInfoUpdateScheduler {
     private final LotInfoMapper lotInfoMapper;
 
     @Async
-    @Scheduled(initialDelay = TEN_MINUTES, fixedDelay = TEN_MINUTES)
+    @Scheduled(initialDelay = TEN_MINUTES, fixedDelayString = "${update.time}")
     public void mapLotInfo() {
+        log.info("Scheduler for UPDATE lotInfo started.");
         List<LotResult> lotResults = lotResultService.findAllPDFParserLots();
         List<LotInfo> lotInfos = lotInfoMapper.toLotInfoList(lotResults);
-
         lotResultService.saveAll(refreshLotResults(lotResults));
         lotInfoService.saveAll(prepareLotInfoToSaving(lotInfos));
+        log.info("Scheduler for UPDATE lotInfo finished.");
     }
 
     private List<LotInfo> prepareLotInfoToSaving(List<LotInfo> lotInfos) {

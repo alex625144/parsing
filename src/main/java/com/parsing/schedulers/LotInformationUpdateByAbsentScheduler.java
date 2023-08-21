@@ -20,10 +20,9 @@ import java.util.List;
 @RequiredArgsConstructor
 @EnableScheduling
 @EnableAsync
-public class LotInformationUpdateScheduler {
+public class LotInformationUpdateByAbsentScheduler {
 
-    private static final long TWO_HOUR = 6_000_000L;
-    private static final long UPDATE_TIME = 36_000_000L;
+    private static final long TWO_HOUR = 6_000L;
 
     private final LotIdRepository lotIdRepository;
 
@@ -32,18 +31,15 @@ public class LotInformationUpdateScheduler {
     private final LotInformationExtractor lotInformationExtractor;
 
     @Async
-    @Scheduled(initialDelay = TWO_HOUR, fixedDelay = UPDATE_TIME)
+    @Scheduled(initialDelay = TWO_HOUR, fixedDelayString = "${update.time}")
     public void scheduled() {
-        log.info("Scheduler for UPDATE missing lotInformation started.");
+        log.info("Scheduler for UPDATE absent lotInformation started.");
         List<LotId> listLotId = lotIdRepository.findAll();
         List<LotResult> listLotResult = lotResultRepository.findAll();
-
-
-
         List<LotId> listLotIdForUpdate = listLotId.stream().filter(lotId ->
                 listLotResult.stream().noneMatch(lotResult -> lotResult.getId().equals(lotId.getId()))).toList();
         log.info("Lots for update = " + listLotIdForUpdate.size());
         lotInformationExtractor.tryExtractLotsInformation(listLotIdForUpdate);
-        log.info("Scheduler for UPDATE missing lotInformation finished.");
+        log.info("Scheduler for UPDATE absent lotInformation finished.");
     }
 }
