@@ -27,7 +27,7 @@ public class LotIdUpdateScheduler {
     private final LotIdExtractor lotIdExtractor;
 
     @Async
-    @Scheduled(initialDelayString = "${lotidupdate.initialtime}", fixedDelayString = "${update.time}")
+    @Scheduled(initialDelayString = "${lotid_update.initial_time}", fixedDelayString = "${update.time}")
     public void scheduled() {
         log.info("Scheduler for download lotId started.");
         List<LotId> listLotId = lotIdRepository.findAll();

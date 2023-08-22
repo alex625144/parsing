@@ -4,16 +4,16 @@ time:
   offset: 1688237497
 update:
   time: 36000000
-lotidupdate:
-  initialtime: 6000000
-lotinformationbyabsent:
-    initialtime: 12000000
-lotinformationbydate:
-    initialtime: 18000000
+lotid_update:
+  initial_time: 6000000
+lotinformation_by_absent:
+    initial_time: 12000000
+lotinformation_by_date:
+    initial_time: 18000000
 pdfparser:
-  initialtime: 24000000
+  initial_time: 24000000
 lotinfo:
-  initialtime: 72000000
+  initial_time: 72000000
 
 date:
   url: https://public.api.openprocurement.org/api/2.5/tenders?offset=
