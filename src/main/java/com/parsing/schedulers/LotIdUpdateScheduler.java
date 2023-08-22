@@ -29,7 +29,7 @@ public class LotIdUpdateScheduler {
     private final LotIdExtractor lotIdExtractor;
 
     @Async
-    @Scheduled(initialDelay = TWO_HOURS, fixedDelayString = "${update.time}")
+    @Scheduled(initialDelayString = "${lotidupdate.initialtime}", fixedDelayString = "${update.time}")
     public void scheduled() {
         log.info("Scheduler for download lotId started.");
         List<LotId> listLotId = lotIdRepository.findAll();

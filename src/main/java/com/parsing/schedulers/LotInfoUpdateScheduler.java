@@ -34,7 +34,7 @@ public class LotInfoUpdateScheduler {
     private final LotInfoMapper lotInfoMapper;
 
     @Async
-    @Scheduled(initialDelay = EIGHT_HOURS, fixedDelayString = "${update.time}")
+    @Scheduled(initialDelayString = "${lotinfo.initialtime}", fixedDelayString = "${update.time}")
     public void mapLotInfo() {
         log.info("Scheduler for UPDATE lotInfo started.");
         List<LotResult> lotResults = lotResultService.findAllPDFParserLots();

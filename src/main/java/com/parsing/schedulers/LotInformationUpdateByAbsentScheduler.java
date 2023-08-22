@@ -31,7 +31,7 @@ public class LotInformationUpdateByAbsentScheduler {
     private final LotInformationExtractor lotInformationExtractor;
 
     @Async
-    @Scheduled(initialDelay = FOUR_HOURS, fixedDelayString = "${update.time}")
+    @Scheduled(initialDelayString = "${lotinformationbyabsent.initialtime}", fixedDelayString = "${update.time}")
     public void scheduled() {
         log.info("Scheduler for UPDATE absent lotInformation started.");
         List<LotId> listLotId = lotIdRepository.findAll();
