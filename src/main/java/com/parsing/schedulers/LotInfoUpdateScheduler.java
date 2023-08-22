@@ -25,8 +25,6 @@ import java.util.Objects;
 @EnableScheduling
 public class LotInfoUpdateScheduler {
 
-    private static final long EIGHT_HOURS = 48_000_000;
-
     private final LotResultService lotResultService;
 
     private final LotInfoService lotInfoService;

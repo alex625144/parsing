@@ -24,8 +24,6 @@ import java.util.List;
 @EnableAsync
 public class PDFParserScheduler {
 
-    private static final long TEN_HOURS = 60_000_000;
-
     private final LotResultRepository lotResultRepository;
 
     private final DownloaderPDFService downloaderPDFService;

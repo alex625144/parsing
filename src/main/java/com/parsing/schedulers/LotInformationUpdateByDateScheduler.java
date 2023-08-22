@@ -22,8 +22,6 @@ import java.util.List;
 @EnableAsync
 public class LotInformationUpdateByDateScheduler {
 
-    private static final long SIX_HOURS = 36_000_000;
-
     private final LotIdRepository lotIdRepository;
 
     private final LotResultRepository lotResultRepository;

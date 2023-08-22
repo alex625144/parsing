@@ -22,8 +22,6 @@ import java.util.List;
 @EnableAsync
 public class LotInformationUpdateByAbsentScheduler {
 
-    private static final long FOUR_HOURS = 24_000_000;
-
     private final LotIdRepository lotIdRepository;
 
     private final LotResultRepository lotResultRepository;

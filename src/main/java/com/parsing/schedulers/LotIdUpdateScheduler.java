@@ -22,8 +22,6 @@ import java.util.List;
 @EnableScheduling
 public class LotIdUpdateScheduler {
 
-    private static final long TWO_HOURS = 12_000_000;
-
     private final LotIdRepository lotIdRepository;
 
     private final LotIdExtractor lotIdExtractor;
