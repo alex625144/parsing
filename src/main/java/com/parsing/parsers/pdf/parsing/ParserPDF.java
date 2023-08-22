@@ -80,13 +80,6 @@ public class ParserPDF {
     public boolean parseProzorroFileForScheduler(File file) throws IOException {
         OpenCV.loadLocally();
         try (PDDocument document = PDDocument.load(file)) {
-
-//            String lastPagePDF = getLastPagePDF(document);
-//            String fileTableName = tableRecognizer.detectTable(lastPagePDF);
-//            if (fileTableName != null) {
-//                table = rectangleDetector.detectRectangles(fileTableName);
-//                table = extractTextFromScannedDocument(fileTableName);
-//                return dataRecognizer.recognizeLotPDFResult(table);
             for (int page = document.getNumberOfPages() - PAGES_FOR_PARSE; page < document.getNumberOfPages(); page++) {
                 final String prePage = pageOCRPreparator.preparePage(document, page);
                 if (tableRecognizer.isTableExistOnPage(prePage)) {
