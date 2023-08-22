@@ -121,7 +121,6 @@ public class PageOCRPreparator {
         BufferedImage bim = null;
         try {
             BufferedImage bufferedImage = pdfRenderer.renderImageWithDPI(pageNumber, 300, ImageType.RGB);
-            //log.debug("buffered image " + bufferedImage.);
             result = itesseract.getWords(bufferedImage, ITessAPI.TessPageIteratorLevel.RIL_BLOCK);
             if (result.size() > 0) {
                 rectangle = result.get(0).getBoundingBox().getBounds();
