@@ -7,9 +7,9 @@ update:
 lotid_update:
   initial_time: 6000000
 lotinformation_by_absent:
-    initial_time: 12000000
+  initial_time: 12000000
 lotinformation_by_date:
-    initial_time: 18000000
+  initial_time: 18000000
 pdfparser:
   initial_time: 24000000
 lotinfo:
