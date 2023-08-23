@@ -29,7 +29,7 @@ public class LotInformationUpdateByDateScheduler {
     private final LotInformationExtractor lotInformationExtractor;
 
     @Async
-    @Scheduled(initialDelayString = "${lotinformation_by_date.initial_time}", fixedDelayString = "${update.time}")
+    @Scheduled(initialDelayString = "${lotinformation_by_date.initial_time}", fixedDelayString = "${for_all_scheduler.update.time}")
     public void scheduled() {
         log.info("Scheduler for UPDATE lotInformation started.");
         List<LotId> listLotId = lotIdRepository.findAll();

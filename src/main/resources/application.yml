@@ -2,8 +2,8 @@ laptop:
   models: lenovo, hp, dell, apple, asus, microsoft, toshiba, sony, samsung, msi, lg, fujitsu, panasonic, huawei, razer, google, intel, gigabyte, alienware, xiaomi, vaio, nec, medion, sharp, gateway, ibm, compal, cyberpowerpc, eurocom, xotac, vizio, haier, positivo, jumper, chuwi, prestigio, everex, motion momputing, hasee, maxdata, aorus, teclast, malibal, system76, byond, tuxedo computers, nextbook, vinga, emdoor
 time:
   offset: 1688237497
-update:
-  time: 36000000
+for_all_schedulers:
+  update_time: 36000000
 lotid_update:
   initial_time: 6000000
 lotinformation_by_absent:
