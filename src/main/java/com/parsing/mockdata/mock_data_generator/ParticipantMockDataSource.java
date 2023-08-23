@@ -5,12 +5,9 @@ import com.parsing.repository.ParticipantRepository;
 import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -36,7 +33,7 @@ public class ParticipantMockDataSource {
         List<Participant> generatedParticipants;
         Set<String> uniqueValues = new HashSet<>();
 
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(source), StandardCharsets.UTF_8))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(source))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 uniqueValues.add(line);

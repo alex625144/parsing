@@ -11,7 +11,7 @@ lotinformation_by_absent:
 lotinformation_by_date:
   initial_time: 18000000
 pdfparser:
-  initial_time: 24000000
+  initial_time: 240
 lotinfo:
   initial_time: 72000000
 
@@ -38,7 +38,7 @@ spring:
       enabled: ALWAYS
   datasource:
     url: jdbc:postgresql://localhost:5432/postgres?
-    username: postgres
+    username: oleksandr
     password: 123
 #    driver-class-name: org.postgresql.Driver
 #    url: jdbc:postgresql://${PROD_DB_HOST}:${PROD_DB_PORT}/${PROD_DB_NAME}
