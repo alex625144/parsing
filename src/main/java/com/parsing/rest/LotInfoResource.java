@@ -1,6 +1,6 @@
 package com.parsing.rest;
 
-import com.parsing.schedulers.Scheduler;
+import com.parsing.schedulers.LotInfoUpdateScheduler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,10 +11,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class LotInfoResource {
 
-    private final Scheduler scheduler;
+    private final LotInfoUpdateScheduler lotInfoUpdateScheduler;
 
     @GetMapping("/lot-infos")
     void testLotInfoSchedule() {
-        scheduler.mapLotInfo();
+        lotInfoUpdateScheduler.mapLotInfo();
     }
 }

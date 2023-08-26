@@ -7,9 +7,11 @@ import com.parsing.model.Status;
 import com.parsing.model.mapper.LotInfoMapper;
 import com.parsing.service.LotInfoService;
 import com.parsing.service.LotResultService;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -19,22 +21,25 @@ import java.util.Objects;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class Scheduler {
-
-    private static final long TEN_MINUTES = 600000L;
+@EnableAsync
+@EnableScheduling
+public class LotInfoUpdateScheduler {
 
     private final LotResultService lotResultService;
+
     private final LotInfoService lotInfoService;
+
     private final LotInfoMapper lotInfoMapper;
 
-    @Transactional
-    @Scheduled(initialDelay = TEN_MINUTES, fixedDelay = TEN_MINUTES)
+    @Async
+    @Scheduled(initialDelayString = "${lotinfo.initial_time}", fixedDelayString = "${for_all_schedulers.update_time}")
     public void mapLotInfo() {
+        log.info("Scheduler for UPDATE lotInfo started.");
         List<LotResult> lotResults = lotResultService.findAllPDFParserLots();
         List<LotInfo> lotInfos = lotInfoMapper.toLotInfoList(lotResults);
-
         lotResultService.saveAll(refreshLotResults(lotResults));
         lotInfoService.saveAll(prepareLotInfoToSaving(lotInfos));
+        log.info("Scheduler for UPDATE lotInfo finished.");
     }
 
     private List<LotInfo> prepareLotInfoToSaving(List<LotInfo> lotInfos) {
@@ -44,7 +49,6 @@ public class Scheduler {
                 lotInfo.getLotItems().forEach(lotItemInfo -> lotItemInfo.setLotInfo(lotInfo));
             }
         }
-
         return lotInfos;
     }
 
@@ -52,7 +56,6 @@ public class Scheduler {
         lotResults.forEach(lotResult ->
                 lotResult.setStatus(lotResult.getStatus() == Status.PDF_SUCCESSFULL ?
                         Status.MAPPED_TO_INFO_SUCCESSFULL : Status.MAPPED_TO_INFO_FAILED));
-
         return lotResults;
     }
 }

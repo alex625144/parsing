@@ -43,6 +43,7 @@ public class PageOCRPreparator {
     private static final double[] RGB_WHITE_COLOUR = {255, 255, 255};
 
     public String preparePage(PDDocument document, int page) throws IOException {
+        log.debug("Class PageOCRPreparator started.");
         String fileResult = "preparePage" + page + ".png";
         String pagePDF = getPagePDF(document, page);
         String rotatedPage = rotationImage.rotate(pagePDF);
@@ -56,6 +57,7 @@ public class PageOCRPreparator {
         final Rectangle mainPageRectangle = findMainPageRectangle(rectanglesWithSymbols);
         final Mat result = cleanTableBorders(matPage, mainPageRectangle);
         Imgcodecs.imwrite(fileResult, result);
+        log.debug("Class PageOCRPreparator finished.");
         return fileResult;
     }
 
@@ -71,7 +73,6 @@ public class PageOCRPreparator {
                 String resultTemp = null;
                 try {
                     resultTemp = itesseract.doOCR(new File(filename), rectangle).trim();
-
                 } catch (TesseractException e) {
                     e.printStackTrace();
                 }
@@ -191,7 +192,7 @@ public class PageOCRPreparator {
             result = itesseract.getSegmentedRegions(buf, level);
             for (int i = 0; i < result.size(); i++) {
                 Rectangle rect = result.get(i);
-                log.debug(String.format("Box[%d]: x=%d, y=%d, w=%d, h=%d", i, rect.x, rect.y, rect.width, rect.height));
+                //log.debug(String.format("Box[%d]: x=%d, y=%d, w=%d, h=%d", i, rect.x, rect.y, rect.width, rect.height));
             }
 
             if (result.size() > 0) {

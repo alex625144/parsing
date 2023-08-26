@@ -11,11 +11,11 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.File;
 import java.net.URI;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.UUID;
 
 @Component
 @Slf4j
@@ -33,7 +33,12 @@ public class DownloaderPDF {
 
         ResponseExtractor<Void> responseExtractor = response -> {
             Path path = Paths.get(savePath);
-            Files.copy(response.getBody(), path);
+
+            try {
+                Files.copy(response.getBody(), path);
+            } catch (FileAlreadyExistsException e) {
+                log.debug("File already exists. Using saved file.");
+            }
             return null;
         };
         restTemplate.execute(uri, HttpMethod.GET, requestCallback, responseExtractor);
@@ -47,6 +52,6 @@ public class DownloaderPDF {
         if (!pdfDir.exists()) {
             pdfDir.mkdir();
         }
-        return currentPathPosition.toAbsolutePath().toString() + DIR_TO_SAVE_PDF;
+        return currentPathPosition.toAbsolutePath() + DIR_TO_SAVE_PDF;
     }
 }

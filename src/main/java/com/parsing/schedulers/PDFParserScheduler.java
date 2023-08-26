@@ -14,7 +14,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -25,9 +24,6 @@ import java.util.List;
 @EnableAsync
 public class PDFParserScheduler {
 
-    private static final long THREE_HOUR = 10_800_000L;
-    private final long UPDATE_TIME = 36_000_000L;
-
     private final LotResultRepository lotResultRepository;
 
     private final DownloaderPDFService downloaderPDFService;
@@ -35,21 +31,27 @@ public class PDFParserScheduler {
     private final ParserPDFService parserPDFService;
 
     @Async
-    @Scheduled(initialDelay = THREE_HOUR, fixedDelay = UPDATE_TIME)
+    @Scheduled(initialDelayString = "${pdfparser.initial_time}", fixedDelayString = "${for_all_schedulers.update_time}")
     public void scheduled() {
+        log.info("Scheduler for PDF parsing started.");
         List<LotResult> lotResults = lotResultRepository.findAllByStatusAndPdfURLNotNull(Status.CREATED);
         for (LotResult lotResult : lotResults) {
-            Path filename = downloaderPDFService.downloadPDF(lotResult.getLotURL(), lotResult.getId());
+            log.debug(lotResult.getLotURL());
+            Path filename = downloaderPDFService.downloadPDF(lotResult.getPdfURL(), lotResult.getId());
             if (filename != null) {
                 lotResult.setStatus(Status.DOWNLOADED);
             }
             File fileForParse = new File(filename.toString());
+            log.debug("File for parse = " + fileForParse);
             if (parserPDFService.parsePDF(fileForParse)) {
                 lotResult.setStatus(Status.PDF_SUCCESSFULL);
                 fileForParse.delete();
             } else {
                 lotResult.setStatus(Status.PDF_FAILED);
+                log.debug("PDF parsing was failed for URI {}", lotResult.getPdfURL() );
+                fileForParse.delete();
             }
+            log.info("Scheduler for PDF parsing finished.");
         }
     }
 }

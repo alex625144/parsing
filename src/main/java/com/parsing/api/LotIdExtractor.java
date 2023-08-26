@@ -25,13 +25,10 @@ public class LotIdExtractor {
 
     private final RestTemplate restTemplate;
 
-    @Value("${time.offset}")
-    private String offset;
-
     @Value("${date.url}")
     private String dateURL;
 
-    public void tryExtractLots() {
+    public void tryExtractLots(String offset) {
         String START_DATE_URL = dateURL + offset;
         JsonNode jsonNode;
         ResponseEntity<String> response;

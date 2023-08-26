@@ -77,6 +77,27 @@ public class LotInformationExtractor {
         }
     }
 
+    public void tryExtractLotsInformation(List<LotId> lotIds) {
+        for (LotId lotId : lotIds) {
+            ResponseEntity<String> response;
+            URI uri;
+            try {
+                uri = new URI(LOT_URL + lotId.getId());
+                log.info("URI {} started parsing.", uri);
+                response = restTemplate.getForEntity(uri, String.class);
+                JsonNode jsonNode = objectMapper.readTree(response.getBody());
+                JsonNode data = jsonNode.get("data");
+                if (isLaptopDk(data)) {
+                    lotInformationSaver.saveLotResult(data, lotId.getId());
+                }
+                log.info("URI {} finished parsing.", uri);
+            } catch (URISyntaxException e) {
+                throw new RuntimeException("URI syntax is wrong!", e);
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException("Json processing is bad!", e);
+            }
+        }
+    }
     private boolean isLaptopDk(JsonNode data) {
         JsonNode items = data.get("items");
         for (JsonNode item : items) {

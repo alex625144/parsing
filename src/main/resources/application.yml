@@ -1,11 +1,20 @@
 laptop:
   models: lenovo, hp, dell, apple, asus, microsoft, toshiba, sony, samsung, msi, lg, fujitsu, panasonic, huawei, razer, google, intel, gigabyte, alienware, xiaomi, vaio, nec, medion, sharp, gateway, ibm, compal, cyberpowerpc, eurocom, xotac, vizio, haier, positivo, jumper, chuwi, prestigio, everex, motion momputing, hasee, maxdata, aorus, teclast, malibal, system76, byond, tuxedo computers, nextbook, vinga, emdoor
-start:
-  date: "2023-04-01"
-end:
-  date: "2023-05-30"
 time:
-  offset: 1672534861
+  offset: 1688237497
+for_all_schedulers:
+  update_time: 36000000
+lotid_update:
+  initial_time: 6000000
+lotinformation_by_absent:
+  initial_time: 12000000
+lotinformation_by_date:
+  initial_time: 18000000
+pdfparser:
+  initial_time: 240
+lotinfo:
+  initial_time: 72000000
+
 date:
   url: https://public.api.openprocurement.org/api/2.5/tenders?offset=
 lot:
@@ -28,10 +37,10 @@ spring:
     ansi:
       enabled: ALWAYS
   datasource:
-    url: jdbc:postgresql://localhost:5432/postgres?currentSchema=neprozorro
-    username: postgres
-    password: 123
     driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://${PROD_DB_HOST}:${PROD_DB_PORT}/${PROD_DB_NAME}
+    username: ${PROD_DB_USERNAME}
+    password: ${PROD_DB_PASSWORD}
   jpa:
     hibernate:
       ddl-auto: validate
