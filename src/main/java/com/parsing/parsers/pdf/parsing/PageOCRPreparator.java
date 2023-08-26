@@ -73,7 +73,6 @@ public class PageOCRPreparator {
                 String resultTemp = null;
                 try {
                     resultTemp = itesseract.doOCR(new File(filename), rectangle).trim();
-
                 } catch (TesseractException e) {
                     e.printStackTrace();
                 }
@@ -193,7 +192,7 @@ public class PageOCRPreparator {
             result = itesseract.getSegmentedRegions(buf, level);
             for (int i = 0; i < result.size(); i++) {
                 Rectangle rect = result.get(i);
-                log.debug(String.format("Box[%d]: x=%d, y=%d, w=%d, h=%d", i, rect.x, rect.y, rect.width, rect.height));
+                //log.debug(String.format("Box[%d]: x=%d, y=%d, w=%d, h=%d", i, rect.x, rect.y, rect.width, rect.height));
             }
 
             if (result.size() > 0) {

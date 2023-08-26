@@ -100,7 +100,7 @@ public class TableRecognizer {
             return fileResult;
         } catch (Exception ex) {
             log.warn("Can't crop image. Rectangle x = " + rectangle.x + " y = " + rectangle.y + " height = " + rectangle.height
-                    + " width = " + rectangle.width + "source size = " + source.size());
+                    + " width = " + rectangle.width + " source size = " + source.size());
         }
         return null;
     }
