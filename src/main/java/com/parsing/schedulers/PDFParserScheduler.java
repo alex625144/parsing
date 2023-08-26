@@ -31,7 +31,7 @@ public class PDFParserScheduler {
     private final ParserPDFService parserPDFService;
 
     @Async
-    @Scheduled(initialDelayString = "${pdfparser.initial_time}", fixedDelayString = "${for_all_scheduler.update_time}")
+    @Scheduled(initialDelayString = "${pdfparser.initial_time}", fixedDelayString = "${for_all_schedulers.update_time}")
     public void scheduled() {
         log.info("Scheduler for PDF parsing started.");
         List<LotResult> lotResults = lotResultRepository.findAllByStatusAndPdfURLNotNull(Status.CREATED);
