@@ -38,7 +38,7 @@ spring:
       enabled: ALWAYS
   datasource:
     url: jdbc:postgresql://localhost:5432/postgres?
-    username: oleksandr
+    username: postgres
     password: 123
 #    driver-class-name: org.postgresql.Driver
 #    url: jdbc:postgresql://${PROD_DB_HOST}:${PROD_DB_PORT}/${PROD_DB_NAME}
