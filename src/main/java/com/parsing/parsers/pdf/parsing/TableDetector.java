@@ -14,6 +14,7 @@ public class TableDetector {
     private static final Double OFFSET = 5.0;
 
     public List<double[]> detectQuantityOfTables(List<double[]> lines) {
+        log.debug("Class TableDetector started.");
         final List<double[]> sortedLines = sortLinesByX(lines);
         for (double[] line : sortedLines) {
             log.debug(Arrays.toString(line));
@@ -24,6 +25,7 @@ public class TableDetector {
         for (double[] line : mergedLines3) {
             log.debug(Arrays.toString(line));
         }
+        log.debug("Class TableDetector finished.");
         return mergedLines3;
     }
 

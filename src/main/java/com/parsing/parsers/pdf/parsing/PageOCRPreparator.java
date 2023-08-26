@@ -43,6 +43,7 @@ public class PageOCRPreparator {
     private static final double[] RGB_WHITE_COLOUR = {255, 255, 255};
 
     public String preparePage(PDDocument document, int page) throws IOException {
+        log.debug("Class PageOCRPreparator started.");
         String fileResult = "preparePage" + page + ".png";
         String pagePDF = getPagePDF(document, page);
         String rotatedPage = rotationImage.rotate(pagePDF);
@@ -56,6 +57,7 @@ public class PageOCRPreparator {
         final Rectangle mainPageRectangle = findMainPageRectangle(rectanglesWithSymbols);
         final Mat result = cleanTableBorders(matPage, mainPageRectangle);
         Imgcodecs.imwrite(fileResult, result);
+        log.debug("Class PageOCRPreparator finished.");
         return fileResult;
     }
 

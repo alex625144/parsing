@@ -46,6 +46,7 @@ public class ParserPDF {
     private List<Row> table = new ArrayList<>();
 
     public String parseProzorroFile(MultipartFile file) throws IOException {
+        log.debug("Class ParserPDF.parseProzorroFile started");
         OpenCV.loadLocally();
         JSONObject obj = new JSONObject();
         PDDocument document = PDDocument.load(file.getBytes());
@@ -74,10 +75,12 @@ public class ParserPDF {
                 log.debug("Table did not found on page " + page);
             }
         }
+        log.debug("Class ParserPDF.parseProzorroFile started");
         return obj.toString();
     }
 
     public boolean parseProzorroFileForScheduler(File file) throws IOException {
+        log.debug("Class ParserPDF.parseProzorroFileForScheduler started");
         OpenCV.loadLocally();
         try (PDDocument document = PDDocument.load(file)) {
             for (int page = document.getNumberOfPages() - PAGES_FOR_PARSE; page < document.getNumberOfPages(); page++) {
@@ -93,6 +96,7 @@ public class ParserPDF {
                     table = extractTextFromScannedDocument(fileTableName);
                     boolean isRecognized = dataRecognizer.recognizeLotPDFResult(table);
                     if (isRecognized) {
+                        log.debug("Class ParserPDF.parseProzorroFileForScheduler finished");
                         return true;
                     }
                 } else {
@@ -100,6 +104,7 @@ public class ParserPDF {
                 }
             }
         }
+        log.debug("Class ParserPDF.parseProzorroFileForScheduler finished");
         return false;
     }
 

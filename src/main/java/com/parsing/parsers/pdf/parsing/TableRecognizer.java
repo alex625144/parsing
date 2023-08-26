@@ -34,6 +34,7 @@ public class TableRecognizer {
     }
 
     public boolean isTableExistOnPage(String fileSource) {
+        log.debug("Is table exist on page started.");
         OpenCV.loadLocally();
         Mat dst = new Mat(), cdst = new Mat(), cdstP, cropTable = new Mat();
         Mat source = Imgcodecs.imread(fileSource, Imgcodecs.IMREAD_GRAYSCALE);
@@ -49,13 +50,19 @@ public class TableRecognizer {
             lines.add(linesP.get(k, 0));
         }
         if (lines.size() > MINIMAL_QUANTITY_LINES_FOR_TABLE) {
+            log.debug("Result: table found!");
+            log.debug("Is table exist on page finished.");
             return true;
         } else {
+            log.debug("Result: table not found");
+            log.debug("Is table exist on page finished.");
             return false;
         }
+
     }
 
     public String detectTable(String fileSource) {
+        log.debug("Class TableRecognizer.detectTable started.");
         OpenCV.loadLocally();
         Mat dst = new Mat(), cdst = new Mat(), cdstP, cropTable = new Mat();
         Mat source = Imgcodecs.imread(fileSource, Imgcodecs.IMREAD_GRAYSCALE);
@@ -89,6 +96,7 @@ public class TableRecognizer {
             cropTable = source.submat(rectangle);
             String fileResult = "destination.png";
             Imgcodecs.imwrite(fileResult, cropTable);
+            log.debug("Class TableRecognizer.detectTable finished.");
             return fileResult;
         } catch (Exception ex) {
             log.warn("Can't crop image. Rectangle x = " + rectangle.x + " y = " + rectangle.y + " height = " + rectangle.height
