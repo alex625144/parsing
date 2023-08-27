@@ -13,6 +13,7 @@ import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,7 +39,7 @@ public class RectangleDetector {
     public List<Row> detectRectangles(String fileSource) {
         log.debug("Class RectangleDetector started.");
         List<double[]> horizontalLines = findHorizontalLinesWithOpenCV(fileSource);
-        if (horizontalLines.size()>2) {
+        if (horizontalLines.size() > 2) {
             List<Double> sortedHorizontalLines = sortLinesByY(horizontalLines);
             List<Double> mergedHorizontalLines = mergeLines(sortedHorizontalLines);
             HorizontalLineCoordinate horizontalLineCoordinate = findExtremeHorizontalTablePoints(horizontalLines);
@@ -181,17 +182,17 @@ public class RectangleDetector {
     }
 
     private HorizontalLineCoordinate findExtremeHorizontalTablePoints(List<double[]> lines) {
-            double x1 = lines.get(0)[0];
-            double x2 = 0;
-            for (double[] array : lines) {
-                if (array[0] < x1) {
-                    x1 = array[0];
-                }
-                if (array[2] > x2) {
-                    x2 = array[2];
-                }
+        double x1 = lines.get(0)[0];
+        double x2 = 0;
+        for (double[] array : lines) {
+            if (array[0] < x1) {
+                x1 = array[0];
             }
-            return new HorizontalLineCoordinate(x1, x2, 0);
+            if (array[2] > x2) {
+                x2 = array[2];
+            }
+        }
+        return new HorizontalLineCoordinate(x1, x2, 0);
     }
 
     public List<double[]> findVerticalLinesWithOpenCV(String fileSource) {
@@ -218,10 +219,15 @@ public class RectangleDetector {
     private List<double[]> findHorizontalLinesWithOpenCV(String fileSource) {
         Mat dst = new Mat();
         Mat cdst = new Mat();
+        Mat source = new Mat();
         OpenCV.loadLocally();
-        Mat source = Imgcodecs.imread(fileSource, Imgcodecs.IMREAD_GRAYSCALE);
+        if (fileSource != null) {
+            source = Imgcodecs.imread(fileSource, Imgcodecs.IMREAD_GRAYSCALE);
+        }
         Imgproc.Canny(source, dst, ALL_LINES_THRESHOLD1, ALL_LINES_THRESHOLD2, ALL_LINES_APERTURESIZE, false);
-        Imgcodecs.imwrite("afterCannyRect.png", dst);
+        if (!dst.empty()) {
+            Imgcodecs.imwrite("afterCannyRect.png", dst);
+        }
         Imgproc.cvtColor(dst, cdst, Imgproc.COLOR_GRAY2BGR);
         Mat linesP = new Mat();
         Imgproc.HoughLinesP(dst, linesP, ALL_LINES_RHO, Math.PI / 2, HORIZONTAL_THRESHOLD,
