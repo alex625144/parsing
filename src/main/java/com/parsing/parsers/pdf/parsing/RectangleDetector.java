@@ -219,24 +219,29 @@ public class RectangleDetector {
     private List<double[]> findHorizontalLinesWithOpenCV(String fileSource) {
         Mat dst = new Mat();
         Mat cdst = new Mat();
-        Mat source = new Mat();
+        Mat source;
         OpenCV.loadLocally();
         if (fileSource != null) {
             source = Imgcodecs.imread(fileSource, Imgcodecs.IMREAD_GRAYSCALE);
+            Imgproc.Canny(source, dst, ALL_LINES_THRESHOLD1, ALL_LINES_THRESHOLD2, ALL_LINES_APERTURESIZE, false);
+            if (!dst.empty()) {
+                return new ArrayList<>();
+            } else {
+                Imgcodecs.imwrite("findhorizontalines_afterCannyRect.png", dst);
+                Imgproc.cvtColor(dst, cdst, Imgproc.COLOR_GRAY2BGR);
+                Mat linesP = new Mat();
+                Imgproc.HoughLinesP(dst, linesP, ALL_LINES_RHO, Math.PI / 2, HORIZONTAL_THRESHOLD,
+                        RectangleDetector.HORIZONTAL_LINE_LENGTH, ALL_LINES_MAXLINEGAP);
+                List<double[]> lines = new ArrayList<>();
+                for (int x = 0; x < linesP.rows(); x++) {
+                    double[] l = linesP.get(x, 0);
+                    lines.add(l);
+                }
+                return lines;
+            }
+        } else {
+            log.debug("Filesource is null.");
+            return new ArrayList<>();
         }
-        Imgproc.Canny(source, dst, ALL_LINES_THRESHOLD1, ALL_LINES_THRESHOLD2, ALL_LINES_APERTURESIZE, false);
-        if (!dst.empty()) {
-            Imgcodecs.imwrite("afterCannyRect.png", dst);
-        }
-        Imgproc.cvtColor(dst, cdst, Imgproc.COLOR_GRAY2BGR);
-        Mat linesP = new Mat();
-        Imgproc.HoughLinesP(dst, linesP, ALL_LINES_RHO, Math.PI / 2, HORIZONTAL_THRESHOLD,
-                RectangleDetector.HORIZONTAL_LINE_LENGTH, ALL_LINES_MAXLINEGAP);
-        List<double[]> lines = new ArrayList<>();
-        for (int x = 0; x < linesP.rows(); x++) {
-            double[] l = linesP.get(x, 0);
-            lines.add(l);
-        }
-        return lines;
     }
 }

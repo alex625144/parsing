@@ -32,7 +32,7 @@ import java.util.List;
 @Slf4j
 public class ParserPDF {
 
-    private static final double OFFSET = 5;
+    private static final double OFFSET = 10;
     private static final double[] RGB_WHITE_COLOUR = {255, 255, 255};
     private static final String DIR_TO_READ_TESSDATA = "/tessdata/";
     private static final int PAGES_FOR_PARSE = 2;
@@ -46,7 +46,7 @@ public class ParserPDF {
     private List<Row> table = new ArrayList<>();
 
     public String parseProzorroFile(MultipartFile file) throws IOException {
-        log.debug("Class ParserPDF.parseProzorroFile started");
+        log.debug("Method parseProzorroFile started");
         OpenCV.loadLocally();
         JSONObject obj = new JSONObject();
         PDDocument document = PDDocument.load(file.getBytes());
@@ -56,7 +56,7 @@ public class ParserPDF {
             if (tableRecognizer.isTableExistOnPage(prePage)) {
                 log.debug("Found table on page " + page);
                 List<double[]> lines = rectangleDetector.findVerticalLinesWithOpenCV(prePage);
-                log.debug("Quantity of lines = " + lines.size());
+                log.debug("Vertical lines founded = " + lines.size());
                 List<double[]> tablesLines = tableDetector.detectQuantityOfTables(lines);
                 rectangleDetector.saveIMageWithVerticalLines2(tablesLines);
                 String fileTableName = tableRecognizer.detectTable(prePage);
@@ -75,12 +75,12 @@ public class ParserPDF {
                 log.debug("Table did not found on page " + page);
             }
         }
-        log.debug("Class ParserPDF.parseProzorroFile started");
+        log.debug("Method parseProzorroFile started");
         return obj.toString();
     }
 
     public boolean parseProzorroFileForScheduler(File file) throws IOException {
-        log.debug("Class ParserPDF.parseProzorroFileForScheduler started");
+        log.debug("Method parseProzorroFileForScheduler started");
         OpenCV.loadLocally();
         try (PDDocument document = PDDocument.load(file)) {
             for (int page = document.getNumberOfPages() - PAGES_FOR_PARSE; page < document.getNumberOfPages(); page++) {
@@ -96,15 +96,16 @@ public class ParserPDF {
                     table = extractTextFromScannedDocument(fileTableName);
                     boolean isRecognized = dataRecognizer.recognizeLotPDFResult(table);
                     if (isRecognized) {
-                        log.debug("Class ParserPDF.parseProzorroFileForScheduler finished");
+                        log.debug("Method parseProzorroFileForScheduler finished successful");
                         return true;
                     }
                 } else {
                     log.debug("Table did not found on page " + page);
+                    log.debug("Method parseProzorroFileForSheduler finished fail");
                 }
             }
         }
-        log.debug("Class ParserPDF.parseProzorroFileForScheduler finished");
+        log.debug("Method parseProzorroFileForScheduler finished");
         return false;
     }
 

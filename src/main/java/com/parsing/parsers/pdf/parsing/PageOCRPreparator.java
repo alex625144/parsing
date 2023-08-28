@@ -43,10 +43,10 @@ public class PageOCRPreparator {
     private static final double[] RGB_WHITE_COLOUR = {255, 255, 255};
 
     public String preparePage(PDDocument document, int page) throws IOException {
-        log.debug("Class PageOCRPreparator started.");
-        String fileResult = "preparePage" + page + ".png";
+        log.debug("Method pageOCRPreparator started.");
+        String fileResult = "pageOCRPreparator_result_page_" + page + ".png";
         String pagePDF = getPagePDF(document, page);
-        String rotatedPage = rotationImage.rotate(pagePDF);
+        String rotatedPage = rotationImage.rotateImage(pagePDF);
         Rectangle pageRectangle = getPageMainRectangle(document, page);
         Mat tableMat = Imgcodecs.imread(rotatedPage);
         Mat matPage = cleanTableBorders(tableMat, pageRectangle);
@@ -57,7 +57,7 @@ public class PageOCRPreparator {
         final Rectangle mainPageRectangle = findMainPageRectangle(rectanglesWithSymbols);
         final Mat result = cleanTableBorders(matPage, mainPageRectangle);
         Imgcodecs.imwrite(fileResult, result);
-        log.debug("Class PageOCRPreparator finished.");
+        log.debug("Method PageOCRPreparator finished.");
         return fileResult;
     }
 
@@ -77,7 +77,7 @@ public class PageOCRPreparator {
                     e.printStackTrace();
                 }
                 if (resultTemp.matches(REGEX)) {
-                    log.debug("OK " + resultTemp);
+                    log.debug(resultTemp);
                     result.add(rectangle);
                 } else {
                     log.debug(resultTemp);
@@ -237,7 +237,7 @@ public class PageOCRPreparator {
         return result;
     }
 
-    private String saveRectanglesOnImage(List<Rectangle> rectangles, String filenameImage) {
+    public static String saveRectanglesOnImage(List<Rectangle> rectangles, String filenameImage) {
         String filenameResult = null;
         if (rectangles.size() > 0) {
             Mat matrix = Imgcodecs.imread(filenameImage);
