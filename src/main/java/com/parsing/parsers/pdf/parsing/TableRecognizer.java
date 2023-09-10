@@ -27,7 +27,7 @@ public class TableRecognizer {
     private static double x2 = 0;
     private static double y2 = 0;
     private static double y3 = 1500;
-    private static int POWER_TWO = 2;
+    private static final int POWER_TWO = 2;
 
     private static Rect createRect(double x1, double y1, double x2, double y2, double y3) {
         double width = Math.sqrt(Math.pow((x2 - x1), POWER_TWO) + Math.pow((y2 - y1), POWER_TWO));
@@ -70,7 +70,7 @@ public class TableRecognizer {
         log.debug("Class TableRecognizer.detectTable started.");
         try {
             OpenCV.loadLocally();
-            Mat dst = new Mat(), cdst = new Mat(), cdstP, cropTable = new Mat();
+            Mat dst = new Mat(), cdst = new Mat(), cdstP, cropTable;
             Mat source = Imgcodecs.imread(fileSource, Imgcodecs.IMREAD_GRAYSCALE);
             Imgproc.Canny(source, dst, 50, 200, 3, false);
             Imgcodecs.imwrite("afterCanny.png", dst);

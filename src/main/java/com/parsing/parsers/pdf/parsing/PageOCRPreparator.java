@@ -117,12 +117,11 @@ public class PageOCRPreparator {
         ITesseract itesseract = new Tesseract();
         itesseract.setDatapath(getTessDataPath());
         itesseract.setLanguage("ukr+eng");
-        List<Word> result = new ArrayList<>();
-        BufferedImage bim = null;
+        List<Word> result;
         try {
             BufferedImage bufferedImage = pdfRenderer.renderImageWithDPI(pageNumber, 300, ImageType.RGB);
             result = itesseract.getWords(bufferedImage, ITessAPI.TessPageIteratorLevel.RIL_BLOCK);
-            if (result.size() > 0) {
+            if (!result.isEmpty()) {
                 rectangle = result.get(0).getBoundingBox().getBounds();
                 Mat matrix = Imgcodecs.imread(getPagePDF(document, pageNumber));
                 Imgproc.rectangle(
@@ -142,7 +141,7 @@ public class PageOCRPreparator {
 
     private Rectangle findMainPageRectangle(List<Rectangle> rectangles) {
 
-        if (rectangles.size() > 0) {
+        if (!rectangles.isEmpty()) {
             double xMin = rectangles.get(0).getX();
             double yMin = rectangles.get(0).getY();
             double xMax = rectangles.get(0).getX();
@@ -180,7 +179,6 @@ public class PageOCRPreparator {
         ITesseract itesseract = new Tesseract();
         itesseract.setDatapath(getTessDataPath());
         itesseract.setLanguage("ukr+eng");
-        BufferedImage bim = null;
         try {
             log.debug(getProjectPath() + filename);
             BufferedImage buf = ImageIO.read(new File(getProjectPath() + "\\" + filename));
@@ -194,7 +192,7 @@ public class PageOCRPreparator {
                 //log.debug(String.format("Box[%d]: x=%d, y=%d, w=%d, h=%d", i, rect.x, rect.y, rect.width, rect.height));
             }
 
-            if (result.size() > 0) {
+            if (!result.isEmpty()) {
                 Mat matrix = Imgcodecs.imread(filename);
                 for (Rectangle rectangle : result) {
                     rectangle = rectangle.getBounds();
@@ -238,7 +236,7 @@ public class PageOCRPreparator {
 
     private String saveRectanglesOnImage(List<Rectangle> rectangles, String filenameImage) {
         String filenameResult = null;
-        if (rectangles.size() > 0) {
+        if (!rectangles.isEmpty()) {
             Mat matrix = Imgcodecs.imread(filenameImage);
             for (Rectangle rectangle : rectangles) {
                 rectangle = rectangle.getBounds();

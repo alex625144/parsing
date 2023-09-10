@@ -93,7 +93,7 @@ public class DataRecognizer {
     }
 
     private void getPriceAndTotalPrice(List<String> prices) {
-        List<BigDecimal> bigDecimals = null;
+        List<BigDecimal> bigDecimals;
         try {
             bigDecimals = prices.stream().map(BigDecimal::new).toList();
         } catch (UnableToConvertPriceException exception) {
