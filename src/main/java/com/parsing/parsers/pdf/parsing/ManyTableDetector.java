@@ -16,17 +16,21 @@ public class ManyTableDetector {
     public List<double[]> detectQuantityOfTables(List<double[]> lines) {
         log.debug("Class ManyTable detector started.");
         final List<double[]> sortedLines = sortLinesByX(lines);
-        for (double[] line : sortedLines) {
-            log.debug(Arrays.toString(line));
+        try {
+            for (double[] line : sortedLines) {
+                log.debug(Arrays.toString(line));
+            }
+            final List<double[]> mergedLines1 = newMergeLines(sortedLines);
+            final List<double[]> mergedLines2 = newMergeLines(mergedLines1);
+            final List<double[]> mergedLines3 = newMergeLines(mergedLines2);
+            for (double[] line : mergedLines3) {
+                log.debug(Arrays.toString(line));
+            }
+            log.debug("Class ManyTable detector finished.");
+            return mergedLines3;
+        } catch (Exception e) {
+            throw new com.parsing.exception.ManyTableDetector(e);
         }
-        final List<double[]> mergedLines1 = newMergeLines(sortedLines);
-        final List<double[]> mergedLines2 = newMergeLines(mergedLines1);
-        final List<double[]> mergedLines3 = newMergeLines(mergedLines2);
-        for (double[] line : mergedLines3) {
-            log.debug(Arrays.toString(line));
-        }
-        log.debug("Class ManyTable detector finished.");
-        return mergedLines3;
     }
 
     private List<double[]> newMergeLines(List<double[]> lines) {

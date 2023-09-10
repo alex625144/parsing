@@ -1,5 +1,7 @@
 package com.parsing.parsers.pdf.parsing;
 
+import com.parsing.exception.parserPDFException.ParseProzorroFileException;
+import com.parsing.exception.parserPDFException.ParseProzorroFileForSchedulerException;
 import com.parsing.parsers.pdf.parsing.model.Column;
 import com.parsing.parsers.pdf.parsing.model.Row;
 import lombok.RequiredArgsConstructor;
@@ -45,44 +47,13 @@ public class ParserPDF {
 
     private List<Row> table = new ArrayList<>();
 
-    public String parseProzorroFile(MultipartFile file) throws IOException {
+    public String parseProzorroFile(MultipartFile file)  {
         log.debug("Class ParserPDF.parseProzorroFile started");
-        OpenCV.loadLocally();
         JSONObject obj = new JSONObject();
-        PDDocument document = PDDocument.load(file.getBytes());
+        try {
+            OpenCV.loadLocally();
+            PDDocument document = PDDocument.load(file.getBytes());
 
-        for (int page = document.getNumberOfPages() - PAGES_FOR_PARSE; page < document.getNumberOfPages(); page++) {
-            final String prePage = pageOCRPreparator.preparePage(document, page);
-            if (tableRecognizer.isTableExistOnPage(prePage)) {
-                log.debug("Found table on page " + page);
-                List<double[]> lines = rectangleDetector.findVerticalLinesWithOpenCV(prePage);
-                log.debug("Quantity of lines = " + lines.size());
-                List<double[]> tablesLines = tableDetector.detectQuantityOfTables(lines);
-                rectangleDetector.saveIMageWithVerticalLines2(tablesLines);
-                String fileTableName = tableRecognizer.detectTable(prePage);
-                table = rectangleDetector.detectRectangles(fileTableName);
-                table = extractTextFromScannedDocument(fileTableName);
-                dataRecognizer.recognizeLotPDFResult(table);
-                obj.put("fileName", file.getOriginalFilename());
-                StringBuilder builder = new StringBuilder();
-                for (Row row : table) {
-                    for (Column column : row.getColumns()) {
-                        builder.append(column.getParsingResult());
-                    }
-                }
-                obj.put("text", builder);
-            } else {
-                log.debug("Table did not found on page " + page);
-            }
-        }
-        log.debug("Class ParserPDF.parseProzorroFile started");
-        return obj.toString();
-    }
-
-    public boolean parseProzorroFileForScheduler(File file) throws IOException {
-        log.debug("Class ParserPDF.parseProzorroFileForScheduler started");
-        OpenCV.loadLocally();
-        try (PDDocument document = PDDocument.load(file)) {
             for (int page = document.getNumberOfPages() - PAGES_FOR_PARSE; page < document.getNumberOfPages(); page++) {
                 final String prePage = pageOCRPreparator.preparePage(document, page);
                 if (tableRecognizer.isTableExistOnPage(prePage)) {
@@ -94,18 +65,57 @@ public class ParserPDF {
                     String fileTableName = tableRecognizer.detectTable(prePage);
                     table = rectangleDetector.detectRectangles(fileTableName);
                     table = extractTextFromScannedDocument(fileTableName);
-                    boolean isRecognized = dataRecognizer.recognizeLotPDFResult(table);
-                    if (isRecognized) {
-                        log.debug("Class ParserPDF.parseProzorroFileForScheduler finished");
-                        return true;
+                    dataRecognizer.recognizeLotPDFResult(table);
+                    obj.put("fileName", file.getOriginalFilename());
+                    StringBuilder builder = new StringBuilder();
+                    for (Row row : table) {
+                        for (Column column : row.getColumns()) {
+                            builder.append(column.getParsingResult());
+                        }
                     }
+                    obj.put("text", builder);
                 } else {
                     log.debug("Table did not found on page " + page);
                 }
             }
+            log.debug("Class ParserPDF.parseProzorroFile started");
+            return obj.toString();
+        } catch (IOException e) {
+            throw new ParseProzorroFileException(e);
         }
-        log.debug("Class ParserPDF.parseProzorroFileForScheduler finished");
-        return false;
+    }
+
+    public boolean parseProzorroFileForScheduler(File file) {
+        log.debug("Class ParserPDF.parseProzorroFileForScheduler started");
+        OpenCV.loadLocally();
+        try {
+            try (PDDocument document = PDDocument.load(file)) {
+                for (int page = document.getNumberOfPages() - PAGES_FOR_PARSE; page < document.getNumberOfPages(); page++) {
+                    final String prePage = pageOCRPreparator.preparePage(document, page);
+                    if (tableRecognizer.isTableExistOnPage(prePage)) {
+                        log.debug("Found table on page " + page);
+                        List<double[]> lines = rectangleDetector.findVerticalLinesWithOpenCV(prePage);
+                        log.debug("Quantity of lines = " + lines.size());
+                        List<double[]> tablesLines = tableDetector.detectQuantityOfTables(lines);
+                        rectangleDetector.saveIMageWithVerticalLines2(tablesLines);
+                        String fileTableName = tableRecognizer.detectTable(prePage);
+                        table = rectangleDetector.detectRectangles(fileTableName);
+                        table = extractTextFromScannedDocument(fileTableName);
+                        boolean isRecognized = dataRecognizer.recognizeLotPDFResult(table);
+                        if (isRecognized) {
+                            log.debug("Class ParserPDF.parseProzorroFileForScheduler finished");
+                            return true;
+                        }
+                    } else {
+                        log.debug("Table did not found on page " + page);
+                    }
+                }
+            }
+            log.debug("Class ParserPDF.parseProzorroFileForScheduler finished");
+            return false;
+        } catch (IOException e) {
+            throw new ParseProzorroFileForSchedulerException(e);
+        }
     }
 
     private String getTessDataPath() {

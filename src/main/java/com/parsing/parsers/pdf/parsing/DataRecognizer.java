@@ -1,5 +1,6 @@
 package com.parsing.parsers.pdf.parsing;
 
+import com.parsing.exception.RecognizeLotPDFResultException;
 import com.parsing.exception.UnableToConvertPriceException;
 import com.parsing.parsers.pdf.parsing.model.Column;
 import com.parsing.parsers.pdf.parsing.model.Row;
@@ -37,28 +38,33 @@ public class DataRecognizer {
     public final boolean recognizeLotPDFResult(List<Row> rows) {
         log.debug("Class DataRecognizer started.");
         boolean result = false;
-        for (Row row : rows) {
-            if (isModelRow(row)) {
-                int modelColumnNumber = getModelColumnNumber(row);
-                List<String> amounts = new ArrayList<>();
-                List<String> prices = new ArrayList<>();
-                for (int x = modelColumnNumber; x < row.getColumns().size(); x++) {
-                    String amountTemp = findAmount(row.getColumns().get(x).getParsingResult());
-                    if (amountTemp != null) {
-                        amounts.add(amountTemp);
+        try {
+            for (Row row : rows) {
+                if (isModelRow(row)) {
+                    int modelColumnNumber = getModelColumnNumber(row);
+                    List<String> amounts = new ArrayList<>();
+                    List<String> prices = new ArrayList<>();
+                    for (int x = modelColumnNumber; x < row.getColumns().size(); x++) {
+                        String amountTemp = findAmount(row.getColumns().get(x).getParsingResult());
+                        if (amountTemp != null) {
+                            amounts.add(amountTemp);
+                        }
+                        String pricesTemp = findPrices(row.getColumns().get(x).getParsingResult());
+                        if (pricesTemp != null) {
+                            prices.add(pricesTemp);
+                        }
                     }
-                    String pricesTemp = findPrices(row.getColumns().get(x).getParsingResult());
-                    if (pricesTemp != null) {
-                        prices.add(pricesTemp);
-                    }
+                    getAmount(amounts);
+                    getPriceAndTotalPrice(prices);
+                    result = saveItems();
                 }
-                getAmount(amounts);
-                getPriceAndTotalPrice(prices);
-                result = saveItems();
             }
+            log.debug("Class DataRecognizer finished.");
+            return result;
         }
-        log.debug("Class DataRecognizer finished.");
-        return result;
+        catch (Exception e) {
+            throw new RecognizeLotPDFResultException(e);
+        }
     }
 
     private boolean saveItems() {

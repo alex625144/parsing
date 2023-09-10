@@ -1,5 +1,8 @@
 package com.parsing.parsers.pdf.parsing;
 
+import com.parsing.exception.rectangleDetectorException.DetectRectanglesException;
+import com.parsing.exception.rectangleDetectorException.ImageVerticalLinesException;
+import com.parsing.exception.rectangleDetectorException.VerticalLinesOpenCVException;
 import com.parsing.parsers.pdf.parsing.model.HorizontalLineCoordinate;
 import com.parsing.parsers.pdf.parsing.model.Row;
 import com.parsing.parsers.pdf.parsing.model.VerticalLineCoordinate;
@@ -37,25 +40,29 @@ public class RectangleDetector {
 
     public List<Row> detectRectangles(String fileSource) {
         log.debug("Class RectangleDetector started.");
-        List<double[]> horizontalLines = findHorizontalLinesWithOpenCV(fileSource);
-        if (horizontalLines.size()>2) {
-            List<Double> sortedHorizontalLines = sortLinesByY(horizontalLines);
-            List<Double> mergedHorizontalLines = mergeLines(sortedHorizontalLines);
-            HorizontalLineCoordinate horizontalLineCoordinate = findExtremeHorizontalTablePoints(horizontalLines);
-            List<HorizontalLineCoordinate> sortedHorizontalLinesCoordinates = formHorizontalLinesCoordinates(mergedHorizontalLines, horizontalLineCoordinate);
+        try {
+            List<double[]> horizontalLines = findHorizontalLinesWithOpenCV(fileSource);
+            if (horizontalLines.size()>2) {
+                List<Double> sortedHorizontalLines = sortLinesByY(horizontalLines);
+                List<Double> mergedHorizontalLines = mergeLines(sortedHorizontalLines);
+                HorizontalLineCoordinate horizontalLineCoordinate = findExtremeHorizontalTablePoints(horizontalLines);
+                List<HorizontalLineCoordinate> sortedHorizontalLinesCoordinates = formHorizontalLinesCoordinates(mergedHorizontalLines, horizontalLineCoordinate);
 
-            List<double[]> verticalLines = findVerticalLinesWithOpenCV(fileSource);
-            List<Double> sortedVerticalLines = sortLinesByX(verticalLines);
-            List<Double> mergedVerticalLines = mergeLines(sortedVerticalLines);
-            List<VerticalLineCoordinate> sortedVerticalLinesCoordinates = formVerticalLinesCoordinates(mergedVerticalLines, verticalLines);
+                List<double[]> verticalLines = findVerticalLinesWithOpenCV(fileSource);
+                List<Double> sortedVerticalLines = sortLinesByX(verticalLines);
+                List<Double> mergedVerticalLines = mergeLines(sortedVerticalLines);
+                List<VerticalLineCoordinate> sortedVerticalLinesCoordinates = formVerticalLinesCoordinates(mergedVerticalLines, verticalLines);
 
-            saveIMageWithVerticalLines(verticalLines);
-            saveAllLines(sortedVerticalLinesCoordinates, sortedHorizontalLinesCoordinates);
+                saveIMageWithVerticalLines(verticalLines);
+                saveAllLines(sortedVerticalLinesCoordinates, sortedHorizontalLinesCoordinates);
 
-            return tableProcessor.cropRectangles(sortedHorizontalLinesCoordinates, sortedVerticalLinesCoordinates);
+                return tableProcessor.cropRectangles(sortedHorizontalLinesCoordinates, sortedVerticalLinesCoordinates);
+            }
+            log.debug("Class RectangleDetector finished.");
+            return new ArrayList<>();
+        } catch (Exception e) {
+            throw new DetectRectanglesException(e);
         }
-        log.debug("Class RectangleDetector finished.");
-        return new ArrayList<>();
     }
 
     private List<VerticalLineCoordinate> formVerticalLinesCoordinates(List<Double> distinctPointsX, List<double[]> linesV) {
@@ -104,17 +111,25 @@ public class RectangleDetector {
     }
 
     public void saveIMageWithVerticalLines(List<double[]> linesV) {
-        for (double[] point : linesV) {
-            Imgproc.line(verticalLinesMat, new Point(point[0], point[1]), new Point(point[2], point[3]), new Scalar(0, 0, 255), 3, Imgproc.LINE_AA, 0);
+        try {
+            for (double[] point : linesV) {
+                Imgproc.line(verticalLinesMat, new Point(point[0], point[1]), new Point(point[2], point[3]), new Scalar(0, 0, 255), 3, Imgproc.LINE_AA, 0);
+            }
+            Imgcodecs.imwrite("rectVertical.png", verticalLinesMat);
+        } catch (Exception e) {
+            throw new ImageVerticalLinesException(e);
         }
-        Imgcodecs.imwrite("rectVertical.png", verticalLinesMat);
     }
 
     public void saveIMageWithVerticalLines2(List<double[]> linesV) {
-        for (double[] point : linesV) {
-            Imgproc.line(verticalLinesMat, new Point(point[0], point[1]), new Point(point[2], point[3]), new Scalar(0, 0, 255), 3, Imgproc.LINE_AA, 0);
+        try {
+            for (double[] point : linesV) {
+                Imgproc.line(verticalLinesMat, new Point(point[0], point[1]), new Point(point[2], point[3]), new Scalar(0, 0, 255), 3, Imgproc.LINE_AA, 0);
+            }
+            Imgcodecs.imwrite("rectVertical2.png", verticalLinesMat);
+        } catch (Exception e) {
+            throw new ImageVerticalLinesException(e);
         }
-        Imgcodecs.imwrite("rectVertical2.png", verticalLinesMat);
     }
 
     private void saveAllLines(List<VerticalLineCoordinate> verticalLine, List<HorizontalLineCoordinate> horizontalLines) {
@@ -197,22 +212,26 @@ public class RectangleDetector {
     public List<double[]> findVerticalLinesWithOpenCV(String fileSource) {
         Mat dst = new Mat();
         Mat cdst = new Mat();
-        OpenCV.loadLocally();
-        Mat source = Imgcodecs.imread(fileSource, Imgcodecs.IMREAD_GRAYSCALE);
-        Imgproc.Canny(source, dst, ALL_LINES_THRESHOLD1, ALL_LINES_THRESHOLD2, ALL_LINES_APERTURESIZE, false);
-        Imgcodecs.imwrite("afterCannyRect.png", dst);
-        Imgproc.cvtColor(dst, cdst, Imgproc.COLOR_GRAY2BGR);
-        verticalLinesMat = cdst.clone();
-        Mat linesP = new Mat();
-        Imgproc.HoughLinesP(dst, linesP, ALL_LINES_RHO, Math.PI, (int) ALL_LINES_THRESHOLD2,
-                RectangleDetector.VERTICAL_LINE_LENGTH, ALL_LINES_MAXLINEGAP);
-        List<double[]> lines = new ArrayList<>();
-        for (int x = 0; x < linesP.rows(); x++) {
-            double[] l = linesP.get(x, 0);
-            lines.add(l);
+        try {
+            OpenCV.loadLocally();
+            Mat source = Imgcodecs.imread(fileSource, Imgcodecs.IMREAD_GRAYSCALE);
+            Imgproc.Canny(source, dst, ALL_LINES_THRESHOLD1, ALL_LINES_THRESHOLD2, ALL_LINES_APERTURESIZE, false);
+            Imgcodecs.imwrite("afterCannyRect.png", dst);
+            Imgproc.cvtColor(dst, cdst, Imgproc.COLOR_GRAY2BGR);
+            verticalLinesMat = cdst.clone();
+            Mat linesP = new Mat();
+            Imgproc.HoughLinesP(dst, linesP, ALL_LINES_RHO, Math.PI, (int) ALL_LINES_THRESHOLD2,
+                    RectangleDetector.VERTICAL_LINE_LENGTH, ALL_LINES_MAXLINEGAP);
+            List<double[]> lines = new ArrayList<>();
+            for (int x = 0; x < linesP.rows(); x++) {
+                double[] l = linesP.get(x, 0);
+                lines.add(l);
+            }
+            Imgcodecs.imwrite("verticalLines.png", linesP);
+            return lines;
+        } catch (Exception e) {
+            throw new VerticalLinesOpenCVException(e);
         }
-        Imgcodecs.imwrite("verticalLines.png", linesP);
-        return lines;
     }
 
     private List<double[]> findHorizontalLinesWithOpenCV(String fileSource) {
