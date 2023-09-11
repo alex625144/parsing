@@ -8,11 +8,13 @@ import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.TesseractException;
 import net.sourceforge.tess4j.Word;
 import net.sourceforge.tess4j.util.Utils;
+import nu.pattern.OpenCV;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.ImageType;
 import org.apache.pdfbox.rendering.PDFRenderer;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
+import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
@@ -38,24 +40,35 @@ public class PageOCRPreparator {
     private static final String DIR_TO_READ_TESSDATA = "/tessdata/";
     private static final int MINIMAL_WIDTH_WORD_FOR_OCR = 3;
     private static final int THICKNESS_LINE = 5;
-    private static final double OFFSET = 5;
+    //private static final double OFFSET = 5; //harcode
     private static final String REGEX = ".*[А-ЩЬЮЯЄЇІа-щьюяєїі].*";
     private static final double[] RGB_WHITE_COLOUR = {255, 255, 255};
 
-    public String preparePage(PDDocument document, int page) throws IOException {
+    static final double HORIZONTAL_LINE_LENGTH = 700;
+    static final int HORIZONTAL_THRESHOLD = 5;
+    static final double ALL_LINES_THRESHOLD1 = 50;
+    static final double ALL_LINES_THRESHOLD2 = 200;
+    static final int ALL_LINES_APERTURESIZE = 3;
+    static final int ALL_LINES_RHO = 3;
+    static final int ALL_LINES_MAXLINEGAP = 5;
+    static final double VERTICAL_LINE_LENGTH = 100;
+
+    public String preparePage(PDDocument document, int pageNumber) throws IOException {
         log.debug("Method pageOCRPreparator started.");
-        String fileResult = "pageOCRPreparator_result_page_" + page + ".png";
-        String pagePDF = getPagePDF(document, page);
-        String rotatedPage = rotationImage.rotateImage(pagePDF);
-        Rectangle pageRectangle = getPageMainRectangle(document, page);
+        String fileResult = pageNumber + "_result_image.png";
+        String pagePDF = getPagePDF(document, pageNumber);
+        String rotatedPage = rotationImage.rotateImage(pagePDF, pageNumber);
+        java.util.List<Rectangle> pageRectanglesAllWords = getPageRectanglesAllWords(pageNumber + "_#2_rotatedImage.png");
+        List<Rectangle> rectanglesWithSymbols = extractTextFromRectangle(pageNumber + "_#2_rotatedImage.png", pageRectanglesAllWords);
+        saveRectanglesOnImage(rectanglesWithSymbols, pageNumber + "_#2_rotatedImage.png", pageNumber);
+        Rectangle mainPageRectangle = findMainPageRectangle(rectanglesWithSymbols);
+        List<double[]> verticalLinesWithOpenCV = findVerticalLinesWithOpenCV(pageNumber + "_#2_rotatedImage.png");
+
+        double offset = getOffset(mainPageRectangle, verticalLinesWithOpenCV);
+        mainPageRectangle = offset > 0 ? createMainRect(mainPageRectangle, offset) : mainPageRectangle;
+
         Mat tableMat = Imgcodecs.imread(rotatedPage);
-        Mat matPage = cleanTableBorders(tableMat, pageRectangle);
-        Imgcodecs.imwrite(page + ".png", matPage);
-        java.util.List<Rectangle> pageRectanglesAllWords = getPageRectanglesAllWords(page + ".png");
-        List<Rectangle> rectanglesWithSymbols = extractTextFromRectangle(page + ".png", pageRectanglesAllWords);
-        saveRectanglesOnImage(rectanglesWithSymbols, page + ".png");
-        final Rectangle mainPageRectangle = findMainPageRectangle(rectanglesWithSymbols);
-        final Mat result = cleanTableBorders(matPage, mainPageRectangle);
+        final Mat result = cleanTableBorders(tableMat, mainPageRectangle, pageNumber);
         Imgcodecs.imwrite(fileResult, result);
         log.debug("Method PageOCRPreparator finished.");
         return fileResult;
@@ -72,12 +85,12 @@ public class PageOCRPreparator {
             if (rectangle.getWidth() >= MINIMAL_WIDTH_WORD_FOR_OCR) {
                 String resultTemp = null;
                 try {
-                    resultTemp = itesseract.doOCR(new File(filename), rectangle).trim();
+                    resultTemp = itesseract.doOCR(new File(getProjectPath()+"\\"+filename), rectangle).trim();
                 } catch (TesseractException e) {
                     e.printStackTrace();
                 }
-                if (resultTemp.matches(REGEX)) {
-                    log.debug(resultTemp);
+                if (resultTemp != null && resultTemp.matches(REGEX)) {
+                    //log.debug(resultTemp);
                     result.add(rectangle);
                 } else {
                     log.debug(resultTemp);
@@ -99,7 +112,7 @@ public class PageOCRPreparator {
 
     private String getPagePDF(PDDocument document, int pageNumber) throws IOException {
         PDFRenderer pdfRenderer = new PDFRenderer(document);
-        String pagePDF = "getPagePDF.png";
+        String pagePDF = pageNumber + "_#1_getPagePDF.png";
         for (int page = 0; page < document.getNumberOfPages(); page++) {
             if (page == pageNumber) {
                 BufferedImage bim = pdfRenderer.renderImageWithDPI(page, 300, ImageType.GRAY);
@@ -132,7 +145,7 @@ public class PageOCRPreparator {
                         new Point(rectangle.getMaxX(), rectangle.getMinY()),
                         new Scalar(0, 0, 255),
                         THICKNESS_LINE);
-                String filename = pageNumber + "_PageMainRectangle.png";
+                String filename = pageNumber + "_#3_PageMainRectangle.png";
                 Imgcodecs.imwrite(filename, matrix);
             }
         } catch (IOException e) {
@@ -142,8 +155,7 @@ public class PageOCRPreparator {
     }
 
     private Rectangle findMainPageRectangle(List<Rectangle> rectangles) {
-
-        if (rectangles.size() > 0) {
+        if (!rectangles.isEmpty()) {
             double xMin = rectangles.get(0).getX();
             double yMin = rectangles.get(0).getY();
             double xMax = rectangles.get(0).getX();
@@ -165,12 +177,12 @@ public class PageOCRPreparator {
                     yMax = yCurrent;
                 }
             }
-            return createRect(xMin, yMin, xMax, yMin, yMax);
+            return createRect(xMin, yMin, xMax, yMin, yMax, 5);
         }
         return null;
     }
 
-    private static Rectangle createRect(double x1, double y1, double x2, double y2, double y3) {
+    private static Rectangle createRect(double x1, double y1, double x2, double y2, double y3, int OFFSET) {
         double width = Math.sqrt(Math.pow((x2 - x1), 2) + Math.pow((y2 - y1), 2)) * (1 + (OFFSET * 2 / 100));
         double height = Math.sqrt(Math.pow((y3 - y2), 2) * (1 + (OFFSET * 2 / 100)));
         return new Rectangle((int) (x1 - OFFSET * 2), (int) (y1 - OFFSET * 2), (int) width, (int) height);
@@ -183,7 +195,7 @@ public class PageOCRPreparator {
         itesseract.setLanguage("ukr+eng");
         BufferedImage bim = null;
         try {
-            log.debug(getProjectPath() + filename);
+            log.debug(getProjectPath() + "\\" + filename);
             BufferedImage buf = ImageIO.read(new File(getProjectPath() + "\\" + filename));
 
             int level = ITessAPI.TessPageIteratorLevel.RIL_WORD;
@@ -207,7 +219,7 @@ public class PageOCRPreparator {
                             THICKNESS_LINE);
                 }
 
-                String filename2 = filename + "_AllWords.png";
+                String filename2 = "AllWords" + filename;
                 Imgcodecs.imwrite(filename2, matrix);
             } else {
                 log.debug("Text not found on page.");
@@ -225,7 +237,7 @@ public class PageOCRPreparator {
         return currentPathPosition.toAbsolutePath().toString();
     }
 
-    private Mat cleanTableBorders(Mat image, Rectangle rectangle) {
+    private Mat cleanTableBorders(Mat image, Rectangle rectangle, int pageNumber) {
         Mat result = image.clone();
         for (int row = 0; row < image.rows(); row++) {
             for (int column = 0; column < image.cols(); column++) {
@@ -234,12 +246,13 @@ public class PageOCRPreparator {
                 }
             }
         }
+        Imgcodecs.imwrite(pageNumber + "_cleanTableBorders.png", result);
         return result;
     }
 
-    public static String saveRectanglesOnImage(List<Rectangle> rectangles, String filenameImage) {
+    public static String saveRectanglesOnImage(List<Rectangle> rectangles, String filenameImage, int pageNumber) {
         String filenameResult = null;
-        if (rectangles.size() > 0) {
+        if (!rectangles.isEmpty()) {
             Mat matrix = Imgcodecs.imread(filenameImage);
             for (Rectangle rectangle : rectangles) {
                 rectangle = rectangle.getBounds();
@@ -251,18 +264,64 @@ public class PageOCRPreparator {
                         THICKNESS_LINE);
             }
 
-            filenameResult = filenameImage + "saveRectanglesOnImage.png";
+            filenameResult = pageNumber+ "_#4_savedImage.png";
             Imgcodecs.imwrite(filenameResult, matrix);
         }
         return filenameResult;
     }
 
+    private static Rectangle createMainRect(Rectangle rectangle, double offset) {
+        log.debug("offset = " + offset);
+        double width = rectangle.width + offset * 2;
+        double height = rectangle.getHeight();
+        return new Rectangle((int) (rectangle.getX() - offset), rectangle.y, (int) width, (int) height);
+    }
+
     private boolean isTargetRectangle(Rectangle rectangle, int row, int column) {
-        double yLeftUp = rectangle.getY() + OFFSET;
-        double xLeftUp = rectangle.getX() + OFFSET;
-        double xRightDown = xLeftUp + rectangle.getWidth() - OFFSET;
-        double yRightDown = yLeftUp + rectangle.getHeight() - OFFSET;
+        double yLeftUp = rectangle.getY();
+        double xLeftUp = rectangle.getX();
+        double xRightDown = xLeftUp + rectangle.getWidth();
+        double yRightDown = yLeftUp + rectangle.getHeight();
         return xLeftUp < column && column < xRightDown && yLeftUp < row && row < yRightDown;
+    }
+
+    private double getOffset(Rectangle rectangle, List<double[]> list) {
+        double rightOffset;
+        double leftOffset;
+        double leftRectangleX = rectangle.getX();
+        double rightRectangeX = rectangle.getX() + rectangle.width;
+        double rightListX = list.get(0)[0];
+        double leftListX = list.get(0)[2];
+        for (double[] doubles : list) {
+            if (rightListX < doubles[0]) {
+                rightListX = doubles[0];
+            }
+            if (leftListX > doubles[2]) {
+                leftListX = doubles[2];
+            }
+        }
+        leftOffset = leftRectangleX > leftListX ? leftRectangleX - leftListX : 0;
+        rightOffset = rightListX > rightRectangeX ? rightListX - rightRectangeX : 0;
+        return Math.max(rightOffset, leftOffset);
+    }
+
+    private List<double[]> findVerticalLinesWithOpenCV(String fileSource) {
+        Mat dst = new Mat();
+        Mat cdst = new Mat();
+        OpenCV.loadLocally();
+        Mat source = Imgcodecs.imread(fileSource, Imgcodecs.IMREAD_GRAYSCALE);
+        Imgproc.Canny(source, dst, ALL_LINES_THRESHOLD1, ALL_LINES_THRESHOLD2, ALL_LINES_APERTURESIZE, false);
+        Imgproc.cvtColor(dst, cdst, Imgproc.COLOR_GRAY2BGR);
+        Mat linesP = new Mat();
+        Imgproc.HoughLinesP(dst, linesP, ALL_LINES_RHO, Math.PI, (int) ALL_LINES_THRESHOLD2,
+                RectangleDetector.VERTICAL_LINE_LENGTH, ALL_LINES_MAXLINEGAP);
+        List<double[]> lines = new ArrayList<>();
+        for (int x = 0; x < linesP.rows(); x++) {
+            double[] l = linesP.get(x, 0);
+            lines.add(l);
+        }
+        Imgcodecs.imwrite("verticalLines.png", linesP);
+        return lines;
     }
 }
 

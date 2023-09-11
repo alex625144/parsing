@@ -50,29 +50,33 @@ public class ParserPDF {
         OpenCV.loadLocally();
         JSONObject obj = new JSONObject();
         PDDocument document = PDDocument.load(file.getBytes());
-
         for (int page = document.getNumberOfPages() - PAGES_FOR_PARSE; page < document.getNumberOfPages(); page++) {
-            final String prePage = pageOCRPreparator.preparePage(document, page);
-            if (tableRecognizer.isTableExistOnPage(prePage)) {
-                log.debug("Found table on page " + page);
-                List<double[]> lines = rectangleDetector.findVerticalLinesWithOpenCV(prePage);
-                log.debug("Vertical lines founded = " + lines.size());
-                List<double[]> tablesLines = tableDetector.detectQuantityOfTables(lines);
-                rectangleDetector.saveIMageWithVerticalLines2(tablesLines);
-                String fileTableName = tableRecognizer.detectTable(prePage);
-                table = rectangleDetector.detectRectangles(fileTableName);
-                table = extractTextFromScannedDocument(fileTableName);
-                dataRecognizer.recognizeLotPDFResult(table);
-                obj.put("fileName", file.getOriginalFilename());
-                StringBuilder builder = new StringBuilder();
-                for (Row row : table) {
-                    for (Column column : row.getColumns()) {
-                        builder.append(column.getParsingResult());
+            try {
+                final String preparedPage = pageOCRPreparator.preparePage(document, page);
+                if (tableRecognizer.isTableExistOnPage(preparedPage)) {
+                    log.debug("Found table on page " + page);
+                    List<double[]> lines = rectangleDetector.findVerticalLinesWithOpenCV(preparedPage);
+                    log.debug("Vertical lines founded = " + lines.size());
+                    List<double[]> tablesLines = tableDetector.detectQuantityOfTables(lines);
+                    rectangleDetector.saveIMageWithVerticalLines2(tablesLines);
+                    String fileTableName = tableRecognizer.detectTable(preparedPage, page);
+                    table = rectangleDetector.detectRectangles(fileTableName);
+                    table = extractTextFromScannedDocument(fileTableName);
+                    dataRecognizer.recognizeLotPDFResult(table);
+                    obj.put("fileName", file.getOriginalFilename());
+                    StringBuilder builder = new StringBuilder();
+                    for (Row row : table) {
+                        for (Column column : row.getColumns()) {
+                            builder.append(column.getParsingResult());
+                        }
                     }
+                    obj.put("text", builder);
+                } else {
+                    log.debug("Table did not found on page " + page);
                 }
-                obj.put("text", builder);
-            } else {
-                log.debug("Table did not found on page " + page);
+            } catch (RuntimeException ex) {
+                ex.printStackTrace();
+                ex.getCause();
             }
         }
         log.debug("Method parseProzorroFile started");
@@ -91,7 +95,7 @@ public class ParserPDF {
                     log.debug("Quantity of lines = " + lines.size());
                     List<double[]> tablesLines = tableDetector.detectQuantityOfTables(lines);
                     rectangleDetector.saveIMageWithVerticalLines2(tablesLines);
-                    String fileTableName = tableRecognizer.detectTable(prePage);
+                    String fileTableName = tableRecognizer.detectTable(prePage, page);
                     table = rectangleDetector.detectRectangles(fileTableName);
                     table = extractTextFromScannedDocument(fileTableName);
                     boolean isRecognized = dataRecognizer.recognizeLotPDFResult(table);
@@ -119,6 +123,7 @@ public class ParserPDF {
     }
 
     private List<Row> extractTextFromScannedDocument(String fileTableName) {
+        if (fileTableName!=null) {
         ITesseract itesseract = new Tesseract();
         itesseract.setDatapath(getTessDataPath());
         itesseract.setLanguage("ukr+eng");
@@ -142,7 +147,8 @@ public class ParserPDF {
                 log.debug(filename + " = " + result);
             }
         }
-        return table;
+        return table;}
+        return new ArrayList<>();
     }
 
     private Mat cleanTableBorders(Mat image, Rectangle rectangle) {

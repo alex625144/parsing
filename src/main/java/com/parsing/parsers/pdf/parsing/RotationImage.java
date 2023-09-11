@@ -14,13 +14,13 @@ import java.io.IOException;
 @Slf4j
 public class RotationImage {
 
-    public String rotateImage(String filename) throws IOException {
+    public String rotateImage(String filename, int pageNumber) throws IOException {
         log.debug("Method rotateImage started.");
-        String result = "rotatedImage.jpg";
+        String result = pageNumber + "_#2_rotatedImage.png";
         BufferedImage image = ImageIO.read(new File(filename));
         ImageDeskew id = new ImageDeskew(image);
         image = ImageHelper.rotateImage(image, -id.getSkewAngle());
-        ImageIO.write(image, "jpg", new File(result));
+        ImageIO.write(image, "png", new File(result));
         log.debug("Method rotateImage finished.");
         return result;
     }
