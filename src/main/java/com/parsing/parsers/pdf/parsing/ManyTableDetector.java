@@ -61,12 +61,12 @@ public class ManyTableDetector {
         for (Double yUp : yUpList) {
             for (Double yDown : yDownList) {
                 if (yDown < yUp) {
-                    log.debug("Ydown " + yDown + " Yup" + yUp);
+                    //log.debug("Ydown " + yDown + " Yup" + yUp);
                     lineCrossover++;
                 }
             }
         }
-        log.debug("Line conversion = " + lineCrossover);
+        //log.debug("Line conversion = " + lineCrossover);
         return lineCrossover;
     }
 

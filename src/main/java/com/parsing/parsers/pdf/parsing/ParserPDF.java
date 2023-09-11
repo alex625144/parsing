@@ -55,12 +55,12 @@ public class ParserPDF {
                 final String preparedPage = pageOCRPreparator.preparePage(document, page);
                 if (tableRecognizer.isTableExistOnPage(preparedPage)) {
                     log.debug("Found table on page " + page);
-                    List<double[]> lines = rectangleDetector.findVerticalLinesWithOpenCV(preparedPage);
+                    List<double[]> lines = rectangleDetector.findVerticalLinesWithOpenCV(preparedPage, page);
                     log.debug("Vertical lines founded = " + lines.size());
                     List<double[]> tablesLines = tableDetector.detectQuantityOfTables(lines);
-                    rectangleDetector.saveIMageWithVerticalLines2(tablesLines);
+                    rectangleDetector.saveIMageWithVerticalLines2(tablesLines, page);
                     String fileTableName = tableRecognizer.detectTable(preparedPage, page);
-                    table = rectangleDetector.detectRectangles(fileTableName);
+                    table = rectangleDetector.detectRectangles(fileTableName, page);
                     table = extractTextFromScannedDocument(fileTableName);
                     dataRecognizer.recognizeLotPDFResult(table);
                     obj.put("fileName", file.getOriginalFilename());
@@ -91,12 +91,12 @@ public class ParserPDF {
                 final String prePage = pageOCRPreparator.preparePage(document, page);
                 if (tableRecognizer.isTableExistOnPage(prePage)) {
                     log.debug("Found table on page " + page);
-                    List<double[]> lines = rectangleDetector.findVerticalLinesWithOpenCV(prePage);
+                    List<double[]> lines = rectangleDetector.findVerticalLinesWithOpenCV(prePage, page);
                     log.debug("Quantity of lines = " + lines.size());
                     List<double[]> tablesLines = tableDetector.detectQuantityOfTables(lines);
-                    rectangleDetector.saveIMageWithVerticalLines2(tablesLines);
+                    rectangleDetector.saveIMageWithVerticalLines2(tablesLines, page);
                     String fileTableName = tableRecognizer.detectTable(prePage, page);
-                    table = rectangleDetector.detectRectangles(fileTableName);
+                    table = rectangleDetector.detectRectangles(fileTableName, page);
                     table = extractTextFromScannedDocument(fileTableName);
                     boolean isRecognized = dataRecognizer.recognizeLotPDFResult(table);
                     if (isRecognized) {

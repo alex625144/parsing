@@ -55,10 +55,10 @@ public class PageOCRPreparator {
 
     public String preparePage(PDDocument document, int pageNumber) throws IOException {
         log.debug("Method pageOCRPreparator started.");
-        String fileResult = pageNumber + "_result_image.png";
+        String fileResult = pageNumber + "_#6_prepared_page.png";
         String pagePDF = getPagePDF(document, pageNumber);
         String rotatedPage = rotationImage.rotateImage(pagePDF, pageNumber);
-        java.util.List<Rectangle> pageRectanglesAllWords = getPageRectanglesAllWords(pageNumber + "_#2_rotatedImage.png");
+        java.util.List<Rectangle> pageRectanglesAllWords = getPageRectanglesAllWords(pageNumber + "_#2_rotatedImage.png", pageNumber);
         List<Rectangle> rectanglesWithSymbols = extractTextFromRectangle(pageNumber + "_#2_rotatedImage.png", pageRectanglesAllWords);
         saveRectanglesOnImage(rectanglesWithSymbols, pageNumber + "_#2_rotatedImage.png", pageNumber);
         Rectangle mainPageRectangle = findMainPageRectangle(rectanglesWithSymbols);
@@ -93,7 +93,7 @@ public class PageOCRPreparator {
                     //log.debug(resultTemp);
                     result.add(rectangle);
                 } else {
-                    log.debug(resultTemp);
+                    //log.debug(resultTemp);
                 }
             }
         }
@@ -112,7 +112,7 @@ public class PageOCRPreparator {
 
     private String getPagePDF(PDDocument document, int pageNumber) throws IOException {
         PDFRenderer pdfRenderer = new PDFRenderer(document);
-        String pagePDF = pageNumber + "_#1_getPagePDF.png";
+        String pagePDF = pageNumber + "_#1_sourcePage.png";
         for (int page = 0; page < document.getNumberOfPages(); page++) {
             if (page == pageNumber) {
                 BufferedImage bim = pdfRenderer.renderImageWithDPI(page, 300, ImageType.GRAY);
@@ -145,7 +145,7 @@ public class PageOCRPreparator {
                         new Point(rectangle.getMaxX(), rectangle.getMinY()),
                         new Scalar(0, 0, 255),
                         THICKNESS_LINE);
-                String filename = pageNumber + "_#3_PageMainRectangle.png";
+                String filename = pageNumber + "_#4_PageMainRectangle.png";
                 Imgcodecs.imwrite(filename, matrix);
             }
         } catch (IOException e) {
@@ -188,7 +188,7 @@ public class PageOCRPreparator {
         return new Rectangle((int) (x1 - OFFSET * 2), (int) (y1 - OFFSET * 2), (int) width, (int) height);
     }
 
-    private List<Rectangle> getPageRectanglesAllWords(String filename) {
+    private List<Rectangle> getPageRectanglesAllWords(String filename, int pageNumber) {
         List<Rectangle> result = new ArrayList<>();
         ITesseract itesseract = new Tesseract();
         itesseract.setDatapath(getTessDataPath());
@@ -219,7 +219,7 @@ public class PageOCRPreparator {
                             THICKNESS_LINE);
                 }
 
-                String filename2 = "AllWords" + filename;
+                String filename2 = pageNumber + "_#3_allWordsOnPage.png";
                 Imgcodecs.imwrite(filename2, matrix);
             } else {
                 log.debug("Text not found on page.");
@@ -246,7 +246,7 @@ public class PageOCRPreparator {
                 }
             }
         }
-        Imgcodecs.imwrite(pageNumber + "_cleanTableBorders.png", result);
+        Imgcodecs.imwrite(pageNumber + "_#5_cleanTableBorders.png", result);
         return result;
     }
 
@@ -320,7 +320,6 @@ public class PageOCRPreparator {
             double[] l = linesP.get(x, 0);
             lines.add(l);
         }
-        Imgcodecs.imwrite("verticalLines.png", linesP);
         return lines;
     }
 }

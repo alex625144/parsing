@@ -45,7 +45,6 @@ public class TableRecognizer {
         Mat dst = new Mat(), cdst = new Mat(), cdstP, cropTable = new Mat();
         Mat source = Imgcodecs.imread(fileSource, Imgcodecs.IMREAD_GRAYSCALE);
         Imgproc.Canny(source, dst, 50, 200, 3, false);
-        Imgcodecs.imwrite("IsTableExistOnPage_afterCanny.png", dst);
         Imgproc.cvtColor(dst, cdst, Imgproc.COLOR_GRAY2BGR);
         cdstP = cdst.clone();
         Mat linesP = new Mat();
@@ -72,7 +71,7 @@ public class TableRecognizer {
         Mat dst = new Mat(), cdst = new Mat(), cdstP, cropTable = new Mat();
         Mat source = Imgcodecs.imread(fileSource, Imgcodecs.IMREAD_GRAYSCALE);
         Imgproc.Canny(source, dst, 50, 200, 3, false);
-        Imgcodecs.imwrite(page + "_afterCanny.png", dst);
+        Imgcodecs.imwrite(page + "_#7_afterCanny.png", dst);
         Imgproc.cvtColor(dst, cdst, Imgproc.COLOR_GRAY2BGR);
         cdstP = cdst.clone();
         Mat linesP = new Mat();
@@ -102,21 +101,16 @@ public class TableRecognizer {
             }
 
         }
-        Imgcodecs.imwrite(page + "_afterHough.png", cdstP);
+        Imgcodecs.imwrite(page + "_#8_afterHough.png", cdstP);
         log.debug("x1 = {}; y1 = {}; x2 = {}; y2={}, y3={}", x1, y1, x2, y2, y3);
         Rect rect = createRect(x1, y1, x2, y2, y3);
         try {
-            if (isImageConsistRectangle(rect, source)){
-                cropTable = new Mat(source, rect);
-                String fileResult = page + "_destination.png";
+                Rect rectNew = isImageConsistRectangle(rect, source);
+                cropTable = new Mat(source, rectNew);
+                String fileResult = page + "_#10_destination.png";
                 Imgcodecs.imwrite(fileResult, cropTable);
                 log.debug("Method detectTable finished.");
                 return fileResult;
-            } else {
-                log.debug("Rectangle located over image.");
-                log.debug("Rectangle x = " + rect.x + " y = " + rect.y + " height = " + rect.height
-                        + " width = " + rect.width + " source size = " + source.size());
-            }
         } catch (Exception ex) {
             log.warn("Can't crop image. Rectangle x = " + rect.x + " y = " + rect.y + " height = " + rect.height
                     + " width = " + rect.width + " source size = " + source.size(), ex.getCause());
@@ -124,8 +118,14 @@ public class TableRecognizer {
         return null;
     }
 
-    private boolean isImageConsistRectangle(Rect rectangle, Mat image){
-        return (!(rectangle.x + rectangle.width > (double) image.width()))
-                && (!(rectangle.y + rectangle.height > (double) image.height()));
+    private Rect isImageConsistRectangle(Rect rectangle, Mat image){
+        if ((rectangle.x + rectangle.width >= (double) image.width())
+                && (rectangle.y + rectangle.height >= (double) image.height())) {
+            return rectangle;
+        } else{
+            x2 = image.width();
+            y3 = image.height() - rectangle.y;
+            return createRect(rectangle.x, rectangle.y, x2, rectangle.y, y3);
+        }
     }
 }
