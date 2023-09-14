@@ -212,7 +212,6 @@ public class RectangleDetector {
             double[] l = linesP.get(x, 0);
             lines.add(l);
         }
-        Imgcodecs.imwrite(pageNumber + "_#9_verticalLines.png", linesP);
         return lines;
     }
 

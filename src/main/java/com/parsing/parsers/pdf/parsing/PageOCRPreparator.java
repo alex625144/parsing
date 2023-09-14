@@ -58,7 +58,11 @@ public class PageOCRPreparator {
         String fileResult = pageNumber + "_#6_prepared_page.png";
         String pagePDF = getPagePDF(document, pageNumber);
         String rotatedPage = rotationImage.rotateImage(pagePDF, pageNumber);
-        java.util.List<Rectangle> pageRectanglesAllWords = getPageRectanglesAllWords(pageNumber + "_#2_rotatedImage.png", pageNumber);
+        List<Rect> rects = extractListRect(rotatedPage);
+        Mat image = Imgcodecs.imread(rotatedPage);
+        final Mat result2 = cleanAllBesidesRects(image, rects, pageNumber);
+        Imgcodecs.imwrite(pageNumber + "_#3_cleanAllBesidesRects.png", result2);
+        java.util.List<Rectangle> pageRectanglesAllWords = getPageRectanglesAllWords(pageNumber + "_#3_cleanAllBesidesRects.png", pageNumber);
         List<Rectangle> rectanglesWithSymbols = extractTextFromRectangle(pageNumber + "_#2_rotatedImage.png", pageRectanglesAllWords);
         saveRectanglesOnImage(rectanglesWithSymbols, pageNumber + "_#2_rotatedImage.png", pageNumber);
         Rectangle mainPageRectangle = findMainPageRectangle(rectanglesWithSymbols);
@@ -85,7 +89,7 @@ public class PageOCRPreparator {
             if (rectangle.getWidth() >= MINIMAL_WIDTH_WORD_FOR_OCR) {
                 String resultTemp = null;
                 try {
-                    resultTemp = itesseract.doOCR(new File(getProjectPath()+"\\"+filename), rectangle).trim();
+                    resultTemp = itesseract.doOCR(new File(getProjectPath() + "\\" + filename), rectangle).trim();
                 } catch (TesseractException e) {
                     e.printStackTrace();
                 }
@@ -264,7 +268,7 @@ public class PageOCRPreparator {
                         THICKNESS_LINE);
             }
 
-            filenameResult = pageNumber+ "_#4_savedImage.png";
+            filenameResult = pageNumber + "_#4_savedImage.png";
             Imgcodecs.imwrite(filenameResult, matrix);
         }
         return filenameResult;
@@ -283,6 +287,14 @@ public class PageOCRPreparator {
         double xRightDown = xLeftUp + rectangle.getWidth();
         double yRightDown = yLeftUp + rectangle.getHeight();
         return xLeftUp < column && column < xRightDown && yLeftUp < row && row < yRightDown;
+    }
+
+    private boolean isTargetRect(Rect rectangle, int row, int column) {
+        double yLeftUp = rectangle.y;
+        double xLeftUp = rectangle.x;
+        double xRightDown = xLeftUp + rectangle.width;
+        double yRightDown = yLeftUp + rectangle.height;
+        return xLeftUp <= column && column <= xRightDown && yLeftUp <= row && row <= yRightDown;
     }
 
     private double getOffset(Rectangle rectangle, List<double[]> list) {
@@ -321,6 +333,30 @@ public class PageOCRPreparator {
             lines.add(l);
         }
         return lines;
+    }
+
+    private List<Rect> extractListRect(String filesource) {
+        double WIDTH_PERCENT = 0.15;
+        Mat source = Imgcodecs.imread(filesource, Imgcodecs.IMREAD_GRAYSCALE);
+        double width = source.width();
+        double heigth = source.height();
+        Rect LeftRect = new Rect(0, 0, (int) (width * WIDTH_PERCENT), (int) heigth);
+        Rect RigthRect = new Rect((int) (width - width * WIDTH_PERCENT), 0,
+                (int) (width * WIDTH_PERCENT), (int) heigth);
+        return List.of(LeftRect, RigthRect);
+    }
+
+    private Mat cleanAllBesidesRects(Mat image, List<Rect> rectangles, int pageNumber) {
+        Mat result = image.clone();
+        for (int row = 0; row < image.rows(); row++) {
+            for (int column = 0; column < image.cols(); column++) {
+                if (!isTargetRect(rectangles.get(0), row, column) &&
+                        !isTargetRect(rectangles.get(1), row, column)) {
+                    result.put(row, column, RGB_WHITE_COLOUR);
+                }
+            }
+        }
+        return result;
     }
 }
 
