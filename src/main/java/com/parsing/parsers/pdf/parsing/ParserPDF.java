@@ -108,18 +108,19 @@ public class ParserPDF {
                     log.debug("Method parseProzorroFileForSheduler finished fail");
                 }
             }
+            log.debug("Method parseProzorroFileForScheduler finished");
         }
         log.debug("Method parseProzorroFileForScheduler finished");
         return false;
     }
 
     private String getTessDataPath() {
-        Path currentPathPosition = Paths.get("").toAbsolutePath();
-        File pdfDir = new File(currentPathPosition + DIR_TO_READ_TESSDATA);
-        if (!pdfDir.exists()) {
-            pdfDir.mkdir();
-        }
-        return currentPathPosition.toAbsolutePath() + DIR_TO_READ_TESSDATA;
+            Path currentPathPosition = Paths.get("").toAbsolutePath();
+            File pdfDir = new File(currentPathPosition + DIR_TO_READ_TESSDATA);
+            if (!pdfDir.exists()) {
+                pdfDir.mkdir();
+            }
+            return currentPathPosition.toAbsolutePath() + DIR_TO_READ_TESSDATA;
     }
 
     private List<Row> extractTextFromScannedDocument(String fileTableName) {
