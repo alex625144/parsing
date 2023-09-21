@@ -26,7 +26,7 @@ public class RotationImage {
             log.debug("Class RotationImage finished.");
             return result;
         } catch (IOException e) {
-            throw new RotationImageException(e);
+            throw new RotationImageException("Rotation of image failed", e);
         }
     }
 }

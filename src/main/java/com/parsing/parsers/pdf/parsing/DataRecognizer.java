@@ -61,9 +61,8 @@ public class DataRecognizer {
             }
             log.debug("Class DataRecognizer finished.");
             return result;
-        }
-        catch (Exception e) {
-            throw new RecognizeLotPDFResultException(e);
+        } catch (Exception e) {
+            throw new RecognizeLotPDFResultException("Not recognized LotPDFResult", e);
         }
     }
 

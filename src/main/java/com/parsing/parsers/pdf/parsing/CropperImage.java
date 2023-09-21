@@ -24,7 +24,7 @@ public class CropperImage {
             log.debug("Method cropImage finished.");
             return FILENAME;
         } catch (IOException e) {
-            throw new CropImageException(e);
+            throw new CropImageException("Crop image failed", e);
         }
     }
 }

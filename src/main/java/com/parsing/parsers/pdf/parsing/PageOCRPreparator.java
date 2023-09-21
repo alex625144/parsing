@@ -1,5 +1,6 @@
 package com.parsing.parsers.pdf.parsing;
 
+import com.parsing.exception.RotationImageException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.sourceforge.tess4j.ITessAPI;
@@ -19,7 +20,7 @@ import org.opencv.imgproc.Imgproc;
 import org.springframework.stereotype.Component;
 
 import javax.imageio.ImageIO;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -43,7 +44,8 @@ public class PageOCRPreparator {
     private static final double[] RGB_WHITE_COLOUR = {255, 255, 255};
 
     public String preparePage(PDDocument document, int page) throws IOException {
-            log.debug("Class PageOCRPreparator started.");
+        log.debug("Class PageOCRPreparator started.");
+        try {
             String fileResult = "preparePage" + page + ".png";
             String pagePDF = getPagePDF(document, page);
             String rotatedPage = rotationImage.rotate(pagePDF);
@@ -59,6 +61,9 @@ public class PageOCRPreparator {
             Imgcodecs.imwrite(fileResult, result);
             log.debug("Class PageOCRPreparator finished.");
             return fileResult;
+        } catch (IOException e) {
+            throw new RotationImageException("Rotation image failed", e);
+        }
     }
 
     private List<Rectangle> extractTextFromRectangle(String filename, List<Rectangle> rectangles) {

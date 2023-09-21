@@ -1,5 +1,6 @@
 package com.parsing.parsers.pdf.parsing;
 
+import com.parsing.exception.ManyTableDetectorException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -29,7 +30,7 @@ public class ManyTableDetector {
             log.debug("Class ManyTable detector finished.");
             return mergedLines3;
         } catch (Exception e) {
-            throw new com.parsing.exception.ManyTableDetector(e);
+            throw new ManyTableDetectorException("detected quantity of tables failed", e);
         }
     }
 
