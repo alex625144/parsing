@@ -76,7 +76,6 @@ public class TableRecognizer {
         cdstP = cdst.clone();
         Mat linesP = new Mat();
         Imgproc.HoughLinesP(dst, linesP, 1, Math.PI / 180, 25, 700, 10);
-        ///initialize
         double[] array = linesP.get(0, 0);
         x1 = array[0];
         y1 = array[1];

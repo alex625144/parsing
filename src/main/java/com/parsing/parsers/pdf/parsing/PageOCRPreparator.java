@@ -41,7 +41,6 @@ public class PageOCRPreparator {
     private static final String DIR_TO_READ_TESSDATA = "/tessdata/";
     private static final int MINIMAL_WIDTH_WORD_FOR_OCR = 3;
     private static final int THICKNESS_LINE = 5;
-    //private static final double OFFSET = 5; //harcode
     private static final String REGEX = ".*[А-ЩЬЮЯЄЇІа-щьюяєїі].*";
     private static final double[] RGB_WHITE_COLOUR = {255, 255, 255};
 
@@ -95,10 +94,7 @@ public class PageOCRPreparator {
                     e.printStackTrace();
                 }
                 if (resultTemp != null && resultTemp.matches(REGEX)) {
-                    //log.debug(resultTemp);
                     result.add(rectangle);
-                } else {
-                    //log.debug(resultTemp);
                 }
             }
         }
