@@ -7,6 +7,7 @@ import net.sourceforge.tess4j.ITesseract;
 import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.TesseractException;
 import net.sourceforge.tess4j.Word;
+import net.sourceforge.tess4j.util.LoadLibs;
 import net.sourceforge.tess4j.util.Utils;
 import nu.pattern.OpenCV;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -89,7 +90,7 @@ public class PageOCRPreparator {
             if (rectangle.getWidth() >= MINIMAL_WIDTH_WORD_FOR_OCR) {
                 String resultTemp = null;
                 try {
-                    resultTemp = itesseract.doOCR(new File(getProjectPath() + "\\" + filename), rectangle).trim();
+                    resultTemp = itesseract.doOCR(new File(getProjectPath() + "/" + filename), rectangle).trim();
                 } catch (TesseractException e) {
                     e.printStackTrace();
                 }
@@ -193,14 +194,15 @@ public class PageOCRPreparator {
     }
 
     private List<Rectangle> getPageRectanglesAllWords(String filename, int pageNumber) {
+
         List<Rectangle> result = new ArrayList<>();
         ITesseract itesseract = new Tesseract();
         itesseract.setDatapath(getTessDataPath());
         itesseract.setLanguage("ukr+eng");
         BufferedImage bim = null;
         try {
-            log.debug(getProjectPath() + "\\" + filename);
-            BufferedImage buf = ImageIO.read(new File(getProjectPath() + "\\" + filename));
+            log.debug(getProjectPath() + "/" + filename);
+            BufferedImage buf = ImageIO.read(new File(getProjectPath() + "/" + filename));
 
             int level = ITessAPI.TessPageIteratorLevel.RIL_WORD;
 

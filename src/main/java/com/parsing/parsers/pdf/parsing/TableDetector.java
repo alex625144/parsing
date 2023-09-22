@@ -22,9 +22,6 @@ public class TableDetector {
         final List<double[]> mergedLines1 = newMergeLines(sortedLines);
         final List<double[]> mergedLines2 = newMergeLines(mergedLines1);
         final List<double[]> mergedLines3 = newMergeLines(mergedLines2);
-//        for (double[] line : mergedLines3) {
-//            log.debug(Arrays.toString(line));
-//        }
         log.debug("Method detectQuantityOfTables started.");
         return mergedLines3;
     }
