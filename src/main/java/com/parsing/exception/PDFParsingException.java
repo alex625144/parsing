@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
 public class PDFParsingException extends RuntimeException {
 
-    public PDFParsingException(String message) {
-        super(message);
+    public PDFParsingException(String message, Throwable cause) {
+        super(message, cause);
     }
 }

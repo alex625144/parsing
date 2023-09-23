@@ -62,7 +62,7 @@ public class TableRecognizer {
                 return false;
             }
         } catch (Exception e) {
-            throw new TableExistException(e);
+            throw new TableExistException("Table doesn't exist on page", e);
         }
     }
 
@@ -106,11 +106,11 @@ public class TableRecognizer {
                 return fileResult;
             } catch (Exception ex) {
                 log.warn("Can't crop image. Rectangle x = " + rectangle.x + " y = " + rectangle.y + " height = " + rectangle.height
-                        + " width = " + rectangle.width + " source size = " + source.size(),  ex.getCause());
+                        + " width = " + rectangle.width + " source size = " + source.size(), ex.getCause());
             }
             return null;
         } catch (Exception e) {
-            throw new DetectTableException(e);
+            throw new DetectTableException("Table doesn't detected on page",e);
         }
     }
 }

@@ -42,7 +42,7 @@ public class RectangleDetector {
         log.debug("Class RectangleDetector started.");
         try {
             List<double[]> horizontalLines = findHorizontalLinesWithOpenCV(fileSource);
-            if (horizontalLines.size()>2) {
+            if (horizontalLines.size() > 2) {
                 List<Double> sortedHorizontalLines = sortLinesByY(horizontalLines);
                 List<Double> mergedHorizontalLines = mergeLines(sortedHorizontalLines);
                 HorizontalLineCoordinate horizontalLineCoordinate = findExtremeHorizontalTablePoints(horizontalLines);
@@ -61,7 +61,7 @@ public class RectangleDetector {
             log.debug("Class RectangleDetector finished.");
             return new ArrayList<>();
         } catch (Exception e) {
-            throw new DetectRectanglesException(e);
+            throw new DetectRectanglesException("Detecting rectangles failed.", e);
         }
     }
 
@@ -117,7 +117,7 @@ public class RectangleDetector {
             }
             Imgcodecs.imwrite("rectVertical.png", verticalLinesMat);
         } catch (Exception e) {
-            throw new ImageVerticalLinesException(e);
+            throw new ImageVerticalLinesException("Image vertical lines saving failed", e);
         }
     }
 
@@ -128,7 +128,7 @@ public class RectangleDetector {
             }
             Imgcodecs.imwrite("rectVertical2.png", verticalLinesMat);
         } catch (Exception e) {
-            throw new ImageVerticalLinesException(e);
+            throw new ImageVerticalLinesException("Image vertical lines saving failed", e);
         }
     }
 
@@ -196,17 +196,17 @@ public class RectangleDetector {
     }
 
     private HorizontalLineCoordinate findExtremeHorizontalTablePoints(List<double[]> lines) {
-            double x1 = lines.get(0)[0];
-            double x2 = 0;
-            for (double[] array : lines) {
-                if (array[0] < x1) {
-                    x1 = array[0];
-                }
-                if (array[2] > x2) {
-                    x2 = array[2];
-                }
+        double x1 = lines.get(0)[0];
+        double x2 = 0;
+        for (double[] array : lines) {
+            if (array[0] < x1) {
+                x1 = array[0];
             }
-            return new HorizontalLineCoordinate(x1, x2, 0);
+            if (array[2] > x2) {
+                x2 = array[2];
+            }
+        }
+        return new HorizontalLineCoordinate(x1, x2, 0);
     }
 
     public List<double[]> findVerticalLinesWithOpenCV(String fileSource) {
@@ -230,7 +230,7 @@ public class RectangleDetector {
             Imgcodecs.imwrite("verticalLines.png", linesP);
             return lines;
         } catch (Exception e) {
-            throw new VerticalLinesOpenCVException(e);
+            throw new VerticalLinesOpenCVException("Vertical lines with openCV not find", e);
         }
     }
 

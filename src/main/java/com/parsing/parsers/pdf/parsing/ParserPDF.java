@@ -47,7 +47,7 @@ public class ParserPDF {
 
     private List<Row> table = new ArrayList<>();
 
-    public String parseProzorroFile(MultipartFile file)  {
+    public String parseProzorroFile(MultipartFile file) {
         log.debug("Class ParserPDF.parseProzorroFile started");
         JSONObject obj = new JSONObject();
         try {
@@ -81,7 +81,7 @@ public class ParserPDF {
             log.debug("Class ParserPDF.parseProzorroFile started");
             return obj.toString();
         } catch (IOException e) {
-            throw new ParseProzorroFileException(e);
+            throw new ParseProzorroFileException("parsing multipartfile of prozorro failed.", e);
         }
     }
 
@@ -114,7 +114,7 @@ public class ParserPDF {
             log.debug("Class ParserPDF.parseProzorroFileForScheduler finished");
             return false;
         } catch (IOException e) {
-            throw new ParseProzorroFileForSchedulerException(e);
+            throw new ParseProzorroFileForSchedulerException("Parsing scheduler file failed.", e);
         }
     }
 

@@ -96,7 +96,7 @@ public class DataRecognizer {
         try {
             bigDecimals = prices.stream().map(BigDecimal::new).toList();
         } catch (UnableToConvertPriceException exception) {
-            throw new UnableToConvertPriceException("Price doesn't not converted");
+            throw new UnableToConvertPriceException("Price doesn't not converted", exception);
         }
         Optional<BigDecimal> min = bigDecimals.stream().min(Comparator.naturalOrder());
         Optional<BigDecimal> max = bigDecimals.stream().max(Comparator.naturalOrder());

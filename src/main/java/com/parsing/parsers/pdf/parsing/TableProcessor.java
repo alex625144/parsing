@@ -26,7 +26,7 @@ public class TableProcessor {
             log.debug("Class TableProcessor.createRectangle finished.");
             return new Rectangle((int) xLeftBottom, (int) yLeftBottom, (int) width, (int) height);
         } catch (Exception e) {
-            throw new TableProcessorException(e);
+            throw new TableProcessorException("Create rectangle failed.", e);
         }
     }
 
@@ -56,7 +56,7 @@ public class TableProcessor {
             log.debug("Class TableProcessor.cropRectangles finished.");
             return table;
         } catch (Exception e) {
-            throw new TableProcessorException(e);
+            throw new TableProcessorException("Crop rectangles failed.", e);
         }
     }
 }

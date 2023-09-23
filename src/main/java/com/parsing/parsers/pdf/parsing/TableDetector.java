@@ -30,7 +30,7 @@ public class TableDetector {
             log.debug("Class TableDetector finished.");
             return mergedLines3;
         } catch (Exception e) {
-            throw new TableDetectorException(e);
+            throw new TableDetectorException("Detect quantity of tables failed.", e);
         }
     }
 
