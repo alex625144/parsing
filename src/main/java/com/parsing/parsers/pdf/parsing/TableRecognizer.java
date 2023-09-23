@@ -14,6 +14,11 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.parsing.Constants.X1;
+import static com.parsing.Constants.X2;
+import static com.parsing.Constants.Y1;
+import static com.parsing.Constants.Y2;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -74,20 +79,20 @@ public class TableRecognizer {
         Imgproc.HoughLinesP(dst, linesP, 1, Math.PI / 180, 25, 700, 10);
         for (int x = 0; x < linesP.rows(); x++) {
             double[] l = linesP.get(x, 0);
-            Imgproc.line(cdstP, new Point(l[0], l[1]), new Point(l[2], l[3]), new Scalar(0, 0, 255), 3, Imgproc.LINE_AA, 0);
-            if (l[1] > y1) {
-                y1 = l[1];
-                x2 = l[2];
-                y2 = l[3];
+            Imgproc.line(cdstP, new Point(l[X1], l[Y1]), new Point(l[X2], l[Y2]), new Scalar(0, 0, 255), 3, Imgproc.LINE_AA, 0);
+            if (l[Y1] > y1) {
+                y1 = l[Y1];
+                x2 = l[X2];
+                y2 = l[Y2];
             }
-            if (l[1] < y3) {
-                y3 = l[1];
+            if (l[Y1] < y3) {
+                y3 = l[Y2];
             }
-            if (l[2] > x2) {
-                x2 = l[2];
+            if (l[X2] > x2) {
+                x2 = l[X2];
             }
-            if (l[0] < x1) {
-                x1 = l[0];
+            if (l[X1] < x1) {
+                x1 = l[X1];
             }
         }
         Imgcodecs.imwrite("afterHough.png", cdstP);
