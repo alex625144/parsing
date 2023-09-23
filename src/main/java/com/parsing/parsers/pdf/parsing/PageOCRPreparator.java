@@ -38,7 +38,7 @@ public class PageOCRPreparator {
 
     private final RotationImage rotationImage;
 
-    private static final String DIR_TO_READ_TESSDATA = "/tessdata/";
+    private static final String DIR_TO_READ_TESSDATA = File.separator + "tessdata" + File.separator;
     private static final int MINIMAL_WIDTH_WORD_FOR_OCR = 3;
     private static final int THICKNESS_LINE = 5;
     private static final String REGEX = ".*[А-ЩЬЮЯЄЇІа-щьюяєїі].*";
@@ -89,7 +89,7 @@ public class PageOCRPreparator {
             if (rectangle.getWidth() >= MINIMAL_WIDTH_WORD_FOR_OCR) {
                 String resultTemp = null;
                 try {
-                    resultTemp = itesseract.doOCR(new File(getProjectPath() + "/" + filename), rectangle).trim();
+                    resultTemp = itesseract.doOCR(new File(getProjectPath() + File.separator + filename), rectangle).trim();
                 } catch (TesseractException e) {
                     e.printStackTrace();
                 }
@@ -197,8 +197,8 @@ public class PageOCRPreparator {
         itesseract.setLanguage("ukr+eng");
         BufferedImage bim = null;
         try {
-            log.debug(getProjectPath() + "/" + filename);
-            BufferedImage buf = ImageIO.read(new File(getProjectPath() + "/" + filename));
+            log.debug(getProjectPath() + File.separator + filename);
+            BufferedImage buf = ImageIO.read(new File(getProjectPath() + File.separator + filename));
 
             int level = ITessAPI.TessPageIteratorLevel.RIL_WORD;
 
