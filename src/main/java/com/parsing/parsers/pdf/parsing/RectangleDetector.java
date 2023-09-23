@@ -16,6 +16,11 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.parsing.Constants.X1;
+import static com.parsing.Constants.X2;
+import static com.parsing.Constants.Y1;
+import static com.parsing.Constants.Y2;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -92,7 +97,7 @@ public class RectangleDetector {
     }
 
     private boolean isEqualsWithThreshold(Double distinctPointX, double[] coordinates) {
-        return (Math.abs(coordinates[0])) + OFFSET / 2 > distinctPointX && (Math.abs(coordinates[0])) - OFFSET / 2 < distinctPointX;
+        return (Math.abs(coordinates[X1])) + OFFSET / 2 > distinctPointX && (Math.abs(coordinates[X1])) - OFFSET / 2 < distinctPointX;
     }
 
     private List<HorizontalLineCoordinate> formHorizontalLinesCoordinates(List<Double> lines, HorizontalLineCoordinate horizontalLineCoordinate) {
@@ -105,14 +110,14 @@ public class RectangleDetector {
 
     public void saveIMageWithVerticalLines(List<double[]> linesV) {
         for (double[] point : linesV) {
-            Imgproc.line(verticalLinesMat, new Point(point[0], point[1]), new Point(point[2], point[3]), new Scalar(0, 0, 255), 3, Imgproc.LINE_AA, 0);
+            Imgproc.line(verticalLinesMat, new Point(point[X1], point[Y1]), new Point(point[X2], point[Y2]), new Scalar(0, 0, 255), 3, Imgproc.LINE_AA, 0);
         }
         Imgcodecs.imwrite("rectVertical.png", verticalLinesMat);
     }
 
     public void saveIMageWithVerticalLines2(List<double[]> linesV) {
         for (double[] point : linesV) {
-            Imgproc.line(verticalLinesMat, new Point(point[0], point[1]), new Point(point[2], point[3]), new Scalar(0, 0, 255), 3, Imgproc.LINE_AA, 0);
+            Imgproc.line(verticalLinesMat, new Point(point[X1], point[Y1]), new Point(point[X2], point[Y2]), new Scalar(0, 0, 255), 3, Imgproc.LINE_AA, 0);
         }
         Imgcodecs.imwrite("rectVertical2.png", verticalLinesMat);
     }
@@ -153,21 +158,21 @@ public class RectangleDetector {
     }
 
     private double[] sortListArray(List<double[]> lines) {
-        double minY = lines.get(0)[1];
+        double minY = lines.get(0)[Y1];
         double maxY = 0;
         double averageX = 0;
         for (double[] doubles : lines) {
-            if (minY > doubles[1]) {
-                minY = doubles[1];
-            } else if (maxY < doubles[1]) {
-                maxY = doubles[1];
+            if (minY > doubles[Y1]) {
+                minY = doubles[Y1];
+            } else if (maxY < doubles[Y1]) {
+                maxY = doubles[Y1];
             }
-            if (minY > doubles[3]) {
-                minY = doubles[3];
-            } else if (maxY < doubles[3]) {
-                maxY = doubles[3];
+            if (minY > doubles[Y2]) {
+                minY = doubles[Y2];
+            } else if (maxY < doubles[Y2]) {
+                maxY = doubles[Y2];
             }
-            averageX = (averageX + doubles[0]) / 2;
+            averageX = (averageX + doubles[X1]) / 2;
         }
         return new double[]{averageX, maxY, averageX, minY};
     }
@@ -175,20 +180,20 @@ public class RectangleDetector {
     private List<Double> sortLinesByX(List<double[]> lines) {
         List<Double> result = new ArrayList<>();
         for (double[] line : lines) {
-            result.add(line[0]);
+            result.add(line[X1]);
         }
         return result.stream().sorted().toList();
     }
 
     private HorizontalLineCoordinate findExtremeHorizontalTablePoints(List<double[]> lines) {
-            double x1 = lines.get(0)[0];
+            double x1 = lines.get(0)[X1];
             double x2 = 0;
             for (double[] array : lines) {
-                if (array[0] < x1) {
-                    x1 = array[0];
+                if (array[X1] < x1) {
+                    x1 = array[X1];
                 }
-                if (array[2] > x2) {
-                    x2 = array[2];
+                if (array[X2] > x2) {
+                    x2 = array[X2];
                 }
             }
             return new HorizontalLineCoordinate(x1, x2, 0);
