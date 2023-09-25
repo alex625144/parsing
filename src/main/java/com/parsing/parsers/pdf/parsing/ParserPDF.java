@@ -73,7 +73,7 @@ public class ParserPDF {
                     }
                     obj.put("text", builder);
                 } else {
-                    log.debug("Table did not found on page " + page);
+                    log.warn("Table did not found on page " + page);
                 }
             } catch (RuntimeException ex) {
                 ex.printStackTrace();

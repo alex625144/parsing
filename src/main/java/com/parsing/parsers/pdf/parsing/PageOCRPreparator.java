@@ -1,5 +1,6 @@
 package com.parsing.parsers.pdf.parsing;
 
+import com.parsing.Constants;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.sourceforge.tess4j.ITessAPI;
@@ -30,6 +31,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import static com.parsing.Constants.*;
 
 @Component
 @Slf4j
@@ -37,21 +39,16 @@ import java.util.List;
 public class PageOCRPreparator {
 
     private final RotationImage rotationImage;
-
     private static final String DIR_TO_READ_TESSDATA = File.separator + "tessdata" + File.separator;
     private static final int MINIMAL_WIDTH_WORD_FOR_OCR = 3;
     private static final int THICKNESS_LINE = 5;
     private static final String REGEX = ".*[А-ЩЬЮЯЄЇІа-щьюяєїі].*";
     private static final double[] RGB_WHITE_COLOUR = {255, 255, 255};
-
-    static final double HORIZONTAL_LINE_LENGTH = 700;
-    static final int HORIZONTAL_THRESHOLD = 5;
     static final double ALL_LINES_THRESHOLD1 = 50;
     static final double ALL_LINES_THRESHOLD2 = 200;
     static final int ALL_LINES_APERTURESIZE = 3;
     static final int ALL_LINES_RHO = 3;
     static final int ALL_LINES_MAXLINEGAP = 5;
-    static final double VERTICAL_LINE_LENGTH = 100;
 
     public String preparePage(PDDocument document, int pageNumber) throws IOException {
         log.debug("Method pageOCRPreparator started.");
@@ -178,7 +175,7 @@ public class PageOCRPreparator {
                     yMax = yCurrent;
                 }
             }
-            return createRect(xMin, yMin, xMax, yMin, yMax, 5);
+            return createRect(xMin, yMin, xMax, yMin, yMax, Constants.OFFSET);
         }
         return null;
     }
@@ -334,13 +331,12 @@ public class PageOCRPreparator {
     }
 
     private List<Rect> extractListRect(String filesource) {
-        double WIDTH_PERCENT = 0.15;
         Mat source = Imgcodecs.imread(filesource, Imgcodecs.IMREAD_GRAYSCALE);
         double width = source.width();
         double heigth = source.height();
-        Rect LeftRect = new Rect(0, 0, (int) (width * WIDTH_PERCENT), (int) heigth);
-        Rect RigthRect = new Rect((int) (width - width * WIDTH_PERCENT), 0,
-                (int) (width * WIDTH_PERCENT), (int) heigth);
+        Rect LeftRect = new Rect(0, 0, (int) (width * PERCENT_PAGE_FOR_OCR), (int) heigth);
+        Rect RigthRect = new Rect((int) (width - width * PERCENT_PAGE_FOR_OCR), 0,
+                (int) (width * PERCENT_PAGE_FOR_OCR), (int) heigth);
         return List.of(LeftRect, RigthRect);
     }
 

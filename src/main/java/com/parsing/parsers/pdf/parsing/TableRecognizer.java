@@ -15,6 +15,11 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.parsing.Constants.X1;
+import static com.parsing.Constants.X2;
+import static com.parsing.Constants.Y1;
+import static com.parsing.Constants.Y2;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -86,17 +91,17 @@ public class TableRecognizer {
         for (int x = 0; x < linesP.rows(); x++) {
             double[] l = linesP.get(x, 0);
             Imgproc.line(cdstP, new Point(l[0], l[1]), new Point(l[2], l[3]), new Scalar(0, 0, 255), 3, Imgproc.LINE_AA, 0);
-            if (l[0] < x1) {
-                x1 = l[0];
+            if (l[X1] < x1) {
+                x1 = l[X1];
             }
-            if (l[1] < y1) {
-                y1 = l[1];
+            if (l[Y1] < y1) {
+                y1 = l[Y1];
             }
-            if (l[2] > x2) {
-                x2 = l[2];
+            if (l[X2] > x2) {
+                x2 = l[X2];
             }
-            if (l[3] > y3) {
-                y3 = l[3];
+            if (l[Y2] > y3) {
+                y3 = l[Y2];
             }
 
         }
@@ -104,12 +109,12 @@ public class TableRecognizer {
         log.debug("x1 = {}; y1 = {}; x2 = {}; y2={}, y3={}", x1, y1, x2, y2, y3);
         Rect rect = createRect(x1, y1, x2, y2, y3);
         try {
-                Rect rectNew = isImageConsistRectangle(rect, source);
-                cropTable = new Mat(source, rectNew);
-                String fileResult = page + "_#10_destination.png";
-                Imgcodecs.imwrite(fileResult, cropTable);
-                log.debug("Method detectTable finished.");
-                return fileResult;
+            Rect rectNew = isImageConsistRectangle(rect, source);
+            cropTable = new Mat(source, rectNew);
+            String fileResult = page + "_#10_destination.png";
+            Imgcodecs.imwrite(fileResult, cropTable);
+            log.debug("Method detectTable finished.");
+            return fileResult;
         } catch (Exception ex) {
             log.warn("Can't crop image. Rectangle x = " + rect.x + " y = " + rect.y + " height = " + rect.height
                     + " width = " + rect.width + " source size = " + source.size(), ex.getCause());
@@ -117,11 +122,11 @@ public class TableRecognizer {
         return null;
     }
 
-    private Rect isImageConsistRectangle(Rect rectangle, Mat image){
+    private Rect isImageConsistRectangle(Rect rectangle, Mat image) {
         if ((rectangle.x + rectangle.width >= (double) image.width())
                 && (rectangle.y + rectangle.height >= (double) image.height())) {
             return rectangle;
-        } else{
+        } else {
             x2 = image.width();
             y3 = image.height() - rectangle.y;
             return createRect(rectangle.x, rectangle.y, x2, rectangle.y, y3);

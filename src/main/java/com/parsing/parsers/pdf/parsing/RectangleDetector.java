@@ -13,9 +13,14 @@ import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.parsing.Constants.X1;
+import static com.parsing.Constants.X2;
+import static com.parsing.Constants.Y1;
+import static com.parsing.Constants.Y2;
+import static com.parsing.Constants.PERCENT_HORIZONTAL_LINE_LENGTH;
 
 @Slf4j
 @Component
@@ -23,7 +28,6 @@ import java.util.List;
 public class RectangleDetector {
 
     static final Double OFFSET = 5.0;
-    static final double HORIZONTAL_LINE_LENGTH = 700;
     static final int HORIZONTAL_THRESHOLD = 5;
     static final double ALL_LINES_THRESHOLD1 = 50;
     static final double ALL_LINES_THRESHOLD2 = 200;
@@ -93,7 +97,7 @@ public class RectangleDetector {
     }
 
     private boolean isEqualsWithThreshold(Double distinctPointX, double[] coordinates) {
-        return (Math.abs(coordinates[0])) + OFFSET / 2 > distinctPointX && (Math.abs(coordinates[0])) - OFFSET / 2 < distinctPointX;
+        return (Math.abs(coordinates[X1])) + OFFSET / 2 > distinctPointX && (Math.abs(coordinates[X1])) - OFFSET / 2 < distinctPointX;
     }
 
     private List<HorizontalLineCoordinate> formHorizontalLinesCoordinates(List<Double> lines, HorizontalLineCoordinate horizontalLineCoordinate) {
@@ -106,14 +110,14 @@ public class RectangleDetector {
 
     public void saveIMageWithVerticalLines(List<double[]> linesV, int pageNumber) {
         for (double[] point : linesV) {
-            Imgproc.line(verticalLinesMat, new Point(point[0], point[1]), new Point(point[2], point[3]), new Scalar(0, 0, 255), 3, Imgproc.LINE_AA, 0);
+            Imgproc.line(verticalLinesMat, new Point(point[X1], point[Y1]), new Point(point[X2], point[Y2]), new Scalar(0, 0, 255), 3, Imgproc.LINE_AA, 0);
         }
         Imgcodecs.imwrite(pageNumber + "_#9_rectVertical1.png", verticalLinesMat);
     }
 
     public void saveIMageWithVerticalLines2(List<double[]> linesV, int pageNumber) {
         for (double[] point : linesV) {
-            Imgproc.line(verticalLinesMat, new Point(point[0], point[1]), new Point(point[2], point[3]), new Scalar(0, 0, 255), 3, Imgproc.LINE_AA, 0);
+            Imgproc.line(verticalLinesMat, new Point(point[X1], point[Y1]), new Point(point[X2], point[Y2]), new Scalar(0, 0, 255), 3, Imgproc.LINE_AA, 0);
         }
         Imgcodecs.imwrite(pageNumber + "_#9_rectVertical2.png", verticalLinesMat);
     }
@@ -154,21 +158,21 @@ public class RectangleDetector {
     }
 
     private double[] sortListArray(List<double[]> lines) {
-        double minY = lines.get(0)[1];
+        double minY = lines.get(0)[Y1];
         double maxY = 0;
         double averageX = 0;
         for (double[] doubles : lines) {
-            if (minY > doubles[1]) {
-                minY = doubles[1];
-            } else if (maxY < doubles[1]) {
-                maxY = doubles[1];
+            if (minY > doubles[Y1]) {
+                minY = doubles[Y1];
+            } else if (maxY < doubles[Y1]) {
+                maxY = doubles[Y1];
             }
-            if (minY > doubles[3]) {
-                minY = doubles[3];
-            } else if (maxY < doubles[3]) {
-                maxY = doubles[3];
+            if (minY > doubles[Y2]) {
+                minY = doubles[Y2];
+            } else if (maxY < doubles[Y2]) {
+                maxY = doubles[Y2];
             }
-            averageX = (averageX + doubles[0]) / 2;
+            averageX = (averageX + doubles[X1]) / 2;
         }
         return new double[]{averageX, maxY, averageX, minY};
     }
@@ -176,20 +180,20 @@ public class RectangleDetector {
     private List<Double> sortLinesByX(List<double[]> lines) {
         List<Double> result = new ArrayList<>();
         for (double[] line : lines) {
-            result.add(line[0]);
+            result.add(line[X1]);
         }
         return result.stream().sorted().toList();
     }
 
     private HorizontalLineCoordinate findExtremeHorizontalTablePoints(List<double[]> lines) {
-        double x1 = lines.get(0)[0];
+        double x1 = lines.get(0)[X1];
         double x2 = 0;
         for (double[] array : lines) {
-            if (array[0] < x1) {
-                x1 = array[0];
+            if (array[X1] < x1) {
+                x1 = array[X1];
             }
-            if (array[2] > x2) {
-                x2 = array[2];
+            if (array[X2] > x2) {
+                x2 = array[X2];
             }
         }
         return new HorizontalLineCoordinate(x1, x2, 0);
@@ -216,12 +220,14 @@ public class RectangleDetector {
     }
 
     private List<double[]> findHorizontalLinesWithOpenCV(String fileSource) {
+
         Mat dst = new Mat();
         Mat cdst = new Mat();
         Mat source;
         OpenCV.loadLocally();
         if (fileSource != null) {
             source = Imgcodecs.imread(fileSource, Imgcodecs.IMREAD_GRAYSCALE);
+            int horizontalLineLength = (int) (source.width() * PERCENT_HORIZONTAL_LINE_LENGTH);
             Imgproc.Canny(source, dst, ALL_LINES_THRESHOLD1, ALL_LINES_THRESHOLD2, ALL_LINES_APERTURESIZE, false);
             if (!dst.empty()) {
                 return new ArrayList<>();
@@ -230,7 +236,7 @@ public class RectangleDetector {
                 Imgproc.cvtColor(dst, cdst, Imgproc.COLOR_GRAY2BGR);
                 Mat linesP = new Mat();
                 Imgproc.HoughLinesP(dst, linesP, ALL_LINES_RHO, Math.PI / 2, HORIZONTAL_THRESHOLD,
-                        RectangleDetector.HORIZONTAL_LINE_LENGTH, ALL_LINES_MAXLINEGAP);
+                        horizontalLineLength, ALL_LINES_MAXLINEGAP);
                 List<double[]> lines = new ArrayList<>();
                 for (int x = 0; x < linesP.rows(); x++) {
                     double[] l = linesP.get(x, 0);
@@ -239,7 +245,7 @@ public class RectangleDetector {
                 return lines;
             }
         } else {
-            log.debug("Filesource is null.");
+            log.debug("{} is null.", fileSource);
             return new ArrayList<>();
         }
     }
