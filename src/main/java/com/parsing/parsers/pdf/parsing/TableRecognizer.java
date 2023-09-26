@@ -38,14 +38,14 @@ public class TableRecognizer {
 
     public Rectangle createRectangle(double xLeftBottom, double yLeftBottom, double xRightBottom, double yRightBottom, double yRightTop) {
         log.debug("Method createRectangle started.");
-        double width = Math.sqrt(Math.pow((xRightBottom - xLeftBottom), 2) + Math.pow((yRightBottom - yLeftBottom), 2));
-        double height = Math.sqrt(Math.pow((yRightTop - yRightBottom), 2));
+        double width = Math.sqrt(Math.pow((xRightBottom - xLeftBottom), POWER_TWO) + Math.pow((yRightBottom - yLeftBottom), POWER_TWO));
+        double height = Math.sqrt(Math.pow((yRightTop - yRightBottom), POWER_TWO));
         log.debug("Method createRectangle finished.");
         return new Rectangle((int) xLeftBottom, (int) yLeftBottom, (int) width, (int) height);
     }
 
     public boolean isTableExistOnPage(String fileSource) {
-        log.debug("Method IsTableExistOnPage started.");
+        log.info("Method IsTableExistOnPage started.");
         OpenCV.loadLocally();
         Mat dst = new Mat(), cdst = new Mat(), cdstP, cropTable = new Mat();
         Mat source = Imgcodecs.imread(fileSource, Imgcodecs.IMREAD_GRAYSCALE);
@@ -61,17 +61,17 @@ public class TableRecognizer {
         }
         if (lines.size() > MINIMAL_QUANTITY_LINES_FOR_TABLE) {
             log.debug("Result: table found!");
-            log.debug("Method IsTableExistOnPage finished.");
+            log.info("Method IsTableExistOnPage finished.");
             return true;
         } else {
             log.debug("Result: table not found");
-            log.debug("Method IsTableExistOnPage finished.");
+            log.info("Method IsTableExistOnPage finished.");
             return false;
         }
     }
 
     public String detectTable(String fileSource, int page) {
-        log.debug("Method detectTable started.");
+        log.info("Method detectTable started.");
         OpenCV.loadLocally();
         Mat dst = new Mat(), cdst = new Mat(), cdstP, cropTable = new Mat();
         Mat source = Imgcodecs.imread(fileSource, Imgcodecs.IMREAD_GRAYSCALE);
@@ -113,7 +113,7 @@ public class TableRecognizer {
             cropTable = new Mat(source, rectNew);
             String fileResult = page + "_#10_destination.png";
             Imgcodecs.imwrite(fileResult, cropTable);
-            log.debug("Method detectTable finished.");
+            log.info("Method detectTable finished.");
             return fileResult;
         } catch (Exception ex) {
             log.warn("Can't crop image. Rectangle x = " + rect.x + " y = " + rect.y + " height = " + rect.height

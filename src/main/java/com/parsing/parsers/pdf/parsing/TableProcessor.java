@@ -18,10 +18,10 @@ import java.util.List;
 public class TableProcessor {
 
     public Rectangle createRectangle(double xLeftBottom, double yLeftBottom, double xRightBottom, double yRightBottom, double yRightTop) {
-        log.debug("Method createRectangle started.");
+        log.info("Method createRectangle started.");
         double width = Math.sqrt(Math.pow((xRightBottom - xLeftBottom), 2) + Math.pow((yRightBottom - yLeftBottom), 2));
         double height = Math.sqrt(Math.pow((yRightTop - yRightBottom), 2));
-        log.debug("Method createRectangle finished.");
+        log.info("Method createRectangle finished.");
         return new Rectangle((int) xLeftBottom, (int) yLeftBottom, (int) width, (int) height);
     }
 

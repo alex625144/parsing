@@ -1,5 +1,6 @@
 package com.parsing.parsers.pdf.parsing;
 
+import com.parsing.exception.ParseProzorroFileException;
 import com.parsing.parsers.pdf.parsing.model.Column;
 import com.parsing.parsers.pdf.parsing.model.Row;
 import lombok.RequiredArgsConstructor;
@@ -47,7 +48,7 @@ public class ParserPDF {
     private List<Row> table = new ArrayList<>();
 
     public String parseProzorroFile(MultipartFile file) throws IOException {
-        log.debug("Method parseProzorroFile started");
+        log.info("Method parseProzorroFile started");
         OpenCV.loadLocally();
         JSONObject obj = new JSONObject();
         PDDocument document = PDDocument.load(file.getBytes());
@@ -75,17 +76,16 @@ public class ParserPDF {
                 } else {
                     log.warn("Table did not found on page " + page);
                 }
-            } catch (RuntimeException ex) {
-                ex.printStackTrace();
-                ex.getCause();
+            } catch (ParseProzorroFileException ex) {
+                throw new ParseProzorroFileException("File is not parsed", ex.getCause());
             }
         }
-        log.debug("Method parseProzorroFile started");
+        log.info("Method parseProzorroFile started");
         return obj.toString();
     }
 
     public boolean parseProzorroFileForScheduler(File file) throws IOException {
-        log.debug("Method parseProzorroFileForScheduler started");
+        log.info("Method parseProzorroFileForScheduler started");
         OpenCV.loadLocally();
         try (PDDocument document = PDDocument.load(file)) {
             for (int page = document.getNumberOfPages() - PAGES_FOR_PARSE; page < document.getNumberOfPages(); page++) {
@@ -109,9 +109,9 @@ public class ParserPDF {
                     log.debug("Method parseProzorroFileForSheduler finished fail");
                 }
             }
-            log.debug("Method parseProzorroFileForScheduler finished");
+            log.info("Method parseProzorroFileForScheduler finished");
         }
-        log.debug("Method parseProzorroFileForScheduler finished");
+        log.info("Method parseProzorroFileForScheduler finished");
         return false;
     }
 

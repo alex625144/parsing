@@ -15,13 +15,13 @@ import java.io.IOException;
 public class RotationImage {
 
     public String rotateImage(String filename, int pageNumber) throws IOException {
-        log.debug("Method rotateImage started.");
+        log.info("Method rotateImage started.");
         String result = pageNumber + "_#2_rotatedImage.png";
         BufferedImage image = ImageIO.read(new File(filename));
         ImageDeskew id = new ImageDeskew(image);
         image = ImageHelper.rotateImage(image, -id.getSkewAngle());
         ImageIO.write(image, "png", new File(result));
-        log.debug("Method rotateImage finished.");
+        log.info("Method rotateImage finished.");
         return result;
     }
 }

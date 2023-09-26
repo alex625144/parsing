@@ -41,7 +41,7 @@ public class RectangleDetector {
     Mat verticalLinesMat = null;
 
     public List<Row> detectRectangles(String fileSource, int pageNumber) {
-        log.debug("Class RectangleDetector started.");
+        log.info("Class RectangleDetector started.");
         List<double[]> horizontalLines = findHorizontalLinesWithOpenCV(fileSource);
         if (horizontalLines.size() > 2) {
             List<Double> sortedHorizontalLines = sortLinesByY(horizontalLines);
@@ -59,7 +59,7 @@ public class RectangleDetector {
 
             return tableProcessor.cropRectangles(sortedHorizontalLinesCoordinates, sortedVerticalLinesCoordinates);
         }
-        log.debug("Class RectangleDetector finished.");
+        log.info("Class RectangleDetector finished.");
         return new ArrayList<>();
     }
 

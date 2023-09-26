@@ -35,7 +35,7 @@ public class DataRecognizer {
     private BigDecimal totalPrice = null;
 
     public final boolean recognizeLotPDFResult(List<Row> rows) {
-        log.debug("Class DataRecognizer started.");
+        log.info("Class DataRecognizer started.");
         boolean result = false;
         for (Row row : rows) {
             if (isModelRow(row)) {
@@ -57,7 +57,7 @@ public class DataRecognizer {
                 result = saveItems();
             }
         }
-        log.debug("Class DataRecognizer finished.");
+        log.info("Class DataRecognizer finished.");
         return result;
     }
 
