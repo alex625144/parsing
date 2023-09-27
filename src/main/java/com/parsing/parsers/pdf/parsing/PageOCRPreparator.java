@@ -9,7 +9,6 @@ import net.sourceforge.tess4j.ITesseract;
 import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.TesseractException;
 import net.sourceforge.tess4j.Word;
-import net.sourceforge.tess4j.util.LoadLibs;
 import net.sourceforge.tess4j.util.Utils;
 import nu.pattern.OpenCV;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -52,7 +51,6 @@ public class PageOCRPreparator {
     static final int ALL_LINES_MAXLINEGAP = 5;
 
     public String preparePage(PDDocument document, int pageNumber) throws IOException {
-
         try {
             log.info("Method pageOCRPreparator started.");
             String fileResult = pageNumber + "_#6_prepared_page.png";
@@ -78,8 +76,6 @@ public class PageOCRPreparator {
             return fileResult;
         } catch (RuntimeException ex) {
             throw new PreparePageException(ex.getMessage());
-        } finally {
-            return "";
         }
     }
 
