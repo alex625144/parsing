@@ -20,7 +20,7 @@ import org.opencv.imgproc.Imgproc;
 import org.springframework.stereotype.Component;
 
 import javax.imageio.ImageIO;
-import java.awt.*;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -45,12 +45,13 @@ public class PageOCRPreparator {
 
     public String preparePage(PDDocument document, int page) throws IOException {
         log.debug("Class PageOCRPreparator started.");
+        Mat tableMat = null;
         try {
             String fileResult = "preparePage" + page + ".png";
             String pagePDF = getPagePDF(document, page);
             String rotatedPage = rotationImage.rotate(pagePDF);
             Rectangle pageRectangle = getPageMainRectangle(document, page);
-            Mat tableMat = Imgcodecs.imread(rotatedPage);
+            tableMat = Imgcodecs.imread(rotatedPage);
             Mat matPage = cleanTableBorders(tableMat, pageRectangle);
             Imgcodecs.imwrite(page + ".png", matPage);
             List<Rectangle> pageRectanglesAllWords = getPageRectanglesAllWords(page + ".png");
@@ -63,6 +64,10 @@ public class PageOCRPreparator {
             return fileResult;
         } catch (IOException e) {
             throw new RotationImageException("Rotation image failed", e);
+        } finally {
+            if (tableMat != null && !tableMat.empty()) {
+                tableMat.release();
+            }
         }
     }
 
@@ -267,4 +272,3 @@ public class PageOCRPreparator {
         return xLeftUp < column && column < xRightDown && yLeftUp < row && row < yRightDown;
     }
 }
-

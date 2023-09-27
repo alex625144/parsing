@@ -12,12 +12,14 @@ import java.io.IOException;
 
 @Slf4j
 public class CropperImage {
+
     private static final String FILENAME = "cropImage.png";
 
     public String cropImage(String filename) {
         log.debug("Method cropImage started.");
+        BufferedImage image = null;
         try {
-            BufferedImage image = ImageIO.read(new File(filename));
+            image = ImageIO.read(new File(filename));
             ImageDeskew id = new ImageDeskew(image);
             image = ImageHelper.rotateImage(image, -id.getSkewAngle());
             ImageIO.write(image, "png", new File(FILENAME));
@@ -25,6 +27,11 @@ public class CropperImage {
             return FILENAME;
         } catch (IOException e) {
             throw new CropImageException("Crop image failed", e);
+        } finally {
+            if (image != null) {
+                image.flush();
+            }
+            ImageIO.scanForPlugins();
         }
     }
 }
