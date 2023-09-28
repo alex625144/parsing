@@ -10,8 +10,8 @@ import org.opencv.core.Scalar;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 import org.springframework.stereotype.Component;
+import java.awt.Rectangle;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,7 +51,6 @@ public class TableRecognizer {
         Mat source = Imgcodecs.imread(fileSource, Imgcodecs.IMREAD_GRAYSCALE);
         Imgproc.Canny(source, dst, 50, 200, 3, false);
         Imgproc.cvtColor(dst, cdst, Imgproc.COLOR_GRAY2BGR);
-        cdstP = cdst.clone();
         Mat linesP = new Mat();
         Imgproc.HoughLinesP(dst, linesP, 3, Math.PI, 200, RectangleDetector.VERTICAL_LINE_LENGTH, 1);
         log.debug("Quantity of lines founded =  " + linesP.size().toString());
@@ -82,11 +81,11 @@ public class TableRecognizer {
         Mat linesP = new Mat();
         Imgproc.HoughLinesP(dst, linesP, 1, Math.PI / 180, 25, 700, 10);
         double[] array = linesP.get(0, 0);
-        x1 = array[0];
-        y1 = array[1];
-        x2 = array[2];
-        y2 = array[3];
-        y3 = array[3];
+        x1 = array[X1];
+        y1 = array[Y1];
+        x2 = array[X2];
+        y2 = array[Y2];
+        y3 = array[Y2];
 
         for (int x = 0; x < linesP.rows(); x++) {
             double[] l = linesP.get(x, 0);

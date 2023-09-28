@@ -116,40 +116,41 @@ public class ParserPDF {
     }
 
     private String getTessDataPath() {
-            Path currentPathPosition = Paths.get("").toAbsolutePath();
-            File pdfDir = new File(currentPathPosition + DIR_TO_READ_TESSDATA);
-            if (!pdfDir.exists()) {
-                pdfDir.mkdir();
-            }
-            return currentPathPosition.toAbsolutePath() + DIR_TO_READ_TESSDATA;
+        Path currentPathPosition = Paths.get("").toAbsolutePath();
+        File pdfDir = new File(currentPathPosition + DIR_TO_READ_TESSDATA);
+        if (!pdfDir.exists()) {
+            pdfDir.mkdir();
+        }
+        return currentPathPosition.toAbsolutePath() + DIR_TO_READ_TESSDATA;
     }
 
     private List<Row> extractTextFromScannedDocument(String fileTableName) {
-        if (fileTableName!=null) {
-        ITesseract itesseract = new Tesseract();
-        itesseract.setDatapath(getTessDataPath());
-        itesseract.setLanguage("ukr+eng");
-        final Mat tableMat = Imgcodecs.imread(fileTableName);
-        for (Row row : table) {
-            for (Column column : row.getColumns()) {
-                Mat mat = cleanTableBorders(tableMat, column.getRectangle());
-                Imgcodecs.imwrite(table.indexOf(row) + " " + row.getColumns().indexOf(column) + ".png", mat);
-            }
-        }
-        for (Row row : table) {
-            for (Column column : row.getColumns()) {
-                String filename = table.indexOf(row) + " " + row.getColumns().indexOf(column) + ".png";
-                String result = null;
-                try {
-                    result = itesseract.doOCR(new File(filename));
-                } catch (TesseractException e) {
-                    e.printStackTrace();
+        if (fileTableName != null) {
+            ITesseract itesseract = new Tesseract();
+            itesseract.setDatapath(getTessDataPath());
+            itesseract.setLanguage("ukr+eng");
+            final Mat tableMat = Imgcodecs.imread(fileTableName);
+            for (Row row : table) {
+                for (Column column : row.getColumns()) {
+                    Mat mat = cleanTableBorders(tableMat, column.getRectangle());
+                    Imgcodecs.imwrite(table.indexOf(row) + " " + row.getColumns().indexOf(column) + ".png", mat);
                 }
-                column.setParsingResult(result);
-                log.debug(filename + " = " + result);
             }
+            for (Row row : table) {
+                for (Column column : row.getColumns()) {
+                    String filename = table.indexOf(row) + " " + row.getColumns().indexOf(column) + ".png";
+                    String result = null;
+                    try {
+                        result = itesseract.doOCR(new File(filename));
+                    } catch (TesseractException e) {
+                        e.printStackTrace();
+                    }
+                    column.setParsingResult(result);
+                    log.debug(filename + " = " + result);
+                }
+            }
+            return table;
         }
-        return table;}
         return new ArrayList<>();
     }
 

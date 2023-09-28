@@ -46,7 +46,7 @@ public class PageOCRPreparator {
     private static final double[] RGB_WHITE_COLOUR = {255, 255, 255};
     static final double ALL_LINES_THRESHOLD1 = 50;
     static final double ALL_LINES_THRESHOLD2 = 200;
-    static final int ALL_LINES_APERTURESIZE = 3;
+    static final int APERTURE_SIZE = 3;
     static final int ALL_LINES_RHO = 3;
     static final int ALL_LINES_MAXLINEGAP = 5;
 
@@ -301,18 +301,18 @@ public class PageOCRPreparator {
         double leftOffset;
         double leftRectangleX = rectangle.getX();
         double rightRectangeX = rectangle.getX() + rectangle.width;
-        double rightListX = list.get(0)[0];
-        double leftListX = list.get(0)[2];
+        double rightPageX = list.get(0)[X1];
+        double leftPageX = list.get(0)[X2];
         for (double[] doubles : list) {
-            if (rightListX < doubles[0]) {
-                rightListX = doubles[0];
+            if (rightPageX < doubles[X1]) {
+                rightPageX = doubles[X1];
             }
-            if (leftListX > doubles[2]) {
-                leftListX = doubles[2];
+            if (leftPageX > doubles[X2]) {
+                leftPageX = doubles[X2];
             }
         }
-        leftOffset = leftRectangleX > leftListX ? leftRectangleX - leftListX : 0;
-        rightOffset = rightListX > rightRectangeX ? rightListX - rightRectangeX : 0;
+        leftOffset = leftRectangleX > leftPageX ? leftRectangleX - leftPageX : 0;
+        rightOffset = rightPageX > rightRectangeX ? rightPageX - rightRectangeX : 0;
         return Math.max(rightOffset, leftOffset);
     }
 
@@ -321,7 +321,7 @@ public class PageOCRPreparator {
         Mat cdst = new Mat();
         OpenCV.loadLocally();
         Mat source = Imgcodecs.imread(fileSource, Imgcodecs.IMREAD_GRAYSCALE);
-        Imgproc.Canny(source, dst, ALL_LINES_THRESHOLD1, ALL_LINES_THRESHOLD2, ALL_LINES_APERTURESIZE, false);
+        Imgproc.Canny(source, dst, ALL_LINES_THRESHOLD1, ALL_LINES_THRESHOLD2, APERTURE_SIZE, false);
         Imgproc.cvtColor(dst, cdst, Imgproc.COLOR_GRAY2BGR);
         Mat linesP = new Mat();
         Imgproc.HoughLinesP(dst, linesP, ALL_LINES_RHO, Math.PI, (int) ALL_LINES_THRESHOLD2,
