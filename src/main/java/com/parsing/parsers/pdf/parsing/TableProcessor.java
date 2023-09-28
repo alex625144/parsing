@@ -18,15 +18,15 @@ import java.util.List;
 public class TableProcessor {
 
     public Rectangle createRectangle(double xLeftBottom, double yLeftBottom, double xRightBottom, double yRightBottom, double yRightTop) {
-        log.debug("Class TableProcessor.createRectangle started.");
+        log.info("Method createRectangle started.");
         double width = Math.sqrt(Math.pow((xRightBottom - xLeftBottom), 2) + Math.pow((yRightBottom - yLeftBottom), 2));
         double height = Math.sqrt(Math.pow((yRightTop - yRightBottom), 2));
-        log.debug("Class TableProcessor.createRectangle finished.");
+        log.info("Method createRectangle finished.");
         return new Rectangle((int) xLeftBottom, (int) yLeftBottom, (int) width, (int) height);
     }
 
     public List<Row> cropRectangles(List<HorizontalLineCoordinate> horizontalLines, List<VerticalLineCoordinate> verticalLines) {
-        log.debug("Class TableProcessor.cropRectangles started.");
+        log.debug("Method cropRectangles started.");
         List<Row> table = new ArrayList<>();
         for (int top = 0, bottom = 1; bottom < horizontalLines.size(); top++, bottom++) {
             List<Column> row = new ArrayList<>();
@@ -47,7 +47,7 @@ public class TableProcessor {
             }
             table.add(new Row(row));
         }
-        log.debug("Class TableProcessor.cropRectangles finished.");
+        log.debug("Method cropRectangles finished.");
         return table;
     }
 }

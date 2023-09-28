@@ -19,7 +19,7 @@ public class ManyTableDetector {
     private static final Double OFFSET = 5.0;
 
     public List<double[]> detectQuantityOfTables(List<double[]> lines) {
-        log.debug("Class ManyTable detector started.");
+        log.info("Class ManyTable detector started.");
         final List<double[]> sortedLines = sortLinesByX(lines);
         for (double[] line : sortedLines) {
             log.debug(Arrays.toString(line));
@@ -30,7 +30,7 @@ public class ManyTableDetector {
         for (double[] line : mergedLines3) {
             log.debug(Arrays.toString(line));
         }
-        log.debug("Class ManyTable detector finished.");
+        log.info("Class ManyTable detector finished.");
         return mergedLines3;
     }
 
@@ -66,12 +66,10 @@ public class ManyTableDetector {
         for (Double yUp : yUpList) {
             for (Double yDown : yDownList) {
                 if (yDown < yUp) {
-                    log.debug("Ydown " + yDown + " Yup" + yUp);
                     lineCrossover++;
                 }
             }
         }
-        log.debug("Line conversion = " + lineCrossover);
         return lineCrossover;
     }
 

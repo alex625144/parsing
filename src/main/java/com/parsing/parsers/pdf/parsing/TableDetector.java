@@ -19,7 +19,7 @@ public class TableDetector {
     private static final Double OFFSET = 5.0;
 
     public List<double[]> detectQuantityOfTables(List<double[]> lines) {
-        log.debug("Class TableDetector started.");
+        log.info("Method detectQuantityOfTables started.");
         final List<double[]> sortedLines = sortLinesByX(lines);
         for (double[] line : sortedLines) {
             log.debug(Arrays.toString(line));
@@ -27,10 +27,7 @@ public class TableDetector {
         final List<double[]> mergedLines1 = newMergeLines(sortedLines);
         final List<double[]> mergedLines2 = newMergeLines(mergedLines1);
         final List<double[]> mergedLines3 = newMergeLines(mergedLines2);
-        for (double[] line : mergedLines3) {
-            log.debug(Arrays.toString(line));
-        }
-        log.debug("Class TableDetector finished.");
+        log.info("Method detectQuantityOfTables started.");
         return mergedLines3;
     }
 
