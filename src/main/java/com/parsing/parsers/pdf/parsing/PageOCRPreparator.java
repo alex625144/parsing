@@ -1,7 +1,6 @@
 package com.parsing.parsers.pdf.parsing;
 
 import com.parsing.Constants;
-import com.parsing.exception.PreparePageException;
 import com.parsing.exception.RotationImageException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,7 +32,9 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.parsing.Constants.*;
+import static com.parsing.Constants.PERCENT_PAGE_FOR_OCR;
+import static com.parsing.Constants.X1;
+import static com.parsing.Constants.X2;
 
 @Component
 @Slf4j
@@ -52,7 +53,7 @@ public class PageOCRPreparator {
     static final int ALL_LINES_RHO = 3;
     static final int ALL_LINES_MAXLINEGAP = 5;
 
-    public String preparePage(PDDocument document, int pageNumber) throws IOException {
+    public String preparePage(PDDocument document, int pageNumber) {
         Mat tableMat = null;
         try {
             log.info("Method pageOCRPreparator started.");
@@ -84,212 +85,141 @@ public class PageOCRPreparator {
                 tableMat.release();
             }
         }
-//    public String preparePage(PDDocument document, int page) throws IOException {
-//        log.debug("Class PageOCRPreparator started.");
-//        Mat tableMat = null;
-//        try {
-//            String fileResult = "preparePage" + page + ".png";
-//            String pagePDF = getPagePDF(document, page);
-//            String rotatedPage = rotationImage.rotate(pagePDF);
-//            Rectangle pageRectangle = getPageMainRectangle(document, page);
-//            tableMat = Imgcodecs.imread(rotatedPage);
-//            Mat matPage = cleanTableBorders(tableMat, pageRectangle);
-//            Imgcodecs.imwrite(page + ".png", matPage);
-//            List<Rectangle> pageRectanglesAllWords = getPageRectanglesAllWords(page + ".png");
-//            List<Rectangle> rectanglesWithSymbols = extractTextFromRectangle(page + ".png", pageRectanglesAllWords);
-//            saveRectanglesOnImage(rectanglesWithSymbols, page + ".png");
-//            final Rectangle mainPageRectangle = findMainPageRectangle(rectanglesWithSymbols);
-//            final Mat result = cleanTableBorders(matPage, mainPageRectangle);
-//            Imgcodecs.imwrite(fileResult, result);
-//            log.debug("Class PageOCRPreparator finished.");
-//            return fileResult;
-//        } catch (IOException e) {
-//            throw new RotationImageException("Rotation image failed", e);
-//        } finally {
-//            if (tableMat != null && !tableMat.empty()) {
-//                tableMat.release();
-//            }
-//        }
-//   }
-//
-        private List<Rectangle> extractTextFromRectangle (String filename, List < Rectangle > rectangles){
-            log.debug("start rectangles = " + rectangles.size());
-            ITesseract itesseract = new Tesseract();
-            itesseract.setDatapath(getTessDataPath());
-            itesseract.setLanguage("ukr+eng");
-            List<Rectangle> result = new ArrayList<>();
-            final Mat tableMat = Imgcodecs.imread(filename);
-            for (Rectangle rectangle : rectangles) {
-                if (rectangle.getWidth() >= MINIMAL_WIDTH_WORD_FOR_OCR) {
-                    String resultTemp = null;
-                    try {
+    }
+
+    private List<Rectangle> extractTextFromRectangle(String filename, List<Rectangle> rectangles) {
+        log.debug("start rectangles = " + rectangles.size());
+        ITesseract itesseract = new Tesseract();
+        itesseract.setDatapath(getTessDataPath());
+        itesseract.setLanguage("ukr+eng");
+        List<Rectangle> result = new ArrayList<>();
+        final Mat tableMat = Imgcodecs.imread(filename);
+        for (Rectangle rectangle : rectangles) {
+            if (rectangle.getWidth() >= MINIMAL_WIDTH_WORD_FOR_OCR) {
+                String resultTemp = null;
+                try {
                     resultTemp = itesseract.doOCR(new File(getProjectPath() + File.separator + filename), rectangle).trim();
-                    } catch (TesseractException e) {
-                        e.printStackTrace();
-                    }
+                } catch (TesseractException e) {
+                    e.printStackTrace();
+                }
                 if (resultTemp != null && resultTemp.matches(REGEX)) {
-                        result.add(rectangle);
-                    }
+                    result.add(rectangle);
                 }
             }
-            log.debug("end rectangles = " + result.size());
-            return result;
         }
+        log.debug("end rectangles = " + result.size());
+        return result;
+    }
 
-        private String getTessDataPath () {
-            Path currentPathPosition = Paths.get("").toAbsolutePath();
-            File pdfDir = new File(currentPathPosition + DIR_TO_READ_TESSDATA);
-            if (!pdfDir.exists()) {
-                pdfDir.mkdir();
-            }
-            return currentPathPosition.toAbsolutePath() + DIR_TO_READ_TESSDATA;
+    private String getTessDataPath() {
+        Path currentPathPosition = Paths.get("").toAbsolutePath();
+        File pdfDir = new File(currentPathPosition + DIR_TO_READ_TESSDATA);
+        if (!pdfDir.exists()) {
+            pdfDir.mkdir();
         }
+        return currentPathPosition.toAbsolutePath() + DIR_TO_READ_TESSDATA;
+    }
 
-        private String getPagePDF (PDDocument document,int pageNumber) throws IOException {
-            PDFRenderer pdfRenderer = new PDFRenderer(document);
+    private String getPagePDF(PDDocument document, int pageNumber) throws IOException {
+        PDFRenderer pdfRenderer = new PDFRenderer(document);
         String pagePDF = pageNumber + "_#1_sourcePage.png";
-            for (int page = 0; page < document.getNumberOfPages(); page++) {
-                if (page == pageNumber) {
-                    BufferedImage bim = pdfRenderer.renderImageWithDPI(page, 300, ImageType.GRAY);
-                    File temp = File.createTempFile("tempfile_" + page, ".png");
-                    ImageIO.write(bim, "png", temp);
-                    File png = new File(pagePDF);
-                    ImageIO.write(bim, "png", png);
-                }
+        for (int page = 0; page < document.getNumberOfPages(); page++) {
+            if (page == pageNumber) {
+                BufferedImage bim = pdfRenderer.renderImageWithDPI(page, 300, ImageType.GRAY);
+                File temp = File.createTempFile("tempfile_" + page, ".png");
+                ImageIO.write(bim, "png", temp);
+                File png = new File(pagePDF);
+                ImageIO.write(bim, "png", png);
             }
-            return pagePDF;
         }
+        return pagePDF;
+    }
 
-        private Rectangle getPageMainRectangle (PDDocument document,int pageNumber){
-            Rectangle rectangle = new Rectangle();
-            PDFRenderer pdfRenderer = new PDFRenderer(document);
-            ITesseract itesseract = new Tesseract();
-            itesseract.setDatapath(getTessDataPath());
-            itesseract.setLanguage("ukr+eng");
+    private Rectangle getPageMainRectangle(PDDocument document, int pageNumber) {
+        Rectangle rectangle = new Rectangle();
+        PDFRenderer pdfRenderer = new PDFRenderer(document);
+        ITesseract itesseract = new Tesseract();
+        itesseract.setDatapath(getTessDataPath());
+        itesseract.setLanguage("ukr+eng");
         List<Word> result;
-            try {
-                BufferedImage bufferedImage = pdfRenderer.renderImageWithDPI(pageNumber, 300, ImageType.RGB);
-                result = itesseract.getWords(bufferedImage, ITessAPI.TessPageIteratorLevel.RIL_BLOCK);
+        try {
+            BufferedImage bufferedImage = pdfRenderer.renderImageWithDPI(pageNumber, 300, ImageType.RGB);
+            result = itesseract.getWords(bufferedImage, ITessAPI.TessPageIteratorLevel.RIL_BLOCK);
             if (!result.isEmpty()) {
-                    rectangle = result.get(0).getBoundingBox().getBounds();
-                    Mat matrix = Imgcodecs.imread(getPagePDF(document, pageNumber));
-                    Imgproc.rectangle(
-                            matrix,
-                            new org.opencv.core.Point(rectangle.getMinX(), rectangle.getMaxY()),
-                            new Point(rectangle.getMaxX(), rectangle.getMinY()),
-                            new Scalar(0, 0, 255),
-                            THICKNESS_LINE);
+                rectangle = result.get(0).getBoundingBox().getBounds();
+                Mat matrix = Imgcodecs.imread(getPagePDF(document, pageNumber));
+                Imgproc.rectangle(
+                        matrix,
+                        new org.opencv.core.Point(rectangle.getMinX(), rectangle.getMaxY()),
+                        new Point(rectangle.getMaxX(), rectangle.getMinY()),
+                        new Scalar(0, 0, 255),
+                        THICKNESS_LINE);
                 String filename = pageNumber + "_#4_PageMainRectangle.png";
-                    Imgcodecs.imwrite(filename, matrix);
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
+                Imgcodecs.imwrite(filename, matrix);
             }
-            return rectangle;
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+        return rectangle;
+    }
 
-        private Rectangle findMainPageRectangle (List < Rectangle > rectangles) {
+    private Rectangle findMainPageRectangle(List<Rectangle> rectangles) {
         if (!rectangles.isEmpty()) {
-                double xMin = rectangles.get(0).getX();
-                double yMin = rectangles.get(0).getY();
-                double xMax = rectangles.get(0).getX();
-                double yMax = rectangles.get(0).getY();
+            double xMin = rectangles.get(0).getX();
+            double yMin = rectangles.get(0).getY();
+            double xMax = rectangles.get(0).getX();
+            double yMax = rectangles.get(0).getY();
 
-                for (Rectangle rectangle : rectangles) {
-                    double xCurrent = rectangle.getX();
-                    double yCurrent = rectangle.getY();
-                    if (xCurrent < xMin) {
-                        xMin = xCurrent;
-                    }
-                    if (xCurrent > xMax) {
-                        xMax = xCurrent;
-                    }
-                    if (yCurrent < yMin) {
-                        yMin = yCurrent;
-                    }
-                    if (yCurrent > yMax) {
-                        yMax = yCurrent;
-                    }
+            for (Rectangle rectangle : rectangles) {
+                double xCurrent = rectangle.getX();
+                double yCurrent = rectangle.getY();
+                if (xCurrent < xMin) {
+                    xMin = xCurrent;
                 }
-            return createRect(xMin, yMin, xMax, yMin, yMax, Constants.OFFSET);
+                if (xCurrent > xMax) {
+                    xMax = xCurrent;
+                }
+                if (yCurrent < yMin) {
+                    yMin = yCurrent;
+                }
+                if (yCurrent > yMax) {
+                    yMax = yCurrent;
+                }
             }
-            return null;
+            return createRect(xMin, yMin, xMax, yMin, yMax, Constants.OFFSET);
         }
+        return null;
+    }
 
     private static Rectangle createRect(double x1, double y1, double x2, double y2, double y3, int OFFSET) {
-            double width = Math.sqrt(Math.pow((x2 - x1), 2) + Math.pow((y2 - y1), 2)) * (1 + (OFFSET * 2 / 100));
-            double height = Math.sqrt(Math.pow((y3 - y2), 2) * (1 + (OFFSET * 2 / 100)));
-            return new Rectangle((int) (x1 - OFFSET * 2), (int) (y1 - OFFSET * 2), (int) width, (int) height);
-        }
+        double width = Math.sqrt(Math.pow((x2 - x1), 2) + Math.pow((y2 - y1), 2)) * (1 + (OFFSET * 2 / 100));
+        double height = Math.sqrt(Math.pow((y3 - y2), 2) * (1 + (OFFSET * 2 / 100)));
+        return new Rectangle((int) (x1 - OFFSET * 2), (int) (y1 - OFFSET * 2), (int) width, (int) height);
+    }
 
     private List<Rectangle> getPageRectanglesAllWords(String filename, int pageNumber) {
 
-            List<Rectangle> result = new ArrayList<>();
-            ITesseract itesseract = new Tesseract();
-            itesseract.setDatapath(getTessDataPath());
-            itesseract.setLanguage("ukr+eng");
-            BufferedImage bim = null;
-            try {
+        List<Rectangle> result = new ArrayList<>();
+        ITesseract itesseract = new Tesseract();
+        itesseract.setDatapath(getTessDataPath());
+        itesseract.setLanguage("ukr+eng");
+        BufferedImage bim = null;
+        try {
             log.debug(getProjectPath() + File.separator + filename);
             BufferedImage buf = ImageIO.read(new File(getProjectPath() + File.separator + filename));
 
-                int level = ITessAPI.TessPageIteratorLevel.RIL_WORD;
+            int level = ITessAPI.TessPageIteratorLevel.RIL_WORD;
 
-                log.debug("PageIteratorLevel: " + Utils.getConstantName(level, ITessAPI.TessPageIteratorLevel.class));
-                result = itesseract.getSegmentedRegions(buf, level);
-                for (int i = 0; i < result.size(); i++) {
-                    Rectangle rect = result.get(i);
-                    //log.debug(String.format("Box[%d]: x=%d, y=%d, w=%d, h=%d", i, rect.x, rect.y, rect.width, rect.height));
-                }
+            log.debug("PageIteratorLevel: " + Utils.getConstantName(level, ITessAPI.TessPageIteratorLevel.class));
+            result = itesseract.getSegmentedRegions(buf, level);
+            for (int i = 0; i < result.size(); i++) {
+                Rectangle rect = result.get(i);
+                //log.debug(String.format("Box[%d]: x=%d, y=%d, w=%d, h=%d", i, rect.x, rect.y, rect.width, rect.height));
+            }
 
             if (!result.isEmpty()) {
-                    Mat matrix = Imgcodecs.imread(filename);
-                    for (Rectangle rectangle : result) {
-                        rectangle = rectangle.getBounds();
-                        Imgproc.rectangle(
-                                matrix,
-                                new Point(rectangle.getMinX(), rectangle.getMaxY()),
-                                new Point(rectangle.getMaxX(), rectangle.getMinY()),
-                                new Scalar(0, 0, 255),
-                                THICKNESS_LINE);
-                    }
-
-                String filename2 = pageNumber + "_#3_allWordsOnPage.png";
-                    Imgcodecs.imwrite(filename2, matrix);
-                } else {
-                    log.debug("Text not found on page.");
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (TesseractException e) {
-                e.printStackTrace();
-            }
-            return result;
-        }
-
-        private String getProjectPath () {
-            Path currentPathPosition = Paths.get("").toAbsolutePath();
-            return currentPathPosition.toAbsolutePath().toString();
-        }
-
-    private Mat cleanTableBorders(Mat image, Rectangle rectangle, int pageNumber) {
-            Mat result = image.clone();
-            for (int row = 0; row < image.rows(); row++) {
-                for (int column = 0; column < image.cols(); column++) {
-                    if (!isTargetRectangle(rectangle, row, column)) {
-                        result.put(row, column, RGB_WHITE_COLOUR);
-                    }
-                }
-            }
-        Imgcodecs.imwrite(pageNumber + "_#5_cleanTableBorders.png", result);
-            return result;
-        }
-
-    public static String saveRectanglesOnImage(List<Rectangle> rectangles, String filenameImage, int pageNumber) {
-            String filenameResult = null;
-        if (!rectangles.isEmpty()) {
-                Mat matrix = Imgcodecs.imread(filenameImage);
-                for (Rectangle rectangle : rectangles) {
+                Mat matrix = Imgcodecs.imread(filename);
+                for (Rectangle rectangle : result) {
                     rectangle = rectangle.getBounds();
                     Imgproc.rectangle(
                             matrix,
@@ -299,11 +229,56 @@ public class PageOCRPreparator {
                             THICKNESS_LINE);
                 }
 
-            filenameResult = pageNumber + "_#4_savedImage.png";
-                Imgcodecs.imwrite(filenameResult, matrix);
+                String filename2 = pageNumber + "_#3_allWordsOnPage.png";
+                Imgcodecs.imwrite(filename2, matrix);
+            } else {
+                log.debug("Text not found on page.");
             }
-            return filenameResult;
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (TesseractException e) {
+            e.printStackTrace();
         }
+        return result;
+    }
+
+    private String getProjectPath() {
+        Path currentPathPosition = Paths.get("").toAbsolutePath();
+        return currentPathPosition.toAbsolutePath().toString();
+    }
+
+    private Mat cleanTableBorders(Mat image, Rectangle rectangle, int pageNumber) {
+        Mat result = image.clone();
+        for (int row = 0; row < image.rows(); row++) {
+            for (int column = 0; column < image.cols(); column++) {
+                if (!isTargetRectangle(rectangle, row, column)) {
+                    result.put(row, column, RGB_WHITE_COLOUR);
+                }
+            }
+        }
+        Imgcodecs.imwrite(pageNumber + "_#5_cleanTableBorders.png", result);
+        return result;
+    }
+
+    public static String saveRectanglesOnImage(List<Rectangle> rectangles, String filenameImage, int pageNumber) {
+        String filenameResult = null;
+        if (!rectangles.isEmpty()) {
+            Mat matrix = Imgcodecs.imread(filenameImage);
+            for (Rectangle rectangle : rectangles) {
+                rectangle = rectangle.getBounds();
+                Imgproc.rectangle(
+                        matrix,
+                        new Point(rectangle.getMinX(), rectangle.getMaxY()),
+                        new Point(rectangle.getMaxX(), rectangle.getMinY()),
+                        new Scalar(0, 0, 255),
+                        THICKNESS_LINE);
+            }
+
+            filenameResult = pageNumber + "_#4_savedImage.png";
+            Imgcodecs.imwrite(filenameResult, matrix);
+        }
+        return filenameResult;
+    }
 
     private static Rectangle createMainRect(Rectangle rectangle, double offset) {
         log.debug("offset = " + offset);
@@ -312,13 +287,13 @@ public class PageOCRPreparator {
         return new Rectangle((int) (rectangle.getX() - offset), rectangle.y, (int) width, (int) height);
     }
 
-        private boolean isTargetRectangle (Rectangle rectangle,int row, int column){
+    private boolean isTargetRectangle(Rectangle rectangle, int row, int column) {
         double yLeftUp = rectangle.getY();
         double xLeftUp = rectangle.getX();
         double xRightDown = xLeftUp + rectangle.getWidth();
         double yRightDown = yLeftUp + rectangle.getHeight();
-            return xLeftUp < column && column < xRightDown && yLeftUp < row && row < yRightDown;
-        }
+        return xLeftUp < column && column < xRightDown && yLeftUp < row && row < yRightDown;
+    }
 
     private boolean isTargetRect(Rect rectangle, int row, int column) {
         double yLeftUp = rectangle.y;
@@ -388,4 +363,4 @@ public class PageOCRPreparator {
         }
         return result;
     }
-    }
+}

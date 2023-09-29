@@ -1,7 +1,6 @@
 package com.parsing.parsers.pdf.parsing;
 
 import com.parsing.exception.ParseProzorroFileException;
-import com.parsing.exception.parserPDFException.ParseProzorroFileException;
 import com.parsing.exception.parserPDFException.ParseProzorroFileForSchedulerException;
 import com.parsing.parsers.pdf.parsing.model.Column;
 import com.parsing.parsers.pdf.parsing.model.Row;
@@ -10,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import net.sourceforge.tess4j.ITesseract;
 import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.TesseractException;
-import net.sourceforge.tess4j.util.LoadLibs;
 import nu.pattern.OpenCV;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.ImageType;
@@ -22,7 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
-import java.awt.*;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -49,13 +47,14 @@ public class ParserPDF {
 
     private List<Row> table = new ArrayList<>();
 
-    public String parseProzorroFile(MultipartFile file) throws IOException {
+    public String parseProzorroFile(MultipartFile file) {
         log.info("Method parseProzorroFile started");
         OpenCV.loadLocally();
         JSONObject obj = new JSONObject();
-        PDDocument document = PDDocument.load(file.getBytes());
-        for (int page = document.getNumberOfPages() - PAGES_FOR_PARSE; page < document.getNumberOfPages(); page++) {
-            try {
+        try {
+            PDDocument document = PDDocument.load(file.getBytes());
+            for (int page = document.getNumberOfPages() - PAGES_FOR_PARSE; page < document.getNumberOfPages(); page++) {
+
                 final String preparedPage = pageOCRPreparator.preparePage(document, page);
                 if (tableRecognizer.isTableExistOnPage(preparedPage)) {
                     log.debug("Found table on page " + page);
@@ -78,15 +77,15 @@ public class ParserPDF {
                 } else {
                     log.warn("Table did not found on page " + page);
                 }
-            } catch (IOException e) {
-                throw new ParseProzorroFileException("parsing multipartfile of prozorro failed.", e);
             }
+        } catch (IOException e) {
+            throw new ParseProzorroFileException("parsing multipartfile of prozorro failed.", e);
         }
         log.info("Method parseProzorroFile started");
         return obj.toString();
     }
 
-    public boolean parseProzorroFileForScheduler(File file) throws IOException {
+    public boolean parseProzorroFileForScheduler(File file) {
         log.info("Method parseProzorroFileForScheduler started");
         OpenCV.loadLocally();
         try (PDDocument document = PDDocument.load(file)) {

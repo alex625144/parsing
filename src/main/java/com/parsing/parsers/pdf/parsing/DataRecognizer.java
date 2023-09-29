@@ -38,28 +38,6 @@ public class DataRecognizer {
     public final boolean recognizeLotPDFResult(List<Row> rows) {
         log.info("Class DataRecognizer started.");
         boolean result = false;
-        for (Row row : rows) {
-            if (isModelRow(row)) {
-                int modelColumnNumber = getModelColumnNumber(row);
-                List<String> amounts = new ArrayList<>();
-                List<String> prices = new ArrayList<>();
-                for (int x = modelColumnNumber; x < row.getColumns().size(); x++) {
-                    String amountTemp = findAmount(row.getColumns().get(x).getParsingResult());
-                    if (amountTemp != null) {
-                        amounts.add(amountTemp);
-                    }
-                    String pricesTemp = findPrices(row.getColumns().get(x).getParsingResult());
-                    if (pricesTemp != null) {
-                        prices.add(pricesTemp);
-                    }
-                }
-                getAmount(amounts);
-                getPriceAndTotalPrice(prices);
-                result = saveItems();
-            }
-        }
-        log.info("Class DataRecognizer finished.");
-        return result;
         try {
             for (Row row : rows) {
                 if (isModelRow(row)) {
@@ -81,7 +59,7 @@ public class DataRecognizer {
                     result = saveItems();
                 }
             }
-            log.debug("Class DataRecognizer finished.");
+            log.info("Class DataRecognizer finished.");
             return result;
         } catch (Exception e) {
             throw new RecognizeLotPDFResultException("Not recognized LotPDFResult", e);
@@ -186,4 +164,3 @@ public class DataRecognizer {
         return null;
     }
 }
-
