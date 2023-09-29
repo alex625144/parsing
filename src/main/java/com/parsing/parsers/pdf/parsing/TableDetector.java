@@ -8,6 +8,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.parsing.Constants.X1;
+import static com.parsing.Constants.X2;
+import static com.parsing.Constants.Y1;
+import static com.parsing.Constants.Y2;
+
 @Component
 @Slf4j
 public class TableDetector {
@@ -15,20 +20,17 @@ public class TableDetector {
     private static final Double OFFSET = 5.0;
 
     public List<double[]> detectQuantityOfTables(List<double[]> lines) {
-        log.debug("Class TableDetector started.");
+        log.info("Method detectQuantityOfTables started.");
         try {
-            final List<double[]> sortedLines = sortLinesByX(lines);
-            for (double[] line : sortedLines) {
-                log.debug(Arrays.toString(line));
-            }
-            final List<double[]> mergedLines1 = newMergeLines(sortedLines);
-            final List<double[]> mergedLines2 = newMergeLines(mergedLines1);
-            final List<double[]> mergedLines3 = newMergeLines(mergedLines2);
-            for (double[] line : mergedLines3) {
-                log.debug(Arrays.toString(line));
-            }
-            log.debug("Class TableDetector finished.");
-            return mergedLines3;
+        final List<double[]> sortedLines = sortLinesByX(lines);
+        for (double[] line : sortedLines) {
+            log.debug(Arrays.toString(line));
+        }
+        final List<double[]> mergedLines1 = newMergeLines(sortedLines);
+        final List<double[]> mergedLines2 = newMergeLines(mergedLines1);
+        final List<double[]> mergedLines3 = newMergeLines(mergedLines2);
+        log.info("Method detectQuantityOfTables started.");
+        return mergedLines3;
         } catch (Exception e) {
             throw new TableDetectorException("Detect quantity of tables failed.", e);
         }
@@ -36,14 +38,15 @@ public class TableDetector {
 
     private List<double[]> newMergeLines(List<double[]> lines) {
         List<double[]> result = new ArrayList<>();
+
         for (int i = 0; i < lines.size(); i++) {
             if (i + 1 < lines.size()) {
-                if ((lines.get(i + 1)[0] - lines.get(i)[0]) < OFFSET) {
-                    if (lines.get(i + 1)[1] > lines.get(i)[3]) {
-                        double x1Coordinate = lines.get(i)[0];
-                        double x2Coordinate = lines.get(i)[2];
-                        double y1Coordinate = Math.max(lines.get(i + 1)[1], lines.get(i)[1]);
-                        double y2Coordinate = Math.min(lines.get(i + 1)[3], lines.get(i)[3]);
+                if ((lines.get(i + 1)[X1] - lines.get(i)[X1]) < OFFSET) {
+                    if (lines.get(i + 1)[Y1] > lines.get(i)[Y2]) {
+                        double x1Coordinate = lines.get(i)[X1];
+                        double x2Coordinate = lines.get(i)[X2];
+                        double y1Coordinate = Math.max(lines.get(i + 1)[Y1], lines.get(i)[Y1]);
+                        double y2Coordinate = Math.min(lines.get(i + 1)[Y2], lines.get(i)[Y2]);
                         double[] temp = {x1Coordinate, y1Coordinate, x2Coordinate, y2Coordinate};
                         result.add(temp);
                     }
@@ -133,13 +136,13 @@ public class TableDetector {
         List<double[]> sortedArrayX = new ArrayList<>();
         List<Double> listX = new ArrayList<>();
         for (double[] line : lines) {
-            listX.add(line[0]);
+            listX.add(line[X1]);
         }
         final List<Double> listXSorted = listX.stream().sorted().toList();
         log.debug(listXSorted.toString());
         for (Double xCoordinate : listXSorted) {
             for (double[] line : lines) {
-                if (xCoordinate == line[0]) {
+                if (xCoordinate == line[X1]) {
                     sortedArrayX.add(line);
                 }
             }
@@ -150,7 +153,7 @@ public class TableDetector {
     private List<Double> getSortX(List<double[]> lines) {
         List<Double> pointsY = new ArrayList<>();
         for (double[] line : lines) {
-            pointsY.add(line[0]);
+            pointsY.add(line[X1]);
         }
         return pointsY.stream().sorted().toList();
     }

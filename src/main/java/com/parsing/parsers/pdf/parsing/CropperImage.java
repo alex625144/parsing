@@ -15,6 +15,14 @@ public class CropperImage {
 
     private static final String FILENAME = "cropImage.png";
 
+    public String cropImage(String filename) throws IOException {
+        log.info("Method cropImage started.");
+        BufferedImage image = ImageIO.read(new File(filename));
+        ImageDeskew id = new ImageDeskew(image);
+        image = ImageHelper.rotateImage(image, -id.getSkewAngle());
+        ImageIO.write(image, "png", new File(FILENAME));
+        log.info("Method cropImage finished.");
+        return FILENAME;
     public String cropImage(String filename) {
         log.debug("Method cropImage started.");
         BufferedImage image = null;

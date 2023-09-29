@@ -15,15 +15,15 @@ import java.io.IOException;
 @Slf4j
 public class RotationImage {
 
-    public String rotate(String filename) {
-        log.debug("Class RotationImage started.");
+    public String rotateImage(String filename, int pageNumber) throws IOException {
+        log.info("Method rotateImage started.");
         try {
-            String result = "rotatedImage.jpg";
+            String result = pageNumber + "_#2_rotatedImage.png";
             BufferedImage image = ImageIO.read(new File(filename));
             ImageDeskew id = new ImageDeskew(image);
             image = ImageHelper.rotateImage(image, -id.getSkewAngle());
-            ImageIO.write(image, "jpg", new File(result));
-            log.debug("Class RotationImage finished.");
+            ImageIO.write(image, "png", new File(result));
+            log.info("Method rotateImage finished.");
             return result;
         } catch (IOException e) {
             throw new RotationImageException("Rotation of image failed", e);
