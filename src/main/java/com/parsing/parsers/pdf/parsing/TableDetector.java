@@ -1,5 +1,6 @@
 package com.parsing.parsers.pdf.parsing;
 
+import com.parsing.exception.TableDetectorException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -20,6 +21,7 @@ public class TableDetector {
 
     public List<double[]> detectQuantityOfTables(List<double[]> lines) {
         log.info("Method detectQuantityOfTables started.");
+        try {
         final List<double[]> sortedLines = sortLinesByX(lines);
         for (double[] line : sortedLines) {
             log.debug(Arrays.toString(line));
@@ -29,6 +31,9 @@ public class TableDetector {
         final List<double[]> mergedLines3 = newMergeLines(mergedLines2);
         log.info("Method detectQuantityOfTables started.");
         return mergedLines3;
+        } catch (Exception e) {
+            throw new TableDetectorException("Detect quantity of tables failed.", e);
+        }
     }
 
     private List<double[]> newMergeLines(List<double[]> lines) {

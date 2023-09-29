@@ -17,8 +17,8 @@ public class APIParserResource {
     public void parsingId() {
         try {
             apiParserService.parseLotId();
-        } catch (ProzorroParsingException ex) {
-            throw new ProzorroParsingException(ex.getMessage());
+        } catch (ProzorroParsingException e) {
+            throw new ProzorroParsingException("Parsing by id failed.", e);
         }
     }
 
@@ -27,8 +27,8 @@ public class APIParserResource {
     public void parsingLot(@PathVariable String lotId) {
         try {
             apiParserService.parseLotInformation(lotId);
-        } catch (ProzorroParsingException ex) {
-            throw new ProzorroParsingException(ex.getMessage());
+        } catch (ProzorroParsingException e) {
+            throw new ProzorroParsingException("Parsing lot by id failed.", e);
         }
     }
 
@@ -37,8 +37,8 @@ public class APIParserResource {
     public void parsingLotInformation() {
         try {
             apiParserService.parseLotInformation();
-        } catch (ProzorroParsingException ex) {
-            throw new ProzorroParsingException(ex.getMessage());
+        } catch (ProzorroParsingException e) {
+            throw new ProzorroParsingException("Parsing lot information failed.", e);
         }
     }
 }

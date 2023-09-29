@@ -24,7 +24,6 @@ public class LotResultService {
         return lotResultRepository.saveAll(lotResults);
     }
 
-
     public List<LotResult> findAllByStatus(Status status) {
         return lotResultRepository.findAllByStatus(status);
     }

@@ -1,7 +1,7 @@
 package com.parsing.parsers.pdf.parsing;
 
 import com.parsing.Constants;
-import com.parsing.exception.PreparePageException;
+import com.parsing.exception.RotationImageException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.sourceforge.tess4j.ITessAPI;
@@ -31,7 +31,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import static com.parsing.Constants.*;
+
+import static com.parsing.Constants.PERCENT_PAGE_FOR_OCR;
+import static com.parsing.Constants.X1;
+import static com.parsing.Constants.X2;
 
 @Component
 @Slf4j
@@ -50,7 +53,8 @@ public class PageOCRPreparator {
     static final int ALL_LINES_RHO = 3;
     static final int ALL_LINES_MAXLINEGAP = 5;
 
-    public String preparePage(PDDocument document, int pageNumber) throws IOException {
+    public String preparePage(PDDocument document, int pageNumber) {
+        Mat tableMat = null;
         try {
             log.info("Method pageOCRPreparator started.");
             String fileResult = pageNumber + "_#6_prepared_page.png";
@@ -69,13 +73,17 @@ public class PageOCRPreparator {
             double offset = getOffset(mainPageRectangle, verticalLinesWithOpenCV);
             mainPageRectangle = offset > 0 ? createMainRect(mainPageRectangle, offset) : mainPageRectangle;
 
-            Mat tableMat = Imgcodecs.imread(rotatedPage);
+            tableMat = Imgcodecs.imread(rotatedPage);
             final Mat result = cleanTableBorders(tableMat, mainPageRectangle, pageNumber);
             Imgcodecs.imwrite(fileResult, result);
             log.info("Method PageOCRPreparator finished.");
             return fileResult;
-        } catch (RuntimeException ex) {
-            throw new PreparePageException(ex.getMessage());
+        } catch (IOException e) {
+            throw new RotationImageException("Rotation image failed", e);
+        } finally {
+            if (tableMat != null && !tableMat.empty()) {
+                tableMat.release();
+            }
         }
     }
 
@@ -133,12 +141,11 @@ public class PageOCRPreparator {
         ITesseract itesseract = new Tesseract();
         itesseract.setDatapath(getTessDataPath());
         itesseract.setLanguage("ukr+eng");
-        List<Word> result = new ArrayList<>();
-        BufferedImage bim = null;
+        List<Word> result;
         try {
             BufferedImage bufferedImage = pdfRenderer.renderImageWithDPI(pageNumber, 300, ImageType.RGB);
             result = itesseract.getWords(bufferedImage, ITessAPI.TessPageIteratorLevel.RIL_BLOCK);
-            if (result.size() > 0) {
+            if (!result.isEmpty()) {
                 rectangle = result.get(0).getBoundingBox().getBounds();
                 Mat matrix = Imgcodecs.imread(getPagePDF(document, pageNumber));
                 Imgproc.rectangle(
@@ -210,7 +217,7 @@ public class PageOCRPreparator {
                 //log.debug(String.format("Box[%d]: x=%d, y=%d, w=%d, h=%d", i, rect.x, rect.y, rect.width, rect.height));
             }
 
-            if (result.size() > 0) {
+            if (!result.isEmpty()) {
                 Mat matrix = Imgcodecs.imread(filename);
                 for (Rectangle rectangle : result) {
                     rectangle = rectangle.getBounds();
@@ -357,4 +364,3 @@ public class PageOCRPreparator {
         return result;
     }
 }
-

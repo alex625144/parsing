@@ -1,11 +1,11 @@
 package com.parsing.service;
 
+import com.parsing.exception.PDFParsingException;
 import com.parsing.parsers.pdf.parsing.ParserPDF;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.io.IOException;
 
 @Service
 @RequiredArgsConstructor
@@ -16,8 +16,8 @@ public class ParserPDFService {
     public boolean parsePDF(File file) {
         try {
             return pdfParser.parseProzorroFileForScheduler(file);
-        } catch (IOException e) {
-            throw new RuntimeException("File was not parsed.",e);
+        } catch (Exception e) {
+            throw new PDFParsingException("Parsing PDF file failed.", e);
         }
     }
 }

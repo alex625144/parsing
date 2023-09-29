@@ -1,5 +1,6 @@
 package com.parsing.parsers.pdf.parsing;
 
+import com.parsing.exception.ManyTableDetectorException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -21,17 +22,21 @@ public class ManyTableDetector {
     public List<double[]> detectQuantityOfTables(List<double[]> lines) {
         log.info("Class ManyTable detector started.");
         final List<double[]> sortedLines = sortLinesByX(lines);
-        for (double[] line : sortedLines) {
-            log.debug(Arrays.toString(line));
+        try {
+            for (double[] line : sortedLines) {
+                log.debug(Arrays.toString(line));
+            }
+            final List<double[]> mergedLines1 = newMergeLines(sortedLines);
+            final List<double[]> mergedLines2 = newMergeLines(mergedLines1);
+            final List<double[]> mergedLines3 = newMergeLines(mergedLines2);
+            for (double[] line : mergedLines3) {
+                log.debug(Arrays.toString(line));
+            }
+            log.info("Class ManyTable detector finished.");
+            return mergedLines3;
+        } catch (Exception e) {
+            throw new ManyTableDetectorException("detected quantity of tables failed", e);
         }
-        final List<double[]> mergedLines1 = newMergeLines(sortedLines);
-        final List<double[]> mergedLines2 = newMergeLines(mergedLines1);
-        final List<double[]> mergedLines3 = newMergeLines(mergedLines2);
-        for (double[] line : mergedLines3) {
-            log.debug(Arrays.toString(line));
-        }
-        log.info("Class ManyTable detector finished.");
-        return mergedLines3;
     }
 
     private List<double[]> newMergeLines(List<double[]> lines) {
