@@ -31,8 +31,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import static com.parsing.Constants.*;
 
+import static com.parsing.Constants.OFFSET;
+import static com.parsing.Constants.X1;
+import static com.parsing.Constants.X2;
+import static com.parsing.Constants.PERCENT_PAGE_FOR_OCR;
 @Component
 @Slf4j
 @RequiredArgsConstructor
@@ -51,32 +54,28 @@ public class PageOCRPreparator {
     static final int ALL_LINES_MAXLINEGAP = 5;
 
     public String preparePage(PDDocument document, int pageNumber) throws IOException {
-        try {
-            log.info("Method pageOCRPreparator started.");
-            String fileResult = pageNumber + "_#6_prepared_page.png";
-            String pagePDF = getPagePDF(document, pageNumber);
-            String rotatedPage = rotationImage.rotateImage(pagePDF, pageNumber);
-            List<Rect> rects = extractListRect(rotatedPage);
-            Mat image = Imgcodecs.imread(rotatedPage);
-            final Mat result2 = cleanAllBesidesRects(image, rects, pageNumber);
-            Imgcodecs.imwrite(pageNumber + "_#3_cleanAllBesidesRects.png", result2);
-            java.util.List<Rectangle> pageRectanglesAllWords = getPageRectanglesAllWords(pageNumber + "_#3_cleanAllBesidesRects.png", pageNumber);
-            List<Rectangle> rectanglesWithSymbols = extractTextFromRectangle(pageNumber + "_#2_rotatedImage.png", pageRectanglesAllWords);
-            saveRectanglesOnImage(rectanglesWithSymbols, pageNumber + "_#2_rotatedImage.png", pageNumber);
-            Rectangle mainPageRectangle = findMainPageRectangle(rectanglesWithSymbols);
-            List<double[]> verticalLinesWithOpenCV = findVerticalLinesWithOpenCV(pageNumber + "_#2_rotatedImage.png");
+        log.info("Method pageOCRPreparator started.");
+        String fileResult = pageNumber + "_#6_prepared_page.png";
+        String pagePDF = getPagePDF(document, pageNumber);
+        String rotatedPage = rotationImage.rotateImage(pagePDF, pageNumber);
+        List<Rect> rects = extractListRect(rotatedPage);
+        Mat image = Imgcodecs.imread(rotatedPage);
+        final Mat result2 = cleanAllBesidesRects(image, rects, pageNumber);
+        Imgcodecs.imwrite(pageNumber + "_#3_cleanAllBesidesRects.png", result2);
+        java.util.List<Rectangle> pageRectanglesAllWords = getPageRectanglesAllWords(pageNumber + "_#3_cleanAllBesidesRects.png", pageNumber);
+        List<Rectangle> rectanglesWithSymbols = extractTextFromRectangle(pageNumber + "_#2_rotatedImage.png", pageRectanglesAllWords);
+        saveRectanglesOnImage(rectanglesWithSymbols, pageNumber + "_#2_rotatedImage.png", pageNumber);
+        Rectangle mainPageRectangle = findMainPageRectangle(rectanglesWithSymbols);
+        List<double[]> verticalLinesWithOpenCV = findVerticalLinesWithOpenCV(pageNumber + "_#2_rotatedImage.png");
 
-            double offset = getOffset(mainPageRectangle, verticalLinesWithOpenCV);
-            mainPageRectangle = offset > 0 ? createMainRect(mainPageRectangle, offset) : mainPageRectangle;
+        double offset = getOffset(mainPageRectangle, verticalLinesWithOpenCV);
+        mainPageRectangle = offset > 0 ? createMainRect(mainPageRectangle, offset) : mainPageRectangle;
 
-            Mat tableMat = Imgcodecs.imread(rotatedPage);
-            final Mat result = cleanTableBorders(tableMat, mainPageRectangle, pageNumber);
-            Imgcodecs.imwrite(fileResult, result);
-            log.info("Method PageOCRPreparator finished.");
-            return fileResult;
-        } catch (RuntimeException ex) {
-            throw new PreparePageException(ex.getMessage());
-        }
+        Mat tableMat = Imgcodecs.imread(rotatedPage);
+        final Mat result = cleanTableBorders(tableMat, mainPageRectangle, pageNumber);
+        Imgcodecs.imwrite(fileResult, result);
+        log.info("Method PageOCRPreparator finished.");
+        return fileResult;
     }
 
     private List<Rectangle> extractTextFromRectangle(String filename, List<Rectangle> rectangles) {
@@ -297,6 +296,9 @@ public class PageOCRPreparator {
     }
 
     private double getOffset(Rectangle rectangle, List<double[]> list) {
+        if (list.isEmpty()) {
+            return OFFSET;
+        }
         double rightOffset;
         double leftOffset;
         double leftRectangleX = rectangle.getX();
