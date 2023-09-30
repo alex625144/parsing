@@ -20,8 +20,7 @@ public class RotationImage {
         BufferedImage image = ImageIO.read(new File(filename));
         ImageDeskew id = new ImageDeskew(image);
         image = ImageHelper.rotateImage(image, -id.getSkewAngle());
-        File png = new File(result);
-        ImageIO.write(image, "png", png);
+        ImageIO.write(image, "png", new File(result));
         log.info("Method rotateImage finished.");
         return result;
     }
