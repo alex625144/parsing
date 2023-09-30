@@ -51,7 +51,6 @@ public class PageOCRPreparator {
     static final int ALL_LINES_MAXLINEGAP = 5;
 
     public String preparePage(PDDocument document, int pageNumber) throws IOException {
-        try {
             log.info("Method pageOCRPreparator started.");
             String fileResult = pageNumber + "_#6_prepared_page.png";
             String pagePDF = getPagePDF(document, pageNumber);
@@ -74,9 +73,6 @@ public class PageOCRPreparator {
             Imgcodecs.imwrite(fileResult, result);
             log.info("Method PageOCRPreparator finished.");
             return fileResult;
-        } catch (RuntimeException ex) {
-            throw new PreparePageException(ex.getMessage());
-        }
     }
 
     private List<Rectangle> extractTextFromRectangle(String filename, List<Rectangle> rectangles) {
@@ -297,6 +293,9 @@ public class PageOCRPreparator {
     }
 
     private double getOffset(Rectangle rectangle, List<double[]> list) {
+        if (list.size() == 0) {
+            return 1;
+        }
         double rightOffset;
         double leftOffset;
         double leftRectangleX = rectangle.getX();
