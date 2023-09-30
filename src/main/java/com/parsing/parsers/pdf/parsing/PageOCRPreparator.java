@@ -32,7 +32,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.parsing.Constants.*;
+import static com.parsing.Constants.OFFSET;
 
 @Component
 @Slf4j
