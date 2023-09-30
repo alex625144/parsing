@@ -33,7 +33,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.parsing.Constants.OFFSET;
-
+import static com.parsing.Constants.X1;
+import static com.parsing.Constants.X2;
+import static com.parsing.Constants.PERCENT_PAGE_FOR_OCR;
 @Component
 @Slf4j
 @RequiredArgsConstructor
