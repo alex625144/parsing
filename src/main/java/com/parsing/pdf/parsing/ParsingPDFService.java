@@ -1,5 +1,7 @@
 package com.parsing.pdf.parsing;
 
+import com.parsing.client.ChatGPTClient;
+import com.parsing.client.ChatResponse;
 import com.parsing.exception.PDFParsingException;
 import com.parsing.repository.LotPDFResultRepository;
 import lombok.RequiredArgsConstructor;
@@ -29,20 +31,28 @@ import java.util.regex.Pattern;
 public class ParsingPDFService {
 
     private final LotPDFResultRepository lotPDFResultRepository;
+    private final ChatGPTClient chatGPTClient;
 
     public String parseProzorroFile(MultipartFile file) {
 
         String strippedTextFromFile = findStrippedTextFromFile(file);
 
         JSONObject obj = new JSONObject();
-        obj.put("fileName", file.getOriginalFilename());
-        obj.put("text", strippedTextFromFile);
+//        obj.put("fileName", file.getOriginalFilename());
+        String[] trades = strippedTextFromFile.split("ТРЕЙД");
+        String table = trades[0];
+        String s = table + "</body></html>";
+        obj.put("text", s);
 
-        findData(obj.toString());
+//        findData(obj.toString());
 
 //        lotPDFResultRepository.save();
 
-        return obj.toString();
+//        ChatResponse response = chatGPTClient.execute();
+
+        ChatResponse response = chatGPTClient.execute(obj.get("text").toString());
+
+        return response.toString();
     }
 
     private List<BigDecimal> findData(String input) {
@@ -158,13 +168,15 @@ public class ParsingPDFService {
 
         ITesseract _tesseract = new Tesseract();
         _tesseract.setPageSegMode(1);
-//        _tesseract.setDatapath("C:/Users/Maksym.Fedosov/Documents/tessdata/");
-        _tesseract.setDatapath("E:/programming/projects/parsing/tessdata/");
+        _tesseract.setDatapath("C:/Users/Maksym.Fedosov/Documents/tessdata/");
+//        _tesseract.setDatapath("E:/programming/projects/parsing/tessdata/");
 //        _tesseract.setDatapath("../..//teseract/tessdata/");
 //        _tesseract.setDatapath(userFilesFolderPath.toUri().toString());
-        _tesseract.setLanguage("eng+ukr");
+        _tesseract.setLanguage("ukr+eng");
+        _tesseract.setVariable("preserve_interword_spaces", "1");
+        _tesseract.setVariable("tessedit_create_hocr", "1");
 
-        for (int page = 0; page < document.getNumberOfPages(); page++) {
+        for (int page = document.getNumberOfPages() - 1 ; page < document.getNumberOfPages(); page++) {
             BufferedImage bim = pdfRenderer.renderImageWithDPI(page, 300, ImageType.RGB);
 
             // Create a temp image file

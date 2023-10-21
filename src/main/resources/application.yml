@@ -6,6 +6,10 @@ logging:
     com.neprozorro: INFO
 
 spring:
+  servlet:
+    multipart:
+      max-file-size: -1
+      max-request-size: -1
   output:
     ansi:
       enabled: ALWAYS
@@ -24,3 +28,10 @@ spring:
         format_sql: true
         order_by:
           default_null_ordering: last
+
+openai:
+  model: "gpt-4"
+  temperature: 0.25
+  api:
+    url: "https://api.openai.com/v1/chat/completions"
+    key: "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"

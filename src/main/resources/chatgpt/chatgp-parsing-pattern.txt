@@ -1,0 +1,12 @@
+I will send you text in hOcr format, look for a table, read text, find what was bought in the table, amount and a price for one position and total amount.
+Use  cyrillic Ukrainian language as a default language. Please fill in the data parameters in JSON format:
+
+{
+"name": "String",
+"price": "String",
+"totalPrice": "String",
+"quantity": "String"
+}
+
+If you cannot find the corresponding information for a particular specification, you can set it to null.
+As a response I need only JSON and nothing else.
