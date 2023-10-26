@@ -1,7 +1,6 @@
 package com.parsing.parsers.pdf.parsing;
 
 import com.parsing.Constants;
-import com.parsing.exception.PreparePageException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.sourceforge.tess4j.ITessAPI;
@@ -23,7 +22,7 @@ import org.opencv.imgproc.Imgproc;
 import org.springframework.stereotype.Component;
 
 import javax.imageio.ImageIO;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -33,9 +32,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.parsing.Constants.OFFSET;
+import static com.parsing.Constants.PERCENT_PAGE_FOR_OCR;
 import static com.parsing.Constants.X1;
 import static com.parsing.Constants.X2;
-import static com.parsing.Constants.PERCENT_PAGE_FOR_OCR;
+
 @Component
 @Slf4j
 @RequiredArgsConstructor
@@ -83,6 +83,8 @@ public class PageOCRPreparator {
         ITesseract itesseract = new Tesseract();
         itesseract.setDatapath(getTessDataPath());
         itesseract.setLanguage("ukr+eng");
+        itesseract.setVariable("preserve_interword_spaces", "1");
+        itesseract.setVariable("tessedit_create_hocr", "1");
         List<Rectangle> result = new ArrayList<>();
         final Mat tableMat = Imgcodecs.imread(filename);
         for (Rectangle rectangle : rectangles) {
